@@ -13,7 +13,7 @@
       "public": "all"
     },
     {
-      "dir": "example/re",
+      "dir": "example",
       "type": "dev"
     }
   ]

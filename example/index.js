@@ -1,4 +1,4 @@
-import { app } from "../lib/js/example/re/App.js";
+import { app } from "../lib/js/example/App.js";
 import React from "react";
 import { AppRegistry } from "react-native";
 
