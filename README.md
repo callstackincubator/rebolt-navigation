@@ -1,6 +1,6 @@
 # reroute
 
-> a fast, declarative microrouter for reason-react
+> a fast, declarative navigation for react native
 
 ## Getting started
 
@@ -22,12 +22,6 @@ After installation, you will need to add this library to your `bsconfig.json` de
 ```
 
 ## Usage
-
-## API
-
-### Link
-
-### Container
 
 ## License
 
