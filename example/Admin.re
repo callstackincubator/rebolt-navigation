@@ -4,22 +4,28 @@ open BsReactNative;
 
 let component = ReasonReact.statelessComponent("Admin");
 
-let make = (~navigation as nav: StackNavigator.navigation, _children) => {
+module Styles = {
+  let container =
+    Style.(style([flex(1.), justifyContent(Center), alignItems(Center)]));
+};
+
+let renderButtons = (nav: StackNavigator.navigation) =>
+  <View>
+    <TouchableOpacity
+      onPress=(_e => nav.send(StackNavigator.Push(Config.Home)))>
+      <Text> (ReasonReact.stringToElement("Push")) </Text>
+    </TouchableOpacity>
+    <TouchableOpacity onPress=(_e => nav.send(StackNavigator.Pop))>
+      <Text> (ReasonReact.stringToElement("Pop")) </Text>
+    </TouchableOpacity>
+  </View>;
+
+let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <View
-      style=Style.(
-              style([flex(1.), justifyContent(Center), alignItems(Center)])
-            )>
+    <View style=Styles.container>
+      <Header navigation />
       <Text> (ReasonReact.stringToElement("Admin")) </Text>
-      <View>
-        <TouchableOpacity
-          onPress=(_e => nav.send(StackNavigator.Push(Config.Home)))>
-          <Text> (ReasonReact.stringToElement("Push")) </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress=(_e => nav.send(StackNavigator.Pop))>
-          <Text> (ReasonReact.stringToElement("Pop")) </Text>
-        </TouchableOpacity>
-      </View>
+      (renderButtons(navigation))
     </View>
 };

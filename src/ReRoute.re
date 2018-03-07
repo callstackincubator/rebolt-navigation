@@ -63,4 +63,11 @@ module CreateNavigation = (Config: NavigationConfig) => {
       }
     };
   };
+  module Header = {
+    let component = ReasonReact.statelessComponent("CallstackHeader");
+    let make = (~navigation: StackNavigator.navigation, _children) => {
+      ...component,
+      render: _self => <View />
+    };
+  };
 };
