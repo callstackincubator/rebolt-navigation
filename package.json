@@ -1,27 +1,34 @@
 {
-  "name": "ReasonDemo",
-  "version": "0.0.1",
-  "private": true,
+  "name": "reason-reroute",
+  "version": "0.0.4",
+  "description": "Tiny wrapper around ReasonReact.Router ",
+  "main": "index.js",
   "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start",
-    "build": "bsb -make-world -clean-world",
-  "watch": "bsb -make-world -clean-world -w",
-    "test": "jest"
+    "build": "bsb -make-world",
+    "start": "bsb -make-world -w",
+    "clean": "bsb -clean-world",
+    "prepublish": "npm run build",
+    "test": "exit 0"
   },
-  "dependencies": {
-    "bs-platform": "^2.2.2",
-    "bs-react-native": "^0.5.0",
-    "react": "^16.3.0-alpha.1",
-    "react-native": "0.54.0",
-    "reason-react": "^0.3.4"
+  "keywords": [
+    "router",
+    "react",
+    "reason",
+    "reasonml"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/callstack/reroute.git"
   },
+  "author": "Mike Grabowski <grabbou@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/callstack/reroute/issues"
+  },
+  "homepage": "https://github.com/callstack/reroute#readme",
   "devDependencies": {
-    "babel-jest": "22.4.1",
-    "babel-preset-react-native": "4.0.0",
-    "jest": "22.4.2",
-    "react-test-renderer": "^16.3.0-alpha.1"
-  },
-  "jest": {
-    "preset": "react-native"
+    "bs-platform": "^2.1.0",
+    "reason-react": "^0.3.2",
+    "bs-react-native": "^0.5.0"
   }
 }

@@ -4,6 +4,6 @@ module Config = {
     | Home;
 };
 
-module ReactNavigation = NavLibrary.CreateNavigation(Config);
+module ReactNavigation = ReRoute.CreateNavigation(Config);
 
 module StackNavigator = ReactNavigation.StackNavigator;

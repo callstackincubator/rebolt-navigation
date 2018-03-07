@@ -1,12 +1,16 @@
 {
-    "name": "ReasonDemo",
-    "reason": {
-        "react-jsx": 2
-    },
-    "bsc-flags": ["-bs-super-errors"],
-    "bs-dependencies": ["bs-react-native", "reason-react"],
-    "sources": [{
-        "dir": "re"
-    }],
-    "refmt": 3
+  "name": "reason-reroute",
+  "bsc-flags": ["-bs-no-version-header", "-bs-super-errors"],
+  "refmt": 3,
+  "bs-dependencies": ["reason-react", "bs-react-native"],
+  "reason": {
+    "react-jsx": 2
+  },
+  "namespace": false,
+  "sources": [
+    {
+      "dir": "src",
+      "public": "all"
+    }
+  ]
 }
