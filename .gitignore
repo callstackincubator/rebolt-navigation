@@ -1,5 +1,5 @@
 .merlin
-
+.bsb.lock
 lib
 *.bs.js
 
