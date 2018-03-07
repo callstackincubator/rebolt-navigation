@@ -1,5 +1,7 @@
+.merlin
 
 lib
+*.bs.js
 
 # OSX
 #
