@@ -8,6 +8,9 @@
     "watch": "bsb -make-world -clean-world -w",
     "test": "jest"
   },
+  "dependencies": {
+    "reason-reroute": "link:../"
+  },
   "jest": {
     "preset": "react-native"
   }

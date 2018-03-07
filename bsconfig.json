@@ -11,6 +11,10 @@
     {
       "dir": "src",
       "public": "all"
+    },
+    {
+      "dir": "example/re",
+      "type": "dev"
     }
   ]
 }
