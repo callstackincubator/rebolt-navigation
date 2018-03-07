@@ -1,0 +1,41 @@
+bs_package_flags = -bs-package-name ReasonDemo
+src_root_dir = /Users/grabbou/Repositories/ReasonDemo
+bsc = /Users/grabbou/Repositories/ReasonDemo/node_modules/bs-platform/lib/bsc.exe
+bsdep = /Users/grabbou/Repositories/ReasonDemo/node_modules/bs-platform/lib/bsb_helper.exe
+warnings = -w -30-40+6+7+27+32..39+44+45+101
+bsc_flags = -nostdlib -I '/Users/grabbou/Repositories/ReasonDemo/node_modules/bs-platform/lib/ocaml' -bs-super-errors -no-alias-deps -color always
+ppx_flags = 
+bs_package_includes = -I /Users/grabbou/Repositories/ReasonDemo/node_modules/bs-react-native/lib/ocaml -I /Users/grabbou/Repositories/ReasonDemo/node_modules/reason-react/lib/ocaml
+bs_package_dev_includes = 
+namespace = 
+bsb_dir_group = 0
+refmt = /Users/grabbou/Repositories/ReasonDemo/node_modules/bs-platform/lib/refmt3.exe
+reason_react_jsx = -ppx '/Users/grabbou/Repositories/ReasonDemo/node_modules/bs-platform/lib/reactjs_jsx_ppx_2.exe'
+refmt_flags = --print binary
+bsc_lib_includes = -I re
+rule build_ast_and_module_sets_from_re
+  command = ${bsc} -pp "${refmt} ${refmt_flags}" ${reason_react_jsx}  ${ppx_flags} ${warnings} ${bsc_flags} -c -o ${out} -bs-syntax-only -bs-binary-ast -impl ${in}
+  description = [34mBuilding[39m [2m${out}[22m
+build re/app.mlast : build_ast_and_module_sets_from_re $src_root_dir/re/app.re
+rule build_deps
+  command = ${bsdep} ${namespace} -g ${bsb_dir_group} -MD ${in}
+  description = [34mBuilding[39m [2m${out}[22m
+build re/app.mlast.d : build_deps re/app.mlast
+rule build_cmj_cmi
+  command = ${bsc} ${bs_package_flags} -bs-assume-no-mli -bs-no-builtin-ppx-ml -bs-no-implicit-include ${bs_package_includes} ${bsc_lib_includes} ${bsc_extra_includes} ${warnings} ${bsc_flags} -o ${out} -c  ${in} $postbuild
+  depfile = ${in}.d
+  description = [34mBuilding[39m [2m${out}[22m
+build re/app.cmj |  $src_root_dir/lib/js/re/app.js re/app.cmi : build_cmj_cmi re/app.mlast
+  bsc_flags = $bsc_flags -bs-re-out -bs-super-errors
+  bs_package_flags = $bs_package_flags  -bs-package-output commonjs:lib/js/re
+build re/NavLibrary.mlast : build_ast_and_module_sets_from_re $src_root_dir/re/NavLibrary.re
+build re/NavLibrary.mlast.d : build_deps re/NavLibrary.mlast
+build re/NavLibrary.cmj |  $src_root_dir/lib/js/re/NavLibrary.js re/NavLibrary.cmi : build_cmj_cmi re/NavLibrary.mlast
+  bsc_flags = $bsc_flags -bs-re-out -bs-super-errors
+  bs_package_flags = $bs_package_flags  -bs-package-output commonjs:lib/js/re
+build re/Navigation.mlast : build_ast_and_module_sets_from_re $src_root_dir/re/Navigation.re
+build re/Navigation.mlast.d : build_deps re/Navigation.mlast
+build re/Navigation.cmj |  $src_root_dir/lib/js/re/Navigation.js re/Navigation.cmi : build_cmj_cmi re/Navigation.mlast
+  bsc_flags = $bsc_flags -bs-re-out -bs-super-errors
+  bs_package_flags = $bs_package_flags  -bs-package-output commonjs:lib/js/re
+build build.ninja : phony  ||  re/Navigation.mlast.d re/NavLibrary.mlast.d re/app.mlast.d
