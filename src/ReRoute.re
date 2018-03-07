@@ -52,16 +52,17 @@ module CreateNavigation = (Config: NavigationConfig) => {
       key: screenKey
     };
     module HeaderImpl = {
-			let component = ReasonReact.statelessComponent("NavHeader");
-			let def = (opt, def) => switch (opt) {
-				| Some(value) => value
-				| None => def
-			};
+      let component = ReasonReact.statelessComponent("NavHeader");
+      let def = (opt, def) =>
+        switch opt {
+        | Some(value) => value
+        | None => def
+        };
       let make = (~config: headerConfig, _children) => {
         ...component,
         render: _self =>
-					<View>
-						<Text>(ReasonReact.stringToElement(def(config.title, "")))</Text>
+          <View>
+            <Text> (ReasonReact.stringToElement(def(config.title, ""))) </Text>
           </View>
       };
     };
@@ -125,4 +126,4 @@ module CreateNavigation = (Config: NavigationConfig) => {
       render: _self => <View />
     };
   };
-};
+};};
