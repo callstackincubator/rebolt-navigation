@@ -11,6 +11,7 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
       style=Style.(
               style([flex(1.), justifyContent(Center), alignItems(Center)])
             )>
+      <Header title="Home" navigation=nav />
       <Text> (ReasonReact.stringToElement("Home")) </Text>
       <View>
         <TouchableOpacity

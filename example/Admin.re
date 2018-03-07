@@ -24,7 +24,7 @@ let make = (~navigation, _children) => {
   ...component,
   render: _self =>
     <View style=Styles.container>
-      <Header navigation />
+      <Header title="Mike" navigation />
       <Text> (ReasonReact.stringToElement("Admin")) </Text>
       (renderButtons(navigation))
     </View>
