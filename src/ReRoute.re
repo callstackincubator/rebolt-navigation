@@ -71,7 +71,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
         visibleScene: Animated.Value.create(0.0)
       },
       didUpdate: ({oldSelf, newSelf}) =>
-        if (oldSelf.state.screens != newSelf.state.screens) {
+        if (oldSelf.state.activeScene != newSelf.state.activeScene) {
           Animated.(
             CompositeAnimation.start(
               Timing.animate(
