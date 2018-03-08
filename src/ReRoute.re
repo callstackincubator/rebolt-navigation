@@ -16,6 +16,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
     type screenKey = string;
     type screenConfig = {
       route: Config.route,
+      index: int,
       key: screenKey
     };
     type state = {
@@ -63,7 +64,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
     let make = (~initialRoute, children) => {
       ...component,
       initialState: () => {
-        screens: [{route: initialRoute, key: "0"}],
+        screens: [{route: initialRoute, index: 0, key: "0"}],
         headers: StringMap.empty,
         activeScene: Animated.Value.create(0.0)
       },
@@ -85,7 +86,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
       reducer: (action, state) =>
         switch action {
         | Push(route) =>
-          let screen = {route, key: string_of_int(List.length(state.screens))};
+          let index = List.length(state.screens);
+          let screen = {route, index, key: string_of_int(index)};
           ReasonReact.Update({...state, screens: [screen, ...state.screens]});
         | Pop =>
           List.(
@@ -107,13 +109,15 @@ module CreateNavigation = (Config: NavigationConfig) => {
                  ~translateX=
                    Animated.Value.interpolate(
                      self.state.activeScene,
-                     ~inputRange=[0.0, 1.0],
-                     ~outputRange=`float([0.0, 1.0]),
+                     ~inputRange=
+                       [screen.index - 1, screen.index, screen.index + 1]
+                       |> List.map(float_of_int),
+                     ~outputRange=`float([(-300.0), 0.0, 50.0]),
                      ()
                    ),
                  ()
                );
-             <View
+             <Animated.View
                key=screen.key
                style=Style.(concat([Styles.card, style([transform])]))>
                (
@@ -130,7 +134,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                    )
                  )
                </View>
-             </View>;
+             </Animated.View>;
            })
         |> Array.of_list
         |> ReasonReact.arrayToElement
