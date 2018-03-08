@@ -2,27 +2,6 @@ open BsReactNative;
 
 module type NavigationConfig = {type route;};
 
-module SceneView = {
-  let component = ReasonReact.statelessComponent("NavSceneView");
-  let make = children => {
-    ...component,
-    render: _self =>
-      <View
-        style=Style.(
-                style([
-                  position(Absolute),
-                  top(Pt(0.0)),
-                  left(Pt(0.0)),
-                  right(Pt(0.0)),
-                  bottom(Pt(0.0)),
-                  backgroundColor("#ffffff")
-                ])
-              )>
-        ...children
-      </View>
-  };
-};
-
 module StringMap =
   Map.Make(
     {
@@ -51,8 +30,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
       send: action => unit,
       key: screenKey
     };
-    module HeaderImpl = {
-      let component = ReasonReact.statelessComponent("NavHeader");
+    module Header = {
+      let component = ReasonReact.statelessComponent("StackHeader");
       let def = (opt, def) =>
         switch opt {
         | Some(value) => value
@@ -65,6 +44,29 @@ module CreateNavigation = (Config: NavigationConfig) => {
             <Text> (ReasonReact.stringToElement(def(config.title, ""))) </Text>
           </View>
       };
+    };
+    module Card = {
+      let component = ReasonReact.statelessComponent("StackCard");
+      let make = children => {
+        ...component,
+        render: _self => {
+          let style =
+            Style.(
+              style([
+                position(Absolute),
+                top(Pt(0.0)),
+                left(Pt(0.0)),
+                right(Pt(0.0)),
+                bottom(Pt(0.0)),
+                backgroundColor("#ffffff")
+              ])
+            );
+          <View style> ...children </View>;
+        }
+      };
+    };
+    module Transitioner = {
+      let component = ReasonReact.statelessComponent("StackTransitioner");
     };
     let component = ReasonReact.reducerComponent("NavStackNavigator");
     let make = (~initialRoute, children) => {
@@ -93,10 +95,10 @@ module CreateNavigation = (Config: NavigationConfig) => {
       render: self =>
         self.state.screens
         |> List.rev_map((screen: screenConfig) =>
-             <SceneView key=screen.key>
+             <Card key=screen.key>
                (
                  switch (StringMap.find(screen.key, self.state.headers)) {
-                 | config => <HeaderImpl config />
+                 | config => <Header config />
                  | exception Not_found => <View />
                  }
                )
@@ -108,7 +110,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                    )
                  )
                </View>
-             </SceneView>
+             </Card>
            )
         |> Array.of_list
         |> ReasonReact.arrayToElement
@@ -126,4 +128,4 @@ module CreateNavigation = (Config: NavigationConfig) => {
       render: _self => <View />
     };
   };
-};};
+};
