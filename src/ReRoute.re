@@ -86,7 +86,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
       reducer: (action, state) =>
         switch action {
         | Push(route) =>
-          let index = List.length(state.screens);
+          let index = List.length(state.screens) + 1;
           let screen = {route, index, key: string_of_int(index)};
           ReasonReact.Update({...state, screens: [screen, ...state.screens]});
         | Pop =>
@@ -104,6 +104,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
       render: self =>
         self.state.screens
         |> List.rev_map((screen: screenConfig) => {
+             let width = float(Dimensions.get(`window)##width);
              let transform =
                Style.Transform.makeInterpolated(
                  ~translateX=
@@ -111,8 +112,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
                      self.state.activeScene,
                      ~inputRange=
                        [screen.index - 1, screen.index, screen.index + 1]
-                       |> List.map(float_of_int),
-                     ~outputRange=`float([(-300.0), 0.0, 50.0]),
+                       |> List.map(float),
+                     ~outputRange=`float([-. width, 0.0, width *. 0.3]),
                      ()
                    ),
                  ()
