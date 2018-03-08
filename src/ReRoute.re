@@ -45,30 +45,20 @@ module CreateNavigation = (Config: NavigationConfig) => {
           </View>
       };
     };
-    module Card = {
-      let component = ReasonReact.statelessComponent("StackCard");
-      let make = children => {
-        ...component,
-        render: _self => {
-          let style =
-            Style.(
-              style([
-                position(Absolute),
-                top(Pt(0.0)),
-                left(Pt(0.0)),
-                right(Pt(0.0)),
-                bottom(Pt(0.0)),
-                backgroundColor("#ffffff")
-              ])
-            );
-          <View style> ...children </View>;
-        }
-      };
+    module Styles = {
+      let card =
+        Style.(
+          style([
+            position(Absolute),
+            top(Pt(0.0)),
+            left(Pt(0.0)),
+            right(Pt(0.0)),
+            bottom(Pt(0.0)),
+            backgroundColor("#ffffff")
+          ])
+        );
     };
-    module Transitioner = {
-      let component = ReasonReact.statelessComponent("StackTransitioner");
-    };
-    let component = ReasonReact.reducerComponent("NavStackNavigator");
+    let component = ReasonReact.reducerComponent("StackNavigator");
     let make = (~initialRoute, children) => {
       ...component,
       initialState: () => {
@@ -95,7 +85,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
       render: self =>
         self.state.screens
         |> List.rev_map((screen: screenConfig) =>
-             <Card key=screen.key>
+             <View key=screen.key style=Styles.card>
                (
                  switch (StringMap.find(screen.key, self.state.headers)) {
                  | config => <Header config />
@@ -110,7 +100,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                    )
                  )
                </View>
-             </Card>
+             </View>
            )
         |> Array.of_list
         |> ReasonReact.arrayToElement
