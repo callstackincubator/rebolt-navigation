@@ -22,7 +22,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
     type state = {
       screens: list(screenConfig),
       headers: StringMap.t(headerConfig),
-      activeScene: Animated.Value.t
+      activeScene: int,
+      visibleScene: Animated.Value.t
     };
     type action =
       | Push(Config.route)
@@ -66,17 +67,17 @@ module CreateNavigation = (Config: NavigationConfig) => {
       initialState: () => {
         screens: [{route: initialRoute, index: 0, key: "0"}],
         headers: StringMap.empty,
-        activeScene: Animated.Value.create(0.0)
+        activeScene: 0,
+        visibleScene: Animated.Value.create(0.0)
       },
       didUpdate: ({oldSelf, newSelf}) =>
         if (oldSelf.state.screens != newSelf.state.screens) {
           Animated.(
             CompositeAnimation.start(
               Timing.animate(
-                ~value=newSelf.state.activeScene,
+                ~value=newSelf.state.visibleScene,
                 ~duration=300.0,
-                ~toValue=
-                  `raw(float_of_int(List.length(newSelf.state.screens))),
+                ~toValue=`raw(float_of_int(newSelf.state.activeScene)),
                 ()
               ),
               ()
@@ -86,13 +87,21 @@ module CreateNavigation = (Config: NavigationConfig) => {
       reducer: (action, state) =>
         switch action {
         | Push(route) =>
-          let index = List.length(state.screens) + 1;
+          let index = List.length(state.screens);
           let screen = {route, index, key: string_of_int(index)};
-          ReasonReact.Update({...state, screens: [screen, ...state.screens]});
+          ReasonReact.Update({
+            ...state,
+            activeScene: index,
+            screens: [screen, ...state.screens]
+          });
         | Pop =>
           List.(
             length(state.screens) > 1 ?
-              ReasonReact.Update({...state, screens: tl(state.screens)}) :
+              ReasonReact.Update({
+                ...state,
+                activeScene: state.activeScene - 1,
+                screens: tl(state.screens)
+              }) :
               ReasonReact.NoUpdate
           )
         | SetHeaderOptions(screenKey, options) =>
@@ -109,7 +118,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                Style.Transform.makeInterpolated(
                  ~translateX=
                    Animated.Value.interpolate(
-                     self.state.activeScene,
+                     self.state.visibleScene,
                      ~inputRange=
                        [screen.index - 1, screen.index, screen.index + 1]
                        |> List.map(float),
