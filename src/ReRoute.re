@@ -28,6 +28,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
     type action =
       | Push(Config.route)
       | SetHeaderOptions(screenKey, headerConfig)
+      | RemoveStaleScenes
       | Pop;
     type navigation = {
       send: action => unit,
@@ -70,16 +71,17 @@ module CreateNavigation = (Config: NavigationConfig) => {
         activeScene: 0,
         visibleScene: Animated.Value.create(0.0)
       },
-      didUpdate: ({oldSelf, newSelf}) =>
-        if (oldSelf.state.activeScene != newSelf.state.activeScene) {
+      didUpdate: ({oldSelf, newSelf: self}) =>
+        if (oldSelf.state.activeScene != self.state.activeScene) {
           Animated.(
             CompositeAnimation.start(
               Timing.animate(
-                ~value=newSelf.state.visibleScene,
+                ~value=self.state.visibleScene,
                 ~duration=300.0,
-                ~toValue=`raw(float_of_int(newSelf.state.activeScene)),
+                ~toValue=`raw(float_of_int(self.state.activeScene)),
                 ()
               ),
+              ~callback=_end => self.send(RemoveStaleScenes),
               ()
             )
           );
@@ -95,15 +97,21 @@ module CreateNavigation = (Config: NavigationConfig) => {
             screens: [screen, ...state.screens]
           });
         | Pop =>
-          List.(
-            length(state.screens) > 1 ?
-              ReasonReact.Update({
-                ...state,
-                activeScene: state.activeScene - 1,
-                screens: tl(state.screens)
-              }) :
-              ReasonReact.NoUpdate
-          )
+          List.length(state.screens) > 1 ?
+            ReasonReact.Update({
+              ...state,
+              activeScene: state.activeScene - 1
+            }) :
+            ReasonReact.NoUpdate
+        | RemoveStaleScenes =>
+          ReasonReact.Update({
+            ...state,
+            screens:
+              Utils.dropWhile(
+                el => el.index > state.activeScene,
+                state.screens
+              )
+          })
         | SetHeaderOptions(screenKey, options) =>
           ReasonReact.Update({
             ...state,
