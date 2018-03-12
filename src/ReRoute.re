@@ -14,8 +14,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
   module StackNavigator = {
     module Animation = {
       type options = {
-        fromRoute: Config.route,
-        toRoute: Config.route,
+        transition: (Config.route, Config.route),
         index: int
       };
       type t =
@@ -169,16 +168,6 @@ module CreateNavigation = (Config: NavigationConfig) => {
              let animation =
                switch screen.animation {
                | Some(generate) =>
-                 /* [
-                                        	generate(
-                                        		{
-                                        			route: self.state.screens[idx].route,
-                                        			kind: Animation.From,
-                                        			index: idx
-                                        		},
-                                        		self.state.visibleScene
-                                        	)
-                    ] */
                  let len = Array.length(self.state.screens);
                  if (len < 2) {
                    [];
@@ -188,8 +177,10 @@ module CreateNavigation = (Config: NavigationConfig) => {
                    [
                      generate(
                        {
-                         fromRoute: self.state.screens[fromRouteIdx].route,
-                         toRoute: self.state.screens[toRouteIdx].route,
+                         transition: (
+                           self.state.screens[fromRouteIdx].route,
+                           self.state.screens[toRouteIdx].route
+                         ),
                          index: idx
                        },
                        self.state.visibleScene

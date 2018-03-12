@@ -28,9 +28,9 @@ let make = (~navigation, _children) => {
       animation=(
         opts =>
           StackNavigator.Animation.(
-            switch (opts.fromRoute, opts.toRoute) {
-            | (Config.Home, Config.Admin) => slideInOut
-            | (Config.Admin, Config.Home)
+            switch opts.transition {
+            | (Config.Home, _) => slideInOut
+            | (_, Config.Home)
             | _ => fadeInOut
             }
           )(
