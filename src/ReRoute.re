@@ -173,7 +173,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                    [];
                  } else {
                    let (fromRouteIdx, toRouteIdx) =
-                     idx == len - 1 ? (idx, idx - 1) : (idx + 1, idx);
+                     idx == len - 1 ? (idx, idx - 1) : (idx, idx + 1);
                    [
                      generate(
                        {
