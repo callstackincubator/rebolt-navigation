@@ -14,7 +14,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
   module StackNavigator = {
     module Animation = {
       type options = {
-        fromRoute: option(Config.route),
+        fromRoute: Config.route,
+        toRoute: Config.route,
         index: int
       };
       type t =
@@ -34,6 +35,20 @@ module CreateNavigation = (Config: NavigationConfig) => {
             ()
           );
         };
+      let fadeInOut: t =
+        ({index}, value) =>
+          Style.(
+            opacity(
+              Interpolated(
+                Animated.Value.interpolate(
+                  value,
+                  ~inputRange=[index - 1, index, index + 1] |> List.map(float),
+                  ~outputRange=`float([0.0, 1.0, 0.0]),
+                  ()
+                )
+              )
+            )
+          );
     };
     type headerConfig = {title: option(string)};
     type animationConfig = Animation.t;
@@ -153,16 +168,34 @@ module CreateNavigation = (Config: NavigationConfig) => {
         |> Array.mapi((idx, screen: screenConfig) => {
              let animation =
                switch screen.animation {
-               | Some(generate) => [
-                   generate(
-                     {
-                       fromRoute:
-                         idx > 0 ? Some(self.state.screens[idx].route) : None,
-                       index: idx
-                     },
-                     self.state.visibleScene
-                   )
-                 ]
+               | Some(generate) =>
+                 /* [
+                                        	generate(
+                                        		{
+                                        			route: self.state.screens[idx].route,
+                                        			kind: Animation.From,
+                                        			index: idx
+                                        		},
+                                        		self.state.visibleScene
+                                        	)
+                    ] */
+                 let len = Array.length(self.state.screens);
+                 if (len < 2) {
+                   [];
+                 } else {
+                   let (fromRouteIdx, toRouteIdx) =
+                     idx == len - 1 ? (idx, idx - 1) : (idx + 1, idx);
+                   [
+                     generate(
+                       {
+                         fromRoute: self.state.screens[fromRouteIdx].route,
+                         toRoute: self.state.screens[toRouteIdx].route,
+                         index: idx
+                       },
+                       self.state.visibleScene
+                     )
+                   ];
+                 };
                | None => []
                };
              <Animated.View
