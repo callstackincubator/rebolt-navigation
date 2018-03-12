@@ -23,7 +23,10 @@ let renderButtons = (nav: StackNavigator.navigation) =>
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <Screen headerTitle="Admin" navigation>
+    <Screen
+      headerTitle="Admin"
+      animation=StackNavigator.Animation.slideInOut
+      navigation>
       ...(
            () =>
              <View>
