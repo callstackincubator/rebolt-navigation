@@ -32,7 +32,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
         };
     };
     type headerConfig = {title: option(string)};
-    type animationConfig = Animation.t;
+    type animationOpts = {fromRoute: option(Config.route)};
+    type animationConfig = animationOpts => Animation.t;
     type screenConfig = {
       route: Config.route,
       key: string,
@@ -149,7 +150,16 @@ module CreateNavigation = (Config: NavigationConfig) => {
         |> Array.mapi((idx, screen: screenConfig) => {
              let animation =
                switch screen.animation {
-               | Some(generate) => [generate(idx, self.state.visibleScene)]
+               | Some(generate) => [
+                   generate(
+                     {
+                       fromRoute:
+                         idx > 0 ? Some(self.state.screens[idx].route) : None
+                     },
+                     idx,
+                     self.state.visibleScene
+                   )
+                 ]
                | None => []
                };
              <Animated.View
