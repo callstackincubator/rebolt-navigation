@@ -25,7 +25,7 @@ let make = (~navigation, _children) => {
   render: _self =>
     <Screen
       headerTitle="Admin"
-      animation=(_opts => StackNavigator.Animation.slideInOut)
+      animation=StackNavigator.Animation.slideInOut
       navigation>
       ...(
            () =>

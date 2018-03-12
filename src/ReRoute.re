@@ -13,17 +13,21 @@ module StringMap =
 module CreateNavigation = (Config: NavigationConfig) => {
   module StackNavigator = {
     module Animation = {
+      type options = {
+        fromRoute: option(Config.route),
+        index: int
+      };
       type t =
-        (int, BsReactNative.Animated.Value.t) =>
+        (options, BsReactNative.Animated.Value.t) =>
         BsReactNative.Style.styleElement;
       let slideInOut: t =
-        (idx, value) => {
+        ({index}, value) => {
           let width = float(Dimensions.get(`window)##width);
           Style.Transform.makeInterpolated(
             ~translateX=
               Animated.Value.interpolate(
                 value,
-                ~inputRange=[idx - 1, idx, idx + 1] |> List.map(float),
+                ~inputRange=[index - 1, index, index + 1] |> List.map(float),
                 ~outputRange=`float([-. width, 0.0, width *. 0.3]),
                 ()
               ),
@@ -32,8 +36,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
         };
     };
     type headerConfig = {title: option(string)};
-    type animationOpts = {fromRoute: option(Config.route)};
-    type animationConfig = animationOpts => Animation.t;
+    type animationConfig = Animation.t;
     type screenConfig = {
       route: Config.route,
       key: string,
@@ -154,9 +157,9 @@ module CreateNavigation = (Config: NavigationConfig) => {
                    generate(
                      {
                        fromRoute:
-                         idx > 0 ? Some(self.state.screens[idx].route) : None
+                         idx > 0 ? Some(self.state.screens[idx].route) : None,
+                       index: idx
                      },
-                     idx,
                      self.state.visibleScene
                    )
                  ]
