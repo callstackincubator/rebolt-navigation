@@ -23,9 +23,13 @@ let renderButtons = (nav: StackNavigator.navigation) =>
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <View style=Styles.container>
-      <Header title="Mike" navigation />
-      <Text> (ReasonReact.stringToElement("Admin")) </Text>
-      (renderButtons(navigation))
-    </View>
+    <Screen headerTitle="Admin" navigation>
+      ...(
+           () =>
+             <View>
+               <Text> (ReasonReact.stringToElement("Admin")) </Text>
+               (renderButtons(navigation))
+             </View>
+         )
+    </Screen>
 };

@@ -158,16 +158,21 @@ module CreateNavigation = (Config: NavigationConfig) => {
         |> ReasonReact.arrayToElement
     };
   };
-  module Header = {
+  module Screen = {
     open StackNavigator;
-    let component = ReasonReact.statelessComponent("CallstackHeader");
-    let make = (~navigation: navigation, ~title=?, _children) => {
+    let component = ReasonReact.statelessComponent("CallstackScreen");
+    let make = (~navigation: navigation, ~headerTitle=?, children) => {
       ...component,
       didMount: _self => {
-        navigation.send(SetHeaderOptions(navigation.key, {title: title}));
+        navigation.send(
+          SetHeaderOptions(navigation.key, {title: headerTitle})
+        );
         ReasonReact.NoUpdate;
       },
-      render: _self => <View />
+      render: _self => {
+        let body = children();
+        <View> body </View>;
+      }
     };
   };
 };

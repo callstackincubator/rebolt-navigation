@@ -9,4 +9,4 @@ module ReactNavigation = ReRoute.CreateNavigation(Config);
 
 module StackNavigator = ReactNavigation.StackNavigator;
 
-module Header = ReactNavigation.Header;
+module Screen = ReactNavigation.Screen;
