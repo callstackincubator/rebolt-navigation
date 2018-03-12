@@ -12,11 +12,32 @@ module StringMap =
 
 module CreateNavigation = (Config: NavigationConfig) => {
   module StackNavigator = {
+    module Animation = {
+      type t =
+        (int, BsReactNative.Animated.Value.t) =>
+        BsReactNative.Style.styleElement;
+      let slideInOut: t =
+        (idx, value) => {
+          let width = float(Dimensions.get(`window)##width);
+          Style.Transform.makeInterpolated(
+            ~translateX=
+              Animated.Value.interpolate(
+                value,
+                ~inputRange=[idx - 1, idx, idx + 1] |> List.map(float),
+                ~outputRange=`float([-. width, 0.0, width *. 0.3]),
+                ()
+              ),
+            ()
+          );
+        };
+    };
     type headerConfig = {title: option(string)};
+    type animationConfig = Animation.t;
     type screenConfig = {
       route: Config.route,
       key: string,
-      header: option(headerConfig)
+      header: option(headerConfig),
+      animation: option(animationConfig)
     };
     type state = {
       screens: array(screenConfig),
@@ -25,7 +46,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
     };
     type action =
       | Push(Config.route)
-      | SetHeaderOptions(int, headerConfig)
+      | SetOptions(int, option(headerConfig), option(animationConfig))
       | RemoveStaleScenes
       | Pop;
     type navigation = {
@@ -47,23 +68,6 @@ module CreateNavigation = (Config: NavigationConfig) => {
           </View>
       };
     };
-    module Animation = {
-      type t = (state, int) => BsReactNative.Style.styleElement;
-      let slideInOut: t =
-        (state, idx) => {
-          let width = float(Dimensions.get(`window)##width);
-          Style.Transform.makeInterpolated(
-            ~translateX=
-              Animated.Value.interpolate(
-                state.visibleScene,
-                ~inputRange=[idx - 1, idx, idx + 1] |> List.map(float),
-                ~outputRange=`float([-. width, 0.0, width *. 0.3]),
-                ()
-              ),
-            ()
-          );
-        };
-    };
     module Styles = {
       let card =
         Style.(
@@ -81,7 +85,9 @@ module CreateNavigation = (Config: NavigationConfig) => {
     let make = (~initialRoute, children) => {
       ...component,
       initialState: () => {
-        screens: [|{route: initialRoute, header: None, key: "0"}|],
+        screens: [|
+          {route: initialRoute, header: None, animation: None, key: "0"}
+        |],
         activeScene: 0,
         visibleScene: Animated.Value.create(0.0)
       },
@@ -104,7 +110,12 @@ module CreateNavigation = (Config: NavigationConfig) => {
         switch action {
         | Push(route) =>
           let index = Array.length(state.screens);
-          let screen = {route, header: None, key: string_of_int(index)};
+          let screen = {
+            route,
+            header: None,
+            animation: None,
+            key: string_of_int(index)
+          };
           ReasonReact.Update({
             ...state,
             activeScene: index,
@@ -124,29 +135,26 @@ module CreateNavigation = (Config: NavigationConfig) => {
               state.screens
               |> Js.Array.slice(~start=0, ~end_=state.activeScene + 1)
           })
-        | SetHeaderOptions(idx, headerConfig) =>
+        | SetOptions(idx, headerConfig, animationConfig) =>
           let screens = Js.Array.copy(state.screens);
-          screens[idx] = {...screens[idx], header: Some(headerConfig)};
+          screens[idx] = {
+            ...screens[idx],
+            header: headerConfig,
+            animation: animationConfig
+          };
           ReasonReact.Update({...state, screens});
         },
       render: self =>
         self.state.screens
         |> Array.mapi((idx, screen: screenConfig) => {
-             let width = float(Dimensions.get(`window)##width);
-             let transform =
-               Style.Transform.makeInterpolated(
-                 ~translateX=
-                   Animated.Value.interpolate(
-                     self.state.visibleScene,
-                     ~inputRange=[idx - 1, idx, idx + 1] |> List.map(float),
-                     ~outputRange=`float([-. width, 0.0, width *. 0.3]),
-                     ()
-                   ),
-                 ()
-               );
+             let animation =
+               switch screen.animation {
+               | Some(generate) => [generate(idx, self.state.visibleScene)]
+               | None => []
+               };
              <Animated.View
                key=screen.key
-               style=Style.(concat([Styles.card, style([transform])]))>
+               style=Style.(concat([Styles.card, style(animation)]))>
                (
                  switch screen.header {
                  | Some(config) => <Header config />
@@ -170,16 +178,11 @@ module CreateNavigation = (Config: NavigationConfig) => {
     open StackNavigator;
     let component = ReasonReact.statelessComponent("CallstackScreen");
     let make =
-        (
-          ~navigation: navigation,
-          ~headerTitle=?,
-          ~_animation=Animation.slideInOut,
-          children
-        ) => {
+        (~navigation: navigation, ~headerTitle=?, ~animation=?, children) => {
       ...component,
       didMount: _self => {
         navigation.send(
-          SetHeaderOptions(navigation.index, {title: headerTitle})
+          SetOptions(navigation.index, Some({title: headerTitle}), animation)
         );
         ReasonReact.NoUpdate;
       },
