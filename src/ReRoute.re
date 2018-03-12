@@ -13,26 +13,24 @@ module StringMap =
 module CreateNavigation = (Config: NavigationConfig) => {
   module StackNavigator = {
     type headerConfig = {title: option(string)};
-    type screenKey = string;
     type screenConfig = {
       route: Config.route,
-      index: int,
-      key: screenKey
+      key: string,
+      header: option(headerConfig)
     };
     type state = {
-      screens: list(screenConfig),
-      headers: StringMap.t(headerConfig),
+      screens: array(screenConfig),
       activeScene: int,
       visibleScene: Animated.Value.t
     };
     type action =
       | Push(Config.route)
-      | SetHeaderOptions(screenKey, headerConfig)
+      | SetHeaderOptions(int, headerConfig)
       | RemoveStaleScenes
       | Pop;
     type navigation = {
       send: action => unit,
-      key: screenKey
+      index: int
     };
     module Header = {
       let component = ReasonReact.statelessComponent("StackHeader");
@@ -48,6 +46,23 @@ module CreateNavigation = (Config: NavigationConfig) => {
             <Text> (ReasonReact.stringToElement(def(config.title, ""))) </Text>
           </View>
       };
+    };
+    module Animation = {
+      type t = (state, int) => BsReactNative.Style.styleElement;
+      let slideInOut: t =
+        (state, idx) => {
+          let width = float(Dimensions.get(`window)##width);
+          Style.Transform.makeInterpolated(
+            ~translateX=
+              Animated.Value.interpolate(
+                state.visibleScene,
+                ~inputRange=[idx - 1, idx, idx + 1] |> List.map(float),
+                ~outputRange=`float([-. width, 0.0, width *. 0.3]),
+                ()
+              ),
+            ()
+          );
+        };
     };
     module Styles = {
       let card =
@@ -66,8 +81,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
     let make = (~initialRoute, children) => {
       ...component,
       initialState: () => {
-        screens: [{route: initialRoute, index: 0, key: "0"}],
-        headers: StringMap.empty,
+        screens: [|{route: initialRoute, header: None, key: "0"}|],
         activeScene: 0,
         visibleScene: Animated.Value.create(0.0)
       },
@@ -89,15 +103,15 @@ module CreateNavigation = (Config: NavigationConfig) => {
       reducer: (action, state) =>
         switch action {
         | Push(route) =>
-          let index = List.length(state.screens);
-          let screen = {route, index, key: string_of_int(index)};
+          let index = Array.length(state.screens);
+          let screen = {route, header: None, key: string_of_int(index)};
           ReasonReact.Update({
             ...state,
             activeScene: index,
-            screens: [screen, ...state.screens]
+            screens: state.screens |> Js.Array.concat([|screen|])
           });
         | Pop =>
-          List.length(state.screens) > 1 ?
+          Array.length(state.screens) > 1 ?
             ReasonReact.Update({
               ...state,
               activeScene: state.activeScene - 1
@@ -107,29 +121,24 @@ module CreateNavigation = (Config: NavigationConfig) => {
           ReasonReact.Update({
             ...state,
             screens:
-              Utils.dropWhile(
-                el => el.index > state.activeScene,
-                state.screens
-              )
+              state.screens
+              |> Js.Array.slice(~start=0, ~end_=state.activeScene + 1)
           })
-        | SetHeaderOptions(screenKey, options) =>
-          ReasonReact.Update({
-            ...state,
-            headers: StringMap.add(screenKey, options, state.headers)
-          })
+        | SetHeaderOptions(idx, headerConfig) =>
+          let screens = Js.Array.copy(state.screens);
+          screens[idx] = {...screens[idx], header: Some(headerConfig)};
+          ReasonReact.Update({...state, screens});
         },
       render: self =>
         self.state.screens
-        |> List.rev_map((screen: screenConfig) => {
+        |> Array.mapi((idx, screen: screenConfig) => {
              let width = float(Dimensions.get(`window)##width);
              let transform =
                Style.Transform.makeInterpolated(
                  ~translateX=
                    Animated.Value.interpolate(
                      self.state.visibleScene,
-                     ~inputRange=
-                       [screen.index - 1, screen.index, screen.index + 1]
-                       |> List.map(float),
+                     ~inputRange=[idx - 1, idx, idx + 1] |> List.map(float),
                      ~outputRange=`float([-. width, 0.0, width *. 0.3]),
                      ()
                    ),
@@ -139,33 +148,38 @@ module CreateNavigation = (Config: NavigationConfig) => {
                key=screen.key
                style=Style.(concat([Styles.card, style([transform])]))>
                (
-                 switch (StringMap.find(screen.key, self.state.headers)) {
-                 | config => <Header config />
-                 | exception Not_found => <View />
+                 switch screen.header {
+                 | Some(config) => <Header config />
+                 | None => <View />
                  }
                )
                <View style=Style.(style([flex(1.0)]))>
                  (
                    children(
                      ~currentRoute=screen.route,
-                     ~navigation={send: self.send, key: screen.key}
+                     ~navigation={send: self.send, index: idx}
                    )
                  )
                </View>
              </Animated.View>;
            })
-        |> Array.of_list
         |> ReasonReact.arrayToElement
     };
   };
   module Screen = {
     open StackNavigator;
     let component = ReasonReact.statelessComponent("CallstackScreen");
-    let make = (~navigation: navigation, ~headerTitle=?, children) => {
+    let make =
+        (
+          ~navigation: navigation,
+          ~headerTitle=?,
+          ~_animation=Animation.slideInOut,
+          children
+        ) => {
       ...component,
       didMount: _self => {
         navigation.send(
-          SetHeaderOptions(navigation.key, {title: headerTitle})
+          SetHeaderOptions(navigation.index, {title: headerTitle})
         );
         ReasonReact.NoUpdate;
       },
