@@ -27,11 +27,6 @@ module CreateNavigation = (Config: NavigationConfig) => {
         ) =>
         Animated.CompositeAnimation.t;
       type t = (options, Animated.Value.t) => (config, Style.t);
-      let none: t =
-        (_opts, _value) => (
-          Animated.Timing.animate(~duration=0.0, ()),
-          Style.style([])
-        );
       let slideInOut: t =
         (_opts, value) => {
           let screenWidth = float(Dimensions.get(`window)##width);
@@ -72,6 +67,11 @@ module CreateNavigation = (Config: NavigationConfig) => {
           )
         );
       let default = slideInOut;
+      let none: t =
+        (opts, value) => (
+          Animated.Timing.animate(~duration=0.0, ()),
+          fadeInOut(opts, value) |> snd
+        );
     };
     type headerConfig = {title: option(string)};
     type animationConfig = Animation.t;
