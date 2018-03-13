@@ -13,8 +13,12 @@ module StringMap =
 module CreateNavigation = (Config: NavigationConfig) => {
   module StackNavigator = {
     module Animation = {
+      type action =
+        | Push
+        | Pop;
       type options = {
         transition: (Config.route, Config.route),
+        action,
         index: int
       };
       type t =
@@ -174,6 +178,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                  } else {
                    let (fromRouteIdx, toRouteIdx) =
                      idx == len - 1 ? (idx, idx - 1) : (idx, idx + 1);
+                   let isPushing = self.state.activeScene + 1 == len;
                    [
                      generate(
                        {
@@ -181,6 +186,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                            self.state.screens[fromRouteIdx].route,
                            self.state.screens[toRouteIdx].route
                          ),
+                         action: isPushing ? Animation.Push : Animation.Pop,
                          index: idx
                        },
                        self.state.visibleScene
