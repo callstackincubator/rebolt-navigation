@@ -211,31 +211,24 @@ module CreateNavigation = (Config: NavigationConfig) => {
           };
           ReasonReact.Update({...state, screens});
         },
-      render: self =>
+      render: self => {
+        let size = Array.length(self.state.screens);
+        let action =
+          self.state.activeScreen <= size ? Animation.Pop : Animation.Push;
         self.state.screens
         |> Array.mapi((idx, screen: screenConfig) => {
              let animation =
                switch screen.animation {
                | Some(generate) =>
-                 let len = Array.length(self.state.screens);
-                 if (len < 2) {
+                 if (size < 2) {
                    [];
                  } else {
-                   let (fromRouteIdx, toRouteIdx) =
-                     idx == len - 1 ? (idx - 1, idx) : (idx, idx + 1);
-                   let isPushing = self.state.activeScreen + 1 == len;
-                   [
-                     screen.animatedValue
-                     |> generate({
-                          routes: (
-                            self.state.screens[fromRouteIdx].route,
-                            self.state.screens[toRouteIdx].route
-                          ),
-                          action: isPushing ? Animation.Push : Animation.Pop
-                        })
-                     |> snd
-                   ];
-                 };
+                   let routes =
+                     idx == size - 1 ?
+                       (self.state.screens[idx - 1].route, screen.route) :
+                       (screen.route, self.state.screens[idx + 1].route);
+                   [screen.animatedValue |> generate({routes, action}) |> snd];
+                 }
                | None => []
                };
              <Animated.View
@@ -257,7 +250,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
                </View>
              </Animated.View>;
            })
-        |> ReasonReact.arrayToElement
+        |> ReasonReact.arrayToElement;
+      }
     };
   };
   module Screen = {
