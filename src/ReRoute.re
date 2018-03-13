@@ -28,12 +28,11 @@ module CreateNavigation = (Config: NavigationConfig) => {
         ) =>
         Animated.CompositeAnimation.t;
       type t = (options, Animated.Value.t) => (config, style);
-      let defaultConfig = Animated.Timing.animate(~duration=300.0, ());
       let slideInOut: t =
         (_opts, value) => {
           let width = float(Dimensions.get(`window)##width);
           (
-            defaultConfig,
+            Animated.Timing.animate(~duration=300.0, ()),
             Style.Transform.makeInterpolated(
               ~translateX=
                 Animated.Value.interpolate(
@@ -48,7 +47,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
         };
       let fadeInOut: t =
         (_opts, value) => (
-          defaultConfig,
+          Animated.Timing.animate(~duration=300.0, ()),
           Style.(
             opacity(
               Interpolated(
@@ -62,6 +61,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
             )
           )
         );
+      let default = slideInOut;
     };
     type headerConfig = {title: option(string)};
     type animationConfig = Animation.t;
@@ -70,7 +70,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
       key: string,
       header: option(headerConfig),
       animatedValue: Animated.Value.t,
-      animation: option(Animation.t)
+      animation: Animation.t
     };
     type state = {
       screens: array(screenConfig),
@@ -121,7 +121,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
           {
             route: initialRoute,
             header: None,
-            animation: None,
+            animation: Animation.default,
             key: "0",
             animatedValue: Animated.Value.create(1.0)
           }
@@ -139,17 +139,13 @@ module CreateNavigation = (Config: NavigationConfig) => {
               (Animation.Push, (fromScreen.route, toScreen.route)) :
               (Animation.Pop, (toScreen.route, fromScreen.route));
           let fromAnimation =
-            switch fromScreen.animation {
-            | Some(generate) =>
-              fromScreen.animatedValue |> generate({routes, action}) |> fst
-            | None => Animation.defaultConfig
-            };
+            fromScreen.animatedValue
+            |> fromScreen.animation({routes, action})
+            |> fst;
           let toAnimation =
-            switch toScreen.animation {
-            | Some(generate) =>
-              toScreen.animatedValue |> generate({routes, action}) |> fst
-            | None => Animation.defaultConfig
-            };
+            toScreen.animatedValue
+            |> toScreen.animation({routes, action})
+            |> fst;
           Animated.Value.setValue(fromScreen.animatedValue, 1.0);
           Animated.Value.setValue(toScreen.animatedValue, 0.0);
           Animated.(
@@ -181,7 +177,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
           let screen = {
             route,
             header: None,
-            animation: None,
+            animation: Animation.default,
             animatedValue: Animated.Value.create(0.0),
             key: string_of_int(index)
           };
@@ -208,7 +204,9 @@ module CreateNavigation = (Config: NavigationConfig) => {
           screens[idx] = {
             ...screens[idx],
             header: headerConfig,
-            animation: animationConfig
+            animation:
+              animationConfig
+              |> Js.Option.getWithDefault(screens[idx].animation)
           };
           ReasonReact.Update({...state, screens});
         },
@@ -219,18 +217,18 @@ module CreateNavigation = (Config: NavigationConfig) => {
         self.state.screens
         |> Array.mapi((idx, screen: screenConfig) => {
              let animation =
-               switch screen.animation {
-               | Some(generate) =>
-                 if (size < 2) {
-                   [];
-                 } else {
-                   let routes =
-                     idx == size - 1 ?
-                       (self.state.screens[idx - 1].route, screen.route) :
-                       (screen.route, self.state.screens[idx + 1].route);
-                   [screen.animatedValue |> generate({routes, action}) |> snd];
-                 }
-               | None => []
+               if (size < 2) {
+                 [];
+               } else {
+                 let routes =
+                   idx == size - 1 ?
+                     (self.state.screens[idx - 1].route, screen.route) :
+                     (screen.route, self.state.screens[idx + 1].route);
+                 [
+                   screen.animatedValue
+                   |> screen.animation({routes, action})
+                   |> snd
+                 ];
                };
              <Animated.View
                key=screen.key
