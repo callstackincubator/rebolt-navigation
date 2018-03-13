@@ -20,15 +20,20 @@ module CreateNavigation = (Config: NavigationConfig) => {
         routes: (Config.route, Config.route),
         action
       };
-      type style = BsReactNative.Style.styleElement;
-      type config = {duration: float};
-      type t = (options, BsReactNative.Animated.Value.t) => (config, style);
-      let defaultConfig = {duration: 300.0};
+      type style = Style.styleElement;
+      type config =
+        (
+          ~value: Animated.Value.value,
+          ~toValue: [ | `animated(Animated.Value.value) | `raw(float)]
+        ) =>
+        Animated.CompositeAnimation.t;
+      type t = (options, Animated.Value.t) => (config, style);
+      let defaultConfig = Animated.Timing.animate(~duration=300.0, ());
       let slideInOut: t =
         (_opts, value) => {
           let width = float(Dimensions.get(`window)##width);
           (
-            {duration: 300.0},
+            defaultConfig,
             Style.Transform.makeInterpolated(
               ~translateX=
                 Animated.Value.interpolate(
@@ -43,7 +48,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
         };
       let fadeInOut: t =
         (_opts, value) => (
-          {duration: 500.0},
+          defaultConfig,
           Style.(
             opacity(
               Interpolated(
@@ -133,13 +138,13 @@ module CreateNavigation = (Config: NavigationConfig) => {
             fromIdx < toIdx ?
               (Animation.Push, (fromScreen.route, toScreen.route)) :
               (Animation.Pop, (toScreen.route, fromScreen.route));
-          let fromConfig =
+          let fromAnimation =
             switch fromScreen.animation {
             | Some(generate) =>
               fromScreen.animatedValue |> generate({routes, action}) |> fst
             | None => Animation.defaultConfig
             };
-          let toConfig =
+          let toAnimation =
             switch toScreen.animation {
             | Some(generate) =>
               toScreen.animatedValue |> generate({routes, action}) |> fst
@@ -151,17 +156,13 @@ module CreateNavigation = (Config: NavigationConfig) => {
             CompositeAnimation.start(
               parallel(
                 [|
-                  Timing.animate(
+                  fromAnimation(
                     ~value=fromScreen.animatedValue,
-                    ~duration=fromConfig.duration,
-                    ~toValue=`raw(0.0),
-                    ()
+                    ~toValue=`raw(0.0)
                   ),
-                  Timing.animate(
+                  toAnimation(
                     ~value=toScreen.animatedValue,
-                    ~duration=toConfig.duration,
-                    ~toValue=`raw(1.0),
-                    ()
+                    ~toValue=`raw(1.0)
                   )
                 |],
                 {"stopTogether": Js.Boolean.to_js_boolean(true)}
