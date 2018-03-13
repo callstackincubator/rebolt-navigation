@@ -9,7 +9,7 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   render: _self =>
     <Screen
       headerTitle="Home"
-      animation=StackNavigator.Animation.fade
+      animation=StackNavigator.Animation.fadeInOut
       navigation=nav>
       ...(
            () =>
