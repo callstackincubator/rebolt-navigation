@@ -34,7 +34,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                 Animated.Value.interpolate(
                   value,
                   ~inputRange=[0, 1] |> List.map(float),
-                  ~outputRange=`float([0.0, width *. 0.3]),
+                  ~outputRange=`float([width, 0.0]),
                   ()
                 ),
               ()

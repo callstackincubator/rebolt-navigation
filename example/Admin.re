@@ -25,7 +25,17 @@ let make = (~navigation, _children) => {
   render: _self =>
     <Screen
       headerTitle="Admin"
-      animation=StackNavigator.Animation.fadeInOut
+      animation=(
+        opts =>
+          (
+            switch opts.routes {
+            | (Config.Admin, Config.Home) => StackNavigator.Animation.fadeInOut
+            | _ => StackNavigator.Animation.slideInOut
+            }
+          )(
+            opts
+          )
+      )
       navigation>
       ...(
            () =>
