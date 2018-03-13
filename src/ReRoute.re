@@ -20,28 +20,36 @@ module CreateNavigation = (Config: NavigationConfig) => {
         routes: (Config.route, Config.route),
         action
       };
-      type style = Style.styleElement;
       type config =
         (
           ~value: Animated.Value.value,
           ~toValue: [ | `animated(Animated.Value.value) | `raw(float)]
         ) =>
         Animated.CompositeAnimation.t;
-      type t = (options, Animated.Value.t) => (config, style);
+      type t = (options, Animated.Value.t) => (config, Style.t);
+      let none: t =
+        (_opts, _value) => (
+          Animated.Timing.animate(~duration=0.0, ()),
+          Style.style([])
+        );
       let slideInOut: t =
         (_opts, value) => {
-          let width = float(Dimensions.get(`window)##width);
+          let screenWidth = float(Dimensions.get(`window)##width);
           (
             Animated.Timing.animate(~duration=300.0, ()),
-            Style.Transform.makeInterpolated(
-              ~translateX=
-                Animated.Value.interpolate(
-                  value,
-                  ~inputRange=[0, 1] |> List.map(float),
-                  ~outputRange=`float([width, 0.0]),
+            Style.(
+              style([
+                Transform.makeInterpolated(
+                  ~translateX=
+                    Animated.Value.interpolate(
+                      value,
+                      ~inputRange=[0, 1] |> List.map(float),
+                      ~outputRange=`float([screenWidth, 0.0]),
+                      ()
+                    ),
                   ()
-                ),
-              ()
+                )
+              ])
             )
           );
         };
@@ -49,16 +57,18 @@ module CreateNavigation = (Config: NavigationConfig) => {
         (_opts, value) => (
           Animated.Timing.animate(~duration=300.0, ()),
           Style.(
-            opacity(
-              Interpolated(
-                Animated.Value.interpolate(
-                  value,
-                  ~inputRange=[0, 1] |> List.map(float),
-                  ~outputRange=`float([0.0, 1.0]),
-                  ()
+            style([
+              opacity(
+                Interpolated(
+                  Animated.Value.interpolate(
+                    value,
+                    ~inputRange=[0, 1] |> List.map(float),
+                    ~outputRange=`float([0.0, 1.0]),
+                    ()
+                  )
                 )
               )
-            )
+            ])
           )
         );
       let default = slideInOut;
@@ -218,21 +228,18 @@ module CreateNavigation = (Config: NavigationConfig) => {
         |> Array.mapi((idx, screen: screenConfig) => {
              let animation =
                if (size < 2) {
-                 [];
+                 Style.style([]);
                } else {
                  let routes =
                    idx == size - 1 ?
                      (self.state.screens[idx - 1].route, screen.route) :
                      (screen.route, self.state.screens[idx + 1].route);
-                 [
-                   screen.animatedValue
-                   |> screen.animation({routes, action})
-                   |> snd
-                 ];
+                 screen.animatedValue
+                 |> screen.animation({routes, action})
+                 |> snd;
                };
              <Animated.View
-               key=screen.key
-               style=Style.(concat([Styles.card, style(animation)]))>
+               key=screen.key style=Style.(concat([Styles.card, animation]))>
                (
                  switch screen.header {
                  | Some(config) => <Header config />
