@@ -18,16 +18,14 @@ module CreateNavigation = (Config: NavigationConfig) => {
         | Pop;
       type options = {
         routes: (Config.route, Config.route),
-        action,
-        index: int
+        action
       };
       type style = BsReactNative.Style.styleElement;
-      type animationConfig = {duration: float};
-      type t =
-        (options, BsReactNative.Animated.Value.t) => (animationConfig, style);
+      type config = {duration: float};
+      type t = (options, BsReactNative.Animated.Value.t) => (config, style);
       let defaultConfig = {duration: 300.0};
       let slideInOut: t =
-        ({index}, value) => {
+        (_opts, value) => {
           let width = float(Dimensions.get(`window)##width);
           (
             {duration: 300.0},
@@ -35,8 +33,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
               ~translateX=
                 Animated.Value.interpolate(
                   value,
-                  ~inputRange=[index - 1, index, index + 1] |> List.map(float),
-                  ~outputRange=`float([-. width, 0.0, width *. 0.3]),
+                  ~inputRange=[0, 1] |> List.map(float),
+                  ~outputRange=`float([0.0, width *. 0.3]),
                   ()
                 ),
               ()
@@ -44,15 +42,15 @@ module CreateNavigation = (Config: NavigationConfig) => {
           );
         };
       let fadeInOut: t =
-        ({index}, value) => (
-          {duration: 100.0},
+        (_opts, value) => (
+          {duration: 500.0},
           Style.(
             opacity(
               Interpolated(
                 Animated.Value.interpolate(
                   value,
-                  ~inputRange=[index - 1, index, index + 1] |> List.map(float),
-                  ~outputRange=`float([0.0, 1.0, 0.0]),
+                  ~inputRange=[0, 1] |> List.map(float),
+                  ~outputRange=`float([0.0, 1.0]),
                   ()
                 )
               )
@@ -66,12 +64,12 @@ module CreateNavigation = (Config: NavigationConfig) => {
       route: Config.route,
       key: string,
       header: option(headerConfig),
-      animation: option(animationConfig)
+      animatedValue: Animated.Value.t,
+      animation: option(Animation.t)
     };
     type state = {
       screens: array(screenConfig),
-      activeScreen: int,
-      animatedIndex: Animated.Value.t
+      activeScreen: int
     };
     type action =
       | Push(Config.route)
@@ -115,55 +113,64 @@ module CreateNavigation = (Config: NavigationConfig) => {
       ...component,
       initialState: () => {
         screens: [|
-          {route: initialRoute, header: None, animation: None, key: "0"}
+          {
+            route: initialRoute,
+            header: None,
+            animation: None,
+            key: "0",
+            animatedValue: Animated.Value.create(1.0)
+          }
         |],
-        activeScreen: 0,
-        animatedIndex: Animated.Value.create(0.0)
+        activeScreen: 0
       },
       didUpdate: ({oldSelf, newSelf: self}) => {
         let fromIdx = oldSelf.state.activeScreen;
         let toIdx = self.state.activeScreen;
-        if (fromIdx != toIdx) {
-          let isPushing = fromIdx < toIdx;
-          let action = isPushing ? Animation.Push : Animation.Pop;
-          let routes =
-            isPushing ?
-              (
-                self.state.screens[fromIdx].route,
-                self.state.screens[toIdx].route
-              ) :
-              (
-                self.state.screens[toIdx].route,
-                self.state.screens[fromIdx].route
-              );
+        if (fromIdx !== toIdx) {
+          let fromScreen = self.state.screens[fromIdx];
+          let toScreen = self.state.screens[toIdx];
+          let (action, routes) =
+            fromIdx < toIdx ?
+              (Animation.Push, (fromScreen.route, toScreen.route)) :
+              (Animation.Pop, (toScreen.route, fromScreen.route));
           let fromConfig =
-            switch self.state.screens[fromIdx].animation {
+            switch fromScreen.animation {
             | Some(generate) =>
-              self.state.animatedIndex
-              |> generate({routes, index: fromIdx, action})
-              |> fst
+              fromScreen.animatedValue |> generate({routes, action}) |> fst
             | None => Animation.defaultConfig
             };
           let toConfig =
-            switch self.state.screens[toIdx].animation {
+            switch toScreen.animation {
             | Some(generate) =>
-              self.state.animatedIndex
-              |> generate({routes, index: toIdx, action})
-              |> fst
+              toScreen.animatedValue |> generate({routes, action}) |> fst
             | None => Animation.defaultConfig
             };
+          Animated.Value.setValue(fromScreen.animatedValue, 1.0);
+          Animated.Value.setValue(toScreen.animatedValue, 0.0);
           Animated.(
             CompositeAnimation.start(
-              Timing.animate(
-                ~value=self.state.animatedIndex,
-                ~duration=fromConfig.duration,
-                ~toValue=`raw(float_of_int(self.state.activeScreen)),
-                ()
+              parallel(
+                [|
+                  Timing.animate(
+                    ~value=fromScreen.animatedValue,
+                    ~duration=fromConfig.duration,
+                    ~toValue=`raw(0.0),
+                    ()
+                  ),
+                  Timing.animate(
+                    ~value=toScreen.animatedValue,
+                    ~duration=toConfig.duration,
+                    ~toValue=`raw(1.0),
+                    ()
+                  )
+                |],
+                {"stopTogether": Js.Boolean.to_js_boolean(true)}
               ),
               ~callback=_end => self.send(RemoveStaleScreens),
               ()
             )
           );
+          ();
         };
       },
       reducer: (action, state) =>
@@ -174,10 +181,10 @@ module CreateNavigation = (Config: NavigationConfig) => {
             route,
             header: None,
             animation: None,
+            animatedValue: Animated.Value.create(0.0),
             key: string_of_int(index)
           };
           ReasonReact.Update({
-            ...state,
             activeScreen: index,
             screens: state.screens |> Js.Array.concat([|screen|])
           });
@@ -215,17 +222,16 @@ module CreateNavigation = (Config: NavigationConfig) => {
                    [];
                  } else {
                    let (fromRouteIdx, toRouteIdx) =
-                     idx == len - 1 ? (idx, idx - 1) : (idx, idx + 1);
+                     idx == len - 1 ? (idx - 1, idx) : (idx, idx + 1);
                    let isPushing = self.state.activeScreen + 1 == len;
                    [
-                     self.state.animatedIndex
+                     screen.animatedValue
                      |> generate({
                           routes: (
                             self.state.screens[fromRouteIdx].route,
                             self.state.screens[toRouteIdx].route
                           ),
-                          action: isPushing ? Animation.Push : Animation.Pop,
-                          index: idx
+                          action: isPushing ? Animation.Push : Animation.Pop
                         })
                      |> snd
                    ];
