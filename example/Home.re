@@ -9,17 +9,7 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   render: _self =>
     <Screen
       headerTitle="Home"
-      animation=(
-        opts =>
-          StackNavigator.Animation.(
-            switch opts.transition {
-            | (_, Config.Admin) => fadeInOut
-            | _ => slideInOut
-            }
-          )(
-            opts
-          )
-      )
+      animation=StackNavigator.Animation.fade
       navigation=nav>
       ...(
            () =>
@@ -27,7 +17,7 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
                <Text> (ReasonReact.stringToElement("Home")) </Text>
                <View>
                  <TouchableOpacity
-                   onPress=(_e => nav.send(StackNavigator.Push(Config.Home)))>
+                   onPress=(_e => nav.send(StackNavigator.Push(Config.Admin)))>
                    <Text> (ReasonReact.stringToElement("Push")) </Text>
                  </TouchableOpacity>
                  <TouchableOpacity

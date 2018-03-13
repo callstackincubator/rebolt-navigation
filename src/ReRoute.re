@@ -17,7 +17,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
         | Push
         | Pop;
       type options = {
-        transition: (Config.route, Config.route),
+        routes: (Config.route, Config.route),
         action,
         index: int
       };
@@ -182,7 +182,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                    [
                      generate(
                        {
-                         transition: (
+                         routes: (
                            self.state.screens[fromRouteIdx].route,
                            self.state.screens[toRouteIdx].route
                          ),

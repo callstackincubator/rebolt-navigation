@@ -24,21 +24,7 @@ let make = (~navigation, _children) => {
   ...component,
   render: _self =>
     <Screen
-      headerTitle="Admin"
-      animation=(
-        opts =>
-          StackNavigator.Animation.(
-            switch (opts.transition, opts.action) {
-            | ((_, Config.Home), Push) => fadeInOut
-            | ((_, Config.Home), Pop) => slideInOut
-            | ((Config.Home, _), Push) => fadeInOut
-            | _ => fadeInOut
-            }
-          )(
-            opts
-          )
-      )
-      navigation>
+      headerTitle="Admin" animation=StackNavigator.Animation.fade navigation>
       ...(
            () =>
              <View>
