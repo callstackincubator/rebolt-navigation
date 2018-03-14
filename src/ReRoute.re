@@ -16,8 +16,12 @@ module CreateNavigation = (Config: NavigationConfig) => {
       type action =
         | Push
         | Pop;
+      type direction =
+        | In
+        | Out;
       type options = {
         routes: (Config.route, Config.route),
+        direction,
         action
       };
       type config =
@@ -28,10 +32,15 @@ module CreateNavigation = (Config: NavigationConfig) => {
         Animated.CompositeAnimation.t;
       type t = (options, Animated.Value.t) => (config, Style.t);
       let slideInOut: t =
-        (_opts, value) => {
+        (opts, value) => {
           let screenWidth = float(Dimensions.get(`window)##width);
           (
-            Animated.Timing.animate(~duration=300.0, ()),
+            Animated.Spring.animate(
+              ~stiffness=100.0,
+              ~damping=500.0,
+              ~mass=3.0,
+              ()
+            ),
             Style.(
               style([
                 Transform.makeInterpolated(
@@ -39,7 +48,15 @@ module CreateNavigation = (Config: NavigationConfig) => {
                     Animated.Value.interpolate(
                       value,
                       ~inputRange=[0, 1] |> List.map(float),
-                      ~outputRange=`float([screenWidth, 0.0]),
+                      ~outputRange=
+                        `float(
+                          switch (opts.action, opts.direction) {
+                          | (Pop, Out) => [0.0, screenWidth]
+                          | (Push, In) => [screenWidth, 0.0]
+                          | (Pop, In) => [-. screenWidth *. 0.3, 0.0]
+                          | (Push, Out) => [0.0, -. screenWidth *. 0.3]
+                          }
+                        ),
                       ()
                     ),
                   ()
@@ -49,7 +66,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
           );
         };
       let fadeInOut: t =
-        (_opts, value) => (
+        (opts, value) => (
           Animated.Timing.animate(~duration=300.0, ()),
           Style.(
             style([
@@ -58,7 +75,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
                   Animated.Value.interpolate(
                     value,
                     ~inputRange=[0, 1] |> List.map(float),
-                    ~outputRange=`float([0.0, 1.0]),
+                    ~outputRange=
+                      `float(opts.direction == In ? [0.0, 1.0] : [1.0, 0.0]),
                     ()
                   )
                 )
@@ -142,36 +160,40 @@ module CreateNavigation = (Config: NavigationConfig) => {
         let fromIdx = oldSelf.state.activeScreen;
         let toIdx = self.state.activeScreen;
         if (fromIdx !== toIdx) {
-          let fromScreen = self.state.screens[fromIdx];
-          let toScreen = self.state.screens[toIdx];
-          let (action, routes) =
+          let (first, second) =
             fromIdx < toIdx ?
-              (Animation.Push, (fromScreen.route, toScreen.route)) :
-              (Animation.Pop, (toScreen.route, fromScreen.route));
-          let fromAnimation =
-            fromScreen.animatedValue
-            |> fromScreen.animation({routes, action})
+              (self.state.screens[fromIdx], self.state.screens[toIdx]) :
+              (self.state.screens[toIdx], self.state.screens[fromIdx]);
+          let action = fromIdx < toIdx ? Animation.Push : Animation.Pop;
+          let routes = (first.route, second.route);
+          let fstAnim =
+            first.animatedValue
+            |> second.animation({
+                 routes,
+                 action,
+                 direction:
+                   action == Animation.Push ? Animation.Out : Animation.In
+               })
             |> fst;
-          let toAnimation =
-            toScreen.animatedValue
-            |> toScreen.animation({routes, action})
+          let sndAnim =
+            second.animatedValue
+            |> second.animation({
+                 routes,
+                 action,
+                 direction:
+                   action == Animation.Push ? Animation.In : Animation.Out
+               })
             |> fst;
-          Animated.Value.setValue(fromScreen.animatedValue, 1.0);
-          Animated.Value.setValue(toScreen.animatedValue, 0.0);
+          Animated.Value.setValue(first.animatedValue, 0.0);
+          Animated.Value.setValue(second.animatedValue, 0.0);
           Animated.(
             CompositeAnimation.start(
               parallel(
                 [|
-                  fromAnimation(
-                    ~value=fromScreen.animatedValue,
-                    ~toValue=`raw(0.0)
-                  ),
-                  toAnimation(
-                    ~value=toScreen.animatedValue,
-                    ~toValue=`raw(1.0)
-                  )
+                  fstAnim(~value=first.animatedValue, ~toValue=`raw(1.0)),
+                  sndAnim(~value=second.animatedValue, ~toValue=`raw(1.0))
                 |],
-                {"stopTogether": Js.Boolean.to_js_boolean(true)}
+                {"stopTogether": Js.Boolean.to_js_boolean(false)}
               ),
               ~callback=_end => self.send(RemoveStaleScreens),
               ()
@@ -223,21 +245,38 @@ module CreateNavigation = (Config: NavigationConfig) => {
       render: self => {
         let size = Array.length(self.state.screens);
         let action =
-          self.state.activeScreen <= size ? Animation.Pop : Animation.Push;
+          self.state.activeScreen + 1 < size ? Animation.Pop : Animation.Push;
         self.state.screens
         |> Array.mapi((idx, screen: screenConfig) => {
+             let isNotVisible = idx + 2 < size;
              let animation =
-               if (size < 2) {
-                 Style.style([]);
-               } else {
-                 let routes =
-                   idx == size - 1 ?
-                     (self.state.screens[idx - 1].route, screen.route) :
-                     (screen.route, self.state.screens[idx + 1].route);
-                 screen.animatedValue
-                 |> screen.animation({routes, action})
-                 |> snd;
-               };
+               /**
+								 * As a performance optimisation, we don't animate nor display
+								 * any screen but the two last one.
+								 */
+               (
+                 if (isNotVisible || size == 1) {
+                   Style.style([]);
+                 } else {
+                   let isLast = idx + 1 == size;
+                   let (first, second) =
+                     isLast ?
+                       (self.state.screens[idx - 1], screen) :
+                       (screen, self.state.screens[idx + 1]);
+                   screen.animatedValue
+                   |> second.animation({
+                        routes: (first.route, second.route),
+                        action,
+                        direction:
+                          switch (action, isLast) {
+                          | (Animation.Push, true)
+                          | (Animation.Pop, false) => Animation.In
+                          | _ => Animation.Out
+                          }
+                      })
+                   |> snd;
+                 }
+               );
              <Animated.View
                key=screen.key style=Style.(concat([Styles.card, animation]))>
                (

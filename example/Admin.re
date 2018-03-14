@@ -23,20 +23,7 @@ let renderButtons = (nav: StackNavigator.navigation) =>
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <Screen
-      headerTitle="Admin"
-      animation=(
-        opts =>
-          (
-            switch opts.routes {
-            | (Config.Admin, Config.Home) => StackNavigator.Animation.fadeInOut
-            | _ => StackNavigator.Animation.slideInOut
-            }
-          )(
-            opts
-          )
-      )
-      navigation>
+    <Screen headerTitle="Admin" navigation>
       ...(
            () =>
              <View>

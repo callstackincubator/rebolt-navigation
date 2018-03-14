@@ -8,15 +8,11 @@
     "start": "bsb -make-world -w",
     "clean": "bsb -clean-world",
     "prepublish": "npm run build",
-    "start-example": "node ./node_modules/react-native/local-cli/cli.js start --root ./example",
+    "start-example":
+      "node ./node_modules/react-native/local-cli/cli.js start --root ./example",
     "test": "exit 0"
   },
-  "keywords": [
-    "router",
-    "react",
-    "reason",
-    "reasonml"
-  ],
+  "keywords": ["router", "react", "reason", "reasonml"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/callstack/reroute.git"
@@ -30,7 +26,7 @@
   "devDependencies": {
     "bs-platform": "^2.1.0",
     "reason-react": "^0.3.2",
-    "bs-react-native": "^0.5.0",
+    "bs-react-native": "n0.6.0-beta.1",
     "react-native": "0.54.0",
     "react": "^16.3.0-alpha.1"
   }
