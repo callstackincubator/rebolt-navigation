@@ -186,18 +186,19 @@ module CreateNavigation = (Config: NavigationConfig) => {
             |> fst;
           Animated.Value.setValue(first.animatedValue, 0.0);
           Animated.Value.setValue(second.animatedValue, 0.0);
-          Animated.(
-            CompositeAnimation.start(
-              parallel(
-                [|
-                  fstAnim(~value=first.animatedValue, ~toValue=`raw(1.0)),
-                  sndAnim(~value=second.animatedValue, ~toValue=`raw(1.0))
-                |],
-                {"stopTogether": Js.Boolean.to_js_boolean(false)}
-              ),
-              ~callback=_end => self.send(RemoveStaleScreens),
-              ()
-            )
+          Animated.CompositeAnimation.start(
+            Animated.parallel(
+              [|
+                fstAnim(~value=first.animatedValue, ~toValue=`raw(1.0)),
+                sndAnim(~value=second.animatedValue, ~toValue=`raw(1.0))
+              |],
+              {"stopTogether": Js.Boolean.to_js_boolean(false)}
+            ),
+            ~callback=
+              end_ =>
+                action == Animation.Pop && Js.to_bool(end_##finished) ?
+                  self.send(RemoveStaleScreens) : (),
+            ()
           );
           ();
         };
