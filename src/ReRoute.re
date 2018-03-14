@@ -251,33 +251,27 @@ module CreateNavigation = (Config: NavigationConfig) => {
         |> Array.mapi((idx, screen: screenConfig) => {
              let isNotVisible = idx + 2 < size;
              let animation =
-               /**
-								 * As a performance optimisation, we don't animate nor display
-								 * any screen but the two last one.
-								 */
-               (
-                 if (isNotVisible || size == 1) {
-                   Style.style([]);
-                 } else {
-                   let isLast = idx + 1 == size;
-                   let (first, second) =
-                     isLast ?
-                       (self.state.screens[idx - 1], screen) :
-                       (screen, self.state.screens[idx + 1]);
-                   screen.animatedValue
-                   |> second.animation({
-                        routes: (first.route, second.route),
-                        action,
-                        direction:
-                          switch (action, isLast) {
-                          | (Animation.Push, true)
-                          | (Animation.Pop, false) => Animation.In
-                          | _ => Animation.Out
-                          }
-                      })
-                   |> snd;
-                 }
-               );
+               if (isNotVisible || size == 1) {
+                 Style.style([]);
+               } else {
+                 let isLast = idx + 1 == size;
+                 let (first, second) =
+                   isLast ?
+                     (self.state.screens[idx - 1], screen) :
+                     (screen, self.state.screens[idx + 1]);
+                 screen.animatedValue
+                 |> second.animation({
+                      routes: (first.route, second.route),
+                      action,
+                      direction:
+                        switch (action, isLast) {
+                        | (Animation.Push, true)
+                        | (Animation.Pop, false) => Animation.In
+                        | _ => Animation.Out
+                        }
+                    })
+                 |> snd;
+               };
              <Animated.View
                key=screen.key style=Style.(concat([Styles.card, animation]))>
                (
