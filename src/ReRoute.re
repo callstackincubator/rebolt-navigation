@@ -50,6 +50,16 @@ module CreateNavigation = (Config: NavigationConfig) => {
             ),
             Style.(
               style([
+                opacity(
+                  Interpolated(
+                    Animated.Value.interpolate(
+                      value,
+                      ~inputRange=[(-1.0), (-0.99), 0.0, 0.99, 1.0],
+                      ~outputRange=`float([0.0, 1.0, 1.0, 0.85, 0.0]),
+                      ()
+                    )
+                  )
+                ),
                 Transform.makeInterpolated(
                   ~translateX=
                     Animated.Value.interpolate(
