@@ -1,7 +1,5 @@
 open BsReactNative;
 
-open ReRouteTypes;
-
 module StringMap =
   Map.Make(
     {
@@ -9,6 +7,8 @@ module StringMap =
       let compare = compare;
     }
   );
+
+module type NavigationConfig = {type route;};
 
 module UUID = {
   let count = ref(0);
@@ -21,7 +21,12 @@ module UUID = {
 };
 
 module CreateNavigation = (Config: NavigationConfig) => {
-  include Animation.Create(Config);
+  include
+    Animation.Create(
+      {
+        type options = (Config.route, Config.route);
+      }
+    );
   module StackNavigator = {
     type headerConfig = {title: option(string)};
     type animationConfig = Animation.t;
@@ -99,9 +104,9 @@ module CreateNavigation = (Config: NavigationConfig) => {
           let action = fromIdx < toIdx ? Animation.Push : Animation.Pop;
           let routes = (first.route, second.route);
           let fstAnim =
-            first.animatedValue |> second.animation({routes, action}) |> fst;
+            first.animatedValue |> second.animation(routes, action) |> fst;
           let sndAnim =
-            second.animatedValue |> second.animation({routes, action}) |> fst;
+            second.animatedValue |> second.animation(routes, action) |> fst;
           let (fstValues, sndValues) =
             switch action {
             | Animation.Push => ((0.0, (-1.0)), (1.0, 0.0))
@@ -191,10 +196,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                      (self.state.screens[idx - 1], screen) :
                      (screen, self.state.screens[idx + 1]);
                  screen.animatedValue
-                 |> second.animation({
-                      routes: (first.route, second.route),
-                      action
-                    })
+                 |> second.animation((first.route, second.route), action)
                  |> snd;
                };
              <Animated.View

@@ -1,8 +1,15 @@
 open BsReactNative;
 
-open ReRouteTypes;
+module type AnimationConfig = {
+  /**
+   * Options object is passed to every animation in order to generate
+   * the style and easing function to apply in context of particular two screens
+   * and interaction that happens between them.
+   */
+  type options;
+};
 
-module Create = (Config: NavigationConfig) => {
+module Create = (Config: AnimationConfig) => {
   module Animation = {
     /**
      * Animation can happen as a result of either `Push` or `Pop`
@@ -10,21 +17,6 @@ module Create = (Config: NavigationConfig) => {
     type action =
       | Push
       | Pop;
-    /**
-     * Options object is passed to every animation in order to generate
-     * the style and easing function to apply in context of particular two screens
-     * and interaction that happens between them.
-     *
-     * The `routes` tuple contains a pair of routes next to each other on stack.
-     * Action describes the interaction that happens between them.
-     *
-     * When `action` is of type `Push`, the second element is added onto the stack.
-     * Otherwise, the second element is being removed.
-     */
-    type options = {
-      routes: (Config.route, Config.route),
-      action
-    };
     /**
      * Animation type
      *
@@ -37,7 +29,7 @@ module Create = (Config: NavigationConfig) => {
      * `Animated.View` container of the current scene.
      */
     type t =
-      (options, Animated.Value.t) =>
+      (Config.options, action, Animated.Value.t) =>
       (
         (
           ~value: Animated.Value.value,
@@ -49,7 +41,7 @@ module Create = (Config: NavigationConfig) => {
     /**
      * Slide in/out animation modelled after iOS platform interactions
      */
-    let slideInOut = (_opts, value) => {
+    let slideInOut = (_opts, _action, value) => {
       let screenWidth = float(Dimensions.get(`window)##width);
       (
         Animated.Spring.animate(
@@ -89,7 +81,7 @@ module Create = (Config: NavigationConfig) => {
     /**
      * Simple fade in out animation
      */
-    let fadeInOut = (_opts, value) => (
+    let fadeInOut = (_opts, _action, value) => (
       Animated.Timing.animate(~duration=300.0, ()),
       Style.(
         style([
@@ -114,9 +106,9 @@ module Create = (Config: NavigationConfig) => {
     /**
      * No animation
      */
-    let none = (opts, value) => (
+    let none = (opts, action, value) => (
       Animated.Timing.animate(~duration=0.0, ()),
-      fadeInOut(opts, value) |> snd
+      fadeInOut(opts, action, value) |> snd
     );
   };
 };
