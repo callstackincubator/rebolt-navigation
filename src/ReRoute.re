@@ -95,7 +95,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
     type action =
       | Push(Config.route)
       | SetOptions(int, option(headerConfig), option(animationConfig))
-      | RemoveStaleScreens
+      | RemoveStaleScreen(int)
       | Pop;
     type navigation = {
       send: action => unit,
@@ -162,9 +162,9 @@ module CreateNavigation = (Config: NavigationConfig) => {
             switch action {
             | Animation.Push => ((0.0, (-1.0)), (1.0, 0.0))
             | Animation.Pop => (((-1.0), 0.0), (0.0, 1.0))
-            };
-          Animated.Value.setValue(first.animatedValue, fstValues |> fst);
-          Animated.Value.setValue(second.animatedValue, sndValues |> fst);
+						};
+					Animated.Value.stopAnimation(first.animatedValue);
+					Animated.Value.stopAnimation(second.animatedValue);
           Animated.CompositeAnimation.start(
             Animated.parallel(
               [|
@@ -179,6 +179,10 @@ module CreateNavigation = (Config: NavigationConfig) => {
               |],
               {"stopTogether": Js.Boolean.to_js_boolean(false)}
             ),
+            ~callback=
+              end_ =>
+                action == Animation.Pop && Js.to_bool(end_##finished) ?
+                  self.send(RemoveStaleScreen(fromIdx)) : (),
             ()
           );
           ();
@@ -206,13 +210,10 @@ module CreateNavigation = (Config: NavigationConfig) => {
               activeScreen: state.activeScreen - 1
             }) :
             ReasonReact.NoUpdate
-        | RemoveStaleScreens =>
-          ReasonReact.Update({
-            ...state,
-            screens:
-              state.screens
-              |> Js.Array.slice(~start=0, ~end_=state.activeScreen + 1)
-          })
+        | RemoveStaleScreen(idx) =>
+          let screens = Js.Array.copy(state.screens);
+          Js.Array.spliceInPlace(~pos=idx, ~remove=1, ~add=[||], screens);
+          ReasonReact.Update({...state, screens});
         | SetOptions(idx, headerConfig, animationConfig) =>
           let screens = Js.Array.copy(state.screens);
           screens[idx] = {
