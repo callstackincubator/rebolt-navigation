@@ -82,26 +82,6 @@ module Create = (Config: AnimationConfig) => {
       );
     };
     /**
-     * Simple fade in out animation
-     */
-    let fadeInOut = (_opts, _action, value) => (
-      Animated.Timing.animate(~duration=300.0, ()),
-      Style.(
-        style([
-          opacity(
-            Interpolated(
-              Animated.Value.interpolate(
-                value,
-                ~inputRange=[(-1), 0, 1] |> List.map(float),
-                ~outputRange=`float([0.0, 1.0, 0.0]),
-                ()
-              )
-            )
-          )
-        ])
-      )
-    );
-    /**
      * Platform-specific default animation that is picked by navigators when
      * nothing else is set
      */
@@ -109,9 +89,9 @@ module Create = (Config: AnimationConfig) => {
     /**
      * No animation
      */
-    let none = (opts, action, value) => (
+    let none = (_opts, _action, _value) => (
       Animated.Timing.animate(~duration=0.0, ()),
-      fadeInOut(opts, action, value) |> snd
+      Style.style([])
     );
   };
 };
