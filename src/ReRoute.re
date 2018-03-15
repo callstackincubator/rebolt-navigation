@@ -2,15 +2,42 @@ open BsReactNative;
 
 open Utils;
 
+module Styles = {
+  open Style;
+  let fill =
+    style([
+      position(Absolute),
+      top(Pt(0.0)),
+      left(Pt(0.0)),
+      right(Pt(0.0)),
+      bottom(Pt(0.0))
+    ]);
+  let card =
+    style([
+      backgroundColor("#E9E9EF"),
+      shadowColor("black"),
+      shadowOffset(~width=0.0, ~height=0.0),
+      shadowOpacity(0.2),
+      shadowRadius(5.0)
+    ]);
+};
+
 module type NavigationConfig = {type route;};
 
 module CreateNavigation = (Config: NavigationConfig) => {
+  /**
+	 * Configure Animation module to receive additional payload for
+	 * configuration purposes.
+	 */
   include
     Animation.Create(
       {
         type options = (Config.route, Config.route);
       }
     );
+  /**
+	 * StackNavigator
+	 */
   module StackNavigator = {
     module Header = {
       type t = {title: option(string)};
@@ -34,7 +61,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
       key: string,
       header: option(Header.t),
       animatedValue: Animated.Value.t,
-      animation: Animation.t
+      animation: Animation.t,
+      style: Style.t
     };
     type state = {
       screens: array(screenConfig),
@@ -42,25 +70,17 @@ module CreateNavigation = (Config: NavigationConfig) => {
     };
     type action =
       | Push(Config.route)
-      | SetOptions(string, option(Header.t), option(Animation.t))
+      | SetOptions(
+          string,
+          option(Header.t),
+          option(Animation.t),
+          option(Style.t)
+        )
       | RemoveStaleScreen(string)
       | Pop;
     type navigation = {
       send: action => unit,
       key: string
-    };
-    module Styles = {
-      let card =
-        Style.(
-          style([
-            position(Absolute),
-            top(Pt(0.0)),
-            left(Pt(0.0)),
-            right(Pt(0.0)),
-            bottom(Pt(0.0)),
-            backgroundColor("#ffffff")
-          ])
-        );
     };
     let component = ReasonReact.reducerComponent("StackNavigator");
     let make = (~initialRoute, children) => {
@@ -72,7 +92,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
             header: None,
             animation: Animation.default,
             key: UUID.generate(),
-            animatedValue: Animated.Value.create(0.0)
+            animatedValue: Animated.Value.create(0.0),
+            style: Styles.card
           }
         |],
         activeScreen: 0
@@ -129,7 +150,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
             header: None,
             animation: Animation.default,
             animatedValue: Animated.Value.create(1.0),
-            key: UUID.generate()
+            key: UUID.generate(),
+            style: Styles.card
           };
           let _ignored =
             screens
@@ -150,7 +172,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
           let _removed =
             Js.Array.spliceInPlace(~pos=idx, ~remove=1, ~add=[||], screens);
           ReasonReact.Update({...state, screens});
-        | SetOptions(key, headerConfig, animationConfig) =>
+        | SetOptions(key, headerConfig, animationConfig, style) =>
           let screens = Js.Array.copy(state.screens);
           let idx =
             screens
@@ -158,6 +180,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
           screens[idx] = {
             ...screens[idx],
             header: headerConfig,
+            style: style |> Js.Option.getWithDefault(screens[idx].style),
             animation:
               animationConfig
               |> Js.Option.getWithDefault(screens[idx].animation)
@@ -184,7 +207,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
                  |> snd;
                };
              <Animated.View
-               key=screen.key style=Style.(concat([Styles.card, animation]))>
+               key=screen.key
+               style=Style.(concat([Styles.fill, screen.style, animation]))>
                (
                  switch screen.header {
                  | Some(config) => <Header config />
@@ -209,11 +233,22 @@ module CreateNavigation = (Config: NavigationConfig) => {
     open StackNavigator;
     let component = ReasonReact.statelessComponent("CallstackScreen");
     let make =
-        (~navigation: navigation, ~headerTitle=?, ~animation=?, children) => {
+        (
+          ~navigation: navigation,
+          ~style=?,
+          ~headerTitle=?,
+          ~animation=?,
+          children
+        ) => {
       ...component,
       didMount: _self => {
         navigation.send(
-          SetOptions(navigation.key, Some({title: headerTitle}), animation)
+          SetOptions(
+            navigation.key,
+            Some({title: headerTitle}),
+            animation,
+            style
+          )
         );
         ReasonReact.NoUpdate;
       },
