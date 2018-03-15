@@ -164,8 +164,6 @@ module CreateNavigation = (Config: NavigationConfig) => {
             | Animation.Push => ((0.0, (-1.0)), (1.0, 0.0))
             | Animation.Pop => (((-1.0), 0.0), (0.0, 1.0))
             };
-          Animated.Value.stopAnimation(first.animatedValue, ());
-          Animated.Value.stopAnimation(second.animatedValue, ());
           Animated.CompositeAnimation.start(
             Animated.parallel(
               [|
