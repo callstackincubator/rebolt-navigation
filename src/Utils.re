@@ -1,3 +1,7 @@
+/**
+ * React Navigation inspired UUID module
+ * https://github.com/react-navigation/react-navigation/blob/master/src/routers/KeyGenerator.js
+ */
 module UUID = {
   let count = ref(0);
   let generate = () => {
@@ -7,11 +11,3 @@ module UUID = {
     ++ string_of_int(count^);
   };
 };
-
-module StringMap =
-  Map.Make(
-    {
-      type t = string;
-      let compare = compare;
-    }
-  );

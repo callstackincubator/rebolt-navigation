@@ -9,6 +9,9 @@ module type AnimationConfig = {
   type options;
 };
 
+/**
+ * Animation module
+ */
 module Create = (Config: AnimationConfig) => {
   module Animation = {
     /**
