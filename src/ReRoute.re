@@ -10,6 +10,11 @@ module StringMap =
     }
   );
 
+module UUID = {
+  let generate = () =>
+    "id-" ++ (Js.Date.now() |> Js.Date.fromFloat |> Js.Date.toString);
+};
+
 module CreateNavigation = (Config: NavigationConfig) => {
   module StackNavigator = {
     module Animation = {
@@ -139,7 +144,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
             route: initialRoute,
             header: None,
             animation: Animation.default,
-            key: "0",
+            key: UUID.generate(),
             animatedValue: Animated.Value.create(0.0)
           }
         |],
@@ -197,7 +202,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
             header: None,
             animation: Animation.default,
             animatedValue: Animated.Value.create(1.0),
-            key: string_of_int(index)
+            key: UUID.generate()
           };
           let _ignored =
             screens
