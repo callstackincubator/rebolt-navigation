@@ -5,37 +5,37 @@ open ReRouteTypes;
 module Create = (Config: NavigationConfig) => {
   module Animation = {
     /**
-		 * Animation can happen as a result of either `Push` or `Pop`
-		 */
+     * Animation can happen as a result of either `Push` or `Pop`
+     */
     type action =
       | Push
       | Pop;
     /**
-		 * Options object is passed to every animation in order to generate
-		 * the style and easing function to apply in context of particular two screens
-		 * and interaction that happens between them.
-		 *
-		 * The `routes` tuple contains a pair of routes next to each other on stack.
-		 * Action describes the interaction that happens between them.
-		 *
-		 * When `action` is of type `Push`, the second element is added onto the stack.
-		 * Otherwise, the second element is being removed.
-		 */
+     * Options object is passed to every animation in order to generate
+     * the style and easing function to apply in context of particular two screens
+     * and interaction that happens between them.
+     *
+     * The `routes` tuple contains a pair of routes next to each other on stack.
+     * Action describes the interaction that happens between them.
+     *
+     * When `action` is of type `Push`, the second element is added onto the stack.
+     * Otherwise, the second element is being removed.
+     */
     type options = {
       routes: (Config.route, Config.route),
       action
     };
     /**
-		 * Animation type
-		 *
-		 * First element is partially applied Animated function (e.g. Spring)
-		 * that specifies the configuration of the animation to use.
-		 *
-		 * Note that `value` and `toValue` are applied later by current navigator.
-		 *
-		 * Second element is a React Native style element that is applied to
-		 * `Animated.View` container of the current scene.
-		 */
+     * Animation type
+     *
+     * First element is partially applied Animated function (e.g. Spring)
+     * that specifies the configuration of the animation to use.
+     *
+     * Note that `value` and `toValue` are applied later by current navigator.
+     *
+     * Second element is a React Native style element that is applied to
+     * `Animated.View` container of the current scene.
+     */
     type t =
       (options, Animated.Value.t) =>
       (
@@ -47,8 +47,8 @@ module Create = (Config: NavigationConfig) => {
         Style.t
       );
     /**
-		 * Slide in/out animation modelled after iOS platform interactions
-		 */
+     * Slide in/out animation modelled after iOS platform interactions
+     */
     let slideInOut = (_opts, value) => {
       let screenWidth = float(Dimensions.get(`window)##width);
       (
@@ -87,8 +87,8 @@ module Create = (Config: NavigationConfig) => {
       );
     };
     /**
-		 * Simple fade in out animation
-		 */
+     * Simple fade in out animation
+     */
     let fadeInOut = (_opts, value) => (
       Animated.Timing.animate(~duration=300.0, ()),
       Style.(
@@ -107,13 +107,13 @@ module Create = (Config: NavigationConfig) => {
       )
     );
     /**
-		 * Platform-specific default animation that is picked by navigators when
-		 * nothing else is set
-		 */
+     * Platform-specific default animation that is picked by navigators when
+     * nothing else is set
+     */
     let default = slideInOut;
     /**
-		 * No animation
-		 */
+     * No animation
+     */
     let none = (opts, value) => (
       Animated.Timing.animate(~duration=0.0, ()),
       fadeInOut(opts, value) |> snd
