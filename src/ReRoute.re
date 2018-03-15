@@ -12,12 +12,26 @@ module CreateNavigation = (Config: NavigationConfig) => {
       }
     );
   module StackNavigator = {
-    type headerConfig = {title: option(string)};
-    type animationConfig = Animation.t;
+    module Header = {
+      type t = {title: option(string)};
+      let component = ReasonReact.statelessComponent("StackHeader");
+      let def = (opt, def) =>
+        switch opt {
+        | Some(value) => value
+        | None => def
+        };
+      let make = (~config: t, _children) => {
+        ...component,
+        render: _self =>
+          <View>
+            <Text> (ReasonReact.stringToElement(def(config.title, ""))) </Text>
+          </View>
+      };
+    };
     type screenConfig = {
       route: Config.route,
       key: string,
-      header: option(headerConfig),
+      header: option(Header.t),
       animatedValue: Animated.Value.t,
       animation: Animation.t
     };
@@ -27,27 +41,12 @@ module CreateNavigation = (Config: NavigationConfig) => {
     };
     type action =
       | Push(Config.route)
-      | SetOptions(string, option(headerConfig), option(animationConfig))
+      | SetOptions(string, option(Header.t), option(Animation.t))
       | RemoveStaleScreen(string)
       | Pop;
     type navigation = {
       send: action => unit,
       key: string
-    };
-    module Header = {
-      let component = ReasonReact.statelessComponent("StackHeader");
-      let def = (opt, def) =>
-        switch opt {
-        | Some(value) => value
-        | None => def
-        };
-      let make = (~config: headerConfig, _children) => {
-        ...component,
-        render: _self =>
-          <View>
-            <Text> (ReasonReact.stringToElement(def(config.title, ""))) </Text>
-          </View>
-      };
     };
     module Styles = {
       let card =
