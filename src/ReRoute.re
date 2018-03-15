@@ -204,7 +204,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
             screens: state.screens |> Js.Array.concat([|screen|])
           });
         | Pop =>
-          Array.length(state.screens) > 1 ?
+					state.activeScreen > 0 ?
             ReasonReact.Update({
               ...state,
               activeScreen: state.activeScreen - 1
@@ -212,7 +212,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
             ReasonReact.NoUpdate
         | RemoveStaleScreen(idx) =>
           let screens = Js.Array.copy(state.screens);
-          Js.Array.spliceInPlace(~pos=idx, ~remove=1, ~add=[||], screens);
+          let _removed = Js.Array.spliceInPlace(~pos=idx, ~remove=1, ~add=[||], screens);
           ReasonReact.Update({...state, screens});
         | SetOptions(idx, headerConfig, animationConfig) =>
           let screens = Js.Array.copy(state.screens);
