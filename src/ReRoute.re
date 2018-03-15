@@ -15,16 +15,17 @@ module CreateNavigation = (Config: NavigationConfig) => {
     module Header = {
       type t = {title: option(string)};
       let component = ReasonReact.statelessComponent("StackHeader");
-      let def = (opt, def) =>
-        switch opt {
-        | Some(value) => value
-        | None => def
-        };
       let make = (~config: t, _children) => {
         ...component,
         render: _self =>
           <View>
-            <Text> (ReasonReact.stringToElement(def(config.title, ""))) </Text>
+            <Text>
+              (
+                ReasonReact.stringToElement(
+                  Js.Option.getWithDefault("", config.title)
+                )
+              )
+            </Text>
           </View>
       };
     };
