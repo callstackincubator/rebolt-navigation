@@ -16,12 +16,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
       type action =
         | Push
         | Pop;
-      type direction =
-        | In
-        | Out;
       type options = {
         routes: (Config.route, Config.route),
-        direction,
         action
       };
       type config =
@@ -47,16 +43,9 @@ module CreateNavigation = (Config: NavigationConfig) => {
                   ~translateX=
                     Animated.Value.interpolate(
                       value,
-                      ~inputRange=[0, 1] |> List.map(float),
+                      ~inputRange=[(-1), 0, 1] |> List.map(float),
                       ~outputRange=
-                        `float(
-                          switch (opts.action, opts.direction) {
-                          | (Pop, Out) => [0.0, screenWidth]
-                          | (Push, In) => [screenWidth, 0.0]
-                          | (Pop, In) => [-. screenWidth *. 0.3, 0.0]
-                          | (Push, Out) => [0.0, -. screenWidth *. 0.3]
-                          }
-                        ),
+                        `float([-. screenWidth *. 0.3, 0.0, screenWidth]),
                       ()
                     ),
                   ()
@@ -66,7 +55,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
           );
         };
       let fadeInOut: t =
-        (opts, value) => (
+        (_opts, value) => (
           Animated.Timing.animate(~duration=300.0, ()),
           Style.(
             style([
@@ -74,9 +63,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
                 Interpolated(
                   Animated.Value.interpolate(
                     value,
-                    ~inputRange=[0, 1] |> List.map(float),
-                    ~outputRange=
-                      `float(opts.direction == In ? [0.0, 1.0] : [1.0, 0.0]),
+                    ~inputRange=[(-1), 0, 1] |> List.map(float),
+                    ~outputRange=`float([0.0, 1.0, 0.0]),
                     ()
                   )
                 )
@@ -167,37 +155,30 @@ module CreateNavigation = (Config: NavigationConfig) => {
           let action = fromIdx < toIdx ? Animation.Push : Animation.Pop;
           let routes = (first.route, second.route);
           let fstAnim =
-            first.animatedValue
-            |> second.animation({
-                 routes,
-                 action,
-                 direction:
-                   action == Animation.Push ? Animation.Out : Animation.In
-               })
-            |> fst;
+            first.animatedValue |> second.animation({routes, action}) |> fst;
           let sndAnim =
-            second.animatedValue
-            |> second.animation({
-                 routes,
-                 action,
-                 direction:
-                   action == Animation.Push ? Animation.In : Animation.Out
-               })
-            |> fst;
-          Animated.Value.setValue(first.animatedValue, 0.0);
-          Animated.Value.setValue(second.animatedValue, 0.0);
+            second.animatedValue |> second.animation({routes, action}) |> fst;
+          let (fstValues, sndValues) =
+            switch action {
+            | Animation.Push => ((0.0, (-1.0)), (1.0, 0.0))
+            | Animation.Pop => (((-1.0), 0.0), (0.0, 1.0))
+            };
+          Animated.Value.setValue(first.animatedValue, fstValues |> fst);
+          Animated.Value.setValue(second.animatedValue, sndValues |> fst);
           Animated.CompositeAnimation.start(
             Animated.parallel(
               [|
-                fstAnim(~value=first.animatedValue, ~toValue=`raw(1.0)),
-                sndAnim(~value=second.animatedValue, ~toValue=`raw(1.0))
+                fstAnim(
+                  ~value=first.animatedValue,
+                  ~toValue=`raw(fstValues |> snd)
+                ),
+                sndAnim(
+                  ~value=second.animatedValue,
+                  ~toValue=`raw(sndValues |> snd)
+                )
               |],
               {"stopTogether": Js.Boolean.to_js_boolean(false)}
             ),
-            ~callback=
-              end_ =>
-                action == Animation.Pop && Js.to_bool(end_##finished) ?
-                  self.send(RemoveStaleScreens) : (),
             ()
           );
           ();
@@ -262,13 +243,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                  screen.animatedValue
                  |> second.animation({
                       routes: (first.route, second.route),
-                      action,
-                      direction:
-                        switch (action, isLast) {
-                        | (Animation.Push, true)
-                        | (Animation.Pop, false) => Animation.In
-                        | _ => Animation.Out
-                        }
+                      action
                     })
                  |> snd;
                };
