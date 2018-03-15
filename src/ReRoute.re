@@ -11,8 +11,13 @@ module StringMap =
   );
 
 module UUID = {
-  let generate = () =>
-    "id-" ++ (Js.Date.now() |> Js.Date.fromFloat |> Js.Date.toString);
+  let count = ref(0);
+  let generate = () => {
+    count := count^ + 1;
+    "id-"
+    ++ (Js.Date.now() |> Js.Date.fromFloat |> Js.Date.toString)
+    ++ string_of_int(count^);
+  };
 };
 
 module CreateNavigation = (Config: NavigationConfig) => {
