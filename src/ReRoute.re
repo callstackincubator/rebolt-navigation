@@ -96,7 +96,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
     type action =
       | Push(Config.route)
       | SetOptions(string, option(headerConfig), option(animationConfig))
-      | RemoveStaleScreen(int)
+      | RemoveStaleScreen(string)
       | Pop;
     type navigation = {
       send: action => unit,
@@ -181,7 +181,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
             ~callback=
               end_ =>
                 action == Animation.Pop && Js.to_bool(end_##finished) ?
-                  self.send(RemoveStaleScreen(fromIdx)) : (),
+                  self.send(RemoveStaleScreen(second.key)) : (),
             ()
           );
           ();
@@ -210,8 +210,11 @@ module CreateNavigation = (Config: NavigationConfig) => {
               activeScreen: state.activeScreen - 1
             }) :
             ReasonReact.NoUpdate
-        | RemoveStaleScreen(idx) =>
+        | RemoveStaleScreen(key) =>
           let screens = Js.Array.copy(state.screens);
+          let idx =
+            screens
+            |> Js.Array.findIndex((screen: screenConfig) => screen.key == key);
           let _removed =
             Js.Array.spliceInPlace(~pos=idx, ~remove=1, ~add=[||], screens);
           ReasonReact.Update({...state, screens});
