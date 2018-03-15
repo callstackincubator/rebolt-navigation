@@ -95,12 +95,12 @@ module CreateNavigation = (Config: NavigationConfig) => {
     };
     type action =
       | Push(Config.route)
-      | SetOptions(int, option(headerConfig), option(animationConfig))
+      | SetOptions(string, option(headerConfig), option(animationConfig))
       | RemoveStaleScreen(int)
       | Pop;
     type navigation = {
       send: action => unit,
-      index: int
+      key: string
     };
     module Header = {
       let component = ReasonReact.statelessComponent("StackHeader");
@@ -215,8 +215,11 @@ module CreateNavigation = (Config: NavigationConfig) => {
           let _removed =
             Js.Array.spliceInPlace(~pos=idx, ~remove=1, ~add=[||], screens);
           ReasonReact.Update({...state, screens});
-        | SetOptions(idx, headerConfig, animationConfig) =>
+        | SetOptions(key, headerConfig, animationConfig) =>
           let screens = Js.Array.copy(state.screens);
+          let idx =
+            screens
+            |> Js.Array.findIndex((screen: screenConfig) => screen.key == key);
           screens[idx] = {
             ...screens[idx],
             header: headerConfig,
@@ -260,7 +263,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                  (
                    children(
                      ~currentRoute=screen.route,
-                     ~navigation={send: self.send, index: idx}
+                     ~navigation={send: self.send, key: screen.key}
                    )
                  )
                </View>
@@ -278,7 +281,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
       ...component,
       didMount: _self => {
         navigation.send(
-          SetOptions(navigation.index, Some({title: headerTitle}), animation)
+          SetOptions(navigation.key, Some({title: headerTitle}), animation)
         );
         ReasonReact.NoUpdate;
       },
