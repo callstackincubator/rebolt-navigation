@@ -28,7 +28,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
         Animated.CompositeAnimation.t;
       type t = (options, Animated.Value.t) => (config, Style.t);
       let slideInOut: t =
-        (opts, value) => {
+        (_opts, value) => {
           let screenWidth = float(Dimensions.get(`window)##width);
           (
             Animated.Spring.animate(
@@ -139,7 +139,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
             header: None,
             animation: Animation.default,
             key: "0",
-            animatedValue: Animated.Value.create(1.0)
+            animatedValue: Animated.Value.create(0.0)
           }
         |],
         activeScreen: 0
@@ -192,7 +192,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
             route,
             header: None,
             animation: Animation.default,
-            animatedValue: Animated.Value.create(0.0),
+            animatedValue: Animated.Value.create(1.0),
             key: string_of_int(index)
           };
           ReasonReact.Update({
@@ -230,9 +230,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
           self.state.activeScreen + 1 < size ? Animation.Pop : Animation.Push;
         self.state.screens
         |> Array.mapi((idx, screen: screenConfig) => {
-             let isNotVisible = idx + 2 < size;
              let animation =
-               if (isNotVisible || size == 1) {
+               if (size == 1) {
                  Style.style([]);
                } else {
                  let isLast = idx + 1 == size;
