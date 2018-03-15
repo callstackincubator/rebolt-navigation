@@ -35,6 +35,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
               ~stiffness=100.0,
               ~damping=500.0,
               ~mass=3.0,
+              ~useNativeDriver=Js.Boolean.to_js_boolean(true),
               ()
             ),
             Style.(
@@ -162,9 +163,9 @@ module CreateNavigation = (Config: NavigationConfig) => {
             switch action {
             | Animation.Push => ((0.0, (-1.0)), (1.0, 0.0))
             | Animation.Pop => (((-1.0), 0.0), (0.0, 1.0))
-						};
-					Animated.Value.stopAnimation(first.animatedValue);
-					Animated.Value.stopAnimation(second.animatedValue);
+            };
+          Animated.Value.stopAnimation(first.animatedValue, ());
+          Animated.Value.stopAnimation(second.animatedValue, ());
           Animated.CompositeAnimation.start(
             Animated.parallel(
               [|
@@ -191,7 +192,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
       reducer: (action, state) =>
         switch action {
         | Push(route) =>
-          let index = Array.length(state.screens);
+          let index = state.activeScreen + 1;
+          let screens = Js.Array.copy(state.screens);
           let screen = {
             route,
             header: None,
@@ -199,12 +201,12 @@ module CreateNavigation = (Config: NavigationConfig) => {
             animatedValue: Animated.Value.create(1.0),
             key: string_of_int(index)
           };
-          ReasonReact.Update({
-            activeScreen: index,
-            screens: state.screens |> Js.Array.concat([|screen|])
-          });
+          let _ignored =
+            screens
+            |> Js.Array.spliceInPlace(~pos=index, ~remove=0, ~add=[|screen|]);
+          ReasonReact.Update({activeScreen: index, screens});
         | Pop =>
-					state.activeScreen > 0 ?
+          state.activeScreen > 0 ?
             ReasonReact.Update({
               ...state,
               activeScreen: state.activeScreen - 1
@@ -212,7 +214,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
             ReasonReact.NoUpdate
         | RemoveStaleScreen(idx) =>
           let screens = Js.Array.copy(state.screens);
-          let _removed = Js.Array.spliceInPlace(~pos=idx, ~remove=1, ~add=[||], screens);
+          let _removed =
+            Js.Array.spliceInPlace(~pos=idx, ~remove=1, ~add=[||], screens);
           ReasonReact.Update({...state, screens});
         | SetOptions(idx, headerConfig, animationConfig) =>
           let screens = Js.Array.copy(state.screens);
