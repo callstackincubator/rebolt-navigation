@@ -26,9 +26,9 @@ module type NavigationConfig = {type route;};
 
 module CreateNavigation = (Config: NavigationConfig) => {
   /**
-	 * Configure Animation module to receive additional payload for
-	 * configuration purposes.
-	 */
+   * Configure Animation module to receive additional payload for
+   * configuration purposes.
+   */
   include
     Animation.Create(
       {
@@ -36,8 +36,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
       }
     );
   /**
-	 * StackNavigator
-	 */
+   * StackNavigator
+   */
   module StackNavigator = {
     module Header = {
       type t = {title: option(string)};
