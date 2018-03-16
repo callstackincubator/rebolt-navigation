@@ -13,12 +13,10 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
              <View>
                <Text> (ReasonReact.stringToElement("Home")) </Text>
                <View>
-                 <TouchableOpacity
-                   onPress=(_e => nav.send(StackNavigator.Push(Config.Admin)))>
+                 <TouchableOpacity onPress=(_e => nav.push(Config.Admin))>
                    <Text> (ReasonReact.stringToElement("Push")) </Text>
                  </TouchableOpacity>
-                 <TouchableOpacity
-                   onPress=(_e => nav.send(StackNavigator.Pop))>
+                 <TouchableOpacity onPress=(_e => nav.pop())>
                    <Text> (ReasonReact.stringToElement("Pop")) </Text>
                  </TouchableOpacity>
                </View>

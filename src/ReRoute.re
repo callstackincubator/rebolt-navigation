@@ -69,20 +69,24 @@ module CreateNavigation = (Config: NavigationConfig) => {
       activeScreen: int
     };
     type action =
-      | Push(Config.route)
+      | Push(Config.route, string)
       | SetOptions(
-          string,
           option(Header.t),
           option(Animation.t),
-          option(Style.t)
+          option(Style.t),
+          string
         )
       | RemoveStaleScreen(string)
-      | Pop;
+      | Pop(string);
     type navigation = {
       send: action => unit,
+      push: Config.route => unit,
+      pop: unit => unit,
       key: string
     };
     let component = ReasonReact.reducerComponent("StackNavigator");
+    let isActiveScreen = (state, key) =>
+      state.screens[state.activeScreen].key == key;
     let make = (~initialRoute, children) => {
       ...component,
       initialState: () => {
@@ -142,28 +146,34 @@ module CreateNavigation = (Config: NavigationConfig) => {
       },
       reducer: (action, state) =>
         switch action {
-        | Push(route) =>
-          let index = state.activeScreen + 1;
-          let screens = Js.Array.copy(state.screens);
-          let screen = {
-            route,
-            header: None,
-            animation: Animation.default,
-            animatedValue: Animated.Value.create(1.0),
-            key: UUID.generate(),
-            style: Styles.card
-          };
-          let _ignored =
-            screens
-            |> Js.Array.spliceInPlace(~pos=index, ~remove=0, ~add=[|screen|]);
-          ReasonReact.Update({activeScreen: index, screens});
-        | Pop =>
-          state.activeScreen > 0 ?
+        | Push(route, key) =>
+          if (! isActiveScreen(state, key)) {
+            ReasonReact.NoUpdate;
+          } else {
+            let index = state.activeScreen + 1;
+            let screens = Js.Array.copy(state.screens);
+            let screen = {
+              route,
+              header: None,
+              animation: Animation.default,
+              animatedValue: Animated.Value.create(1.0),
+              key: UUID.generate(),
+              style: Styles.card
+            };
+            let _ignored =
+              screens
+              |> Js.Array.spliceInPlace(~pos=index, ~remove=0, ~add=[|screen|]);
+            ReasonReact.Update({activeScreen: index, screens});
+          }
+        | Pop(key) =>
+          if (! isActiveScreen(state, key) || state.activeScreen == 0) {
+            ReasonReact.NoUpdate;
+          } else {
             ReasonReact.Update({
               ...state,
               activeScreen: state.activeScreen - 1
-            }) :
-            ReasonReact.NoUpdate
+            });
+          }
         | RemoveStaleScreen(key) =>
           let screens = Js.Array.copy(state.screens);
           let idx =
@@ -172,7 +182,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
           let _removed =
             Js.Array.spliceInPlace(~pos=idx, ~remove=1, ~add=[||], screens);
           ReasonReact.Update({...state, screens});
-        | SetOptions(key, headerConfig, animationConfig, style) =>
+        | SetOptions(headerConfig, animationConfig, style, key) =>
           let screens = Js.Array.copy(state.screens);
           let idx =
             screens
@@ -219,7 +229,12 @@ module CreateNavigation = (Config: NavigationConfig) => {
                  (
                    children(
                      ~currentRoute=screen.route,
-                     ~navigation={send: self.send, key: screen.key}
+                     ~navigation={
+                       send: self.send,
+                       push: route => self.send(Push(route, screen.key)),
+                       pop: () => self.send(Pop(screen.key)),
+                       key: screen.key
+                     }
                    )
                  )
                </View>
@@ -244,10 +259,10 @@ module CreateNavigation = (Config: NavigationConfig) => {
       didMount: _self => {
         navigation.send(
           SetOptions(
-            navigation.key,
             Some({title: headerTitle}),
             animation,
-            style
+            style,
+            navigation.key
           )
         );
         ReasonReact.NoUpdate;
