@@ -68,21 +68,20 @@ module CreateNavigation = (Config: NavigationConfig) => {
       screens: array(screenConfig),
       activeScreen: int
     };
+    type options = {
+      header: option(Header.t),
+      animation: option(Animation.t),
+      style: option(Style.t)
+    };
     type action =
       | Push(Config.route, string)
-      | SetOptions(
-          option(Header.t),
-          option(Animation.t),
-          option(Style.t),
-          string
-        )
+      | SetOptions(options, string)
       | RemoveStaleScreen(string)
       | Pop(string);
     type navigation = {
-      send: action => unit,
       push: Config.route => unit,
-      pop: unit => unit,
-      key: string
+      setOptions: options => unit,
+      pop: unit => unit
     };
     let component = ReasonReact.reducerComponent("StackNavigator");
     let isActiveScreen = (state, key) =>
@@ -211,18 +210,17 @@ module CreateNavigation = (Config: NavigationConfig) => {
         /***
          * Sets option for a screen with a given key
          */
-        | SetOptions(headerConfig, animationConfig, style, key) =>
+        | SetOptions({header, animation, style}, key) =>
           let screens = Js.Array.copy(state.screens);
           let idx =
             screens
             |> Js.Array.findIndex((screen: screenConfig) => screen.key == key);
           screens[idx] = {
             ...screens[idx],
-            header: headerConfig,
+            header,
             style: style |> Js.Option.getWithDefault(screens[idx].style),
             animation:
-              animationConfig
-              |> Js.Option.getWithDefault(screens[idx].animation)
+              animation |> Js.Option.getWithDefault(screens[idx].animation)
           };
           ReasonReact.Update({...state, screens});
         },
@@ -259,10 +257,10 @@ module CreateNavigation = (Config: NavigationConfig) => {
                    children(
                      ~currentRoute=screen.route,
                      ~navigation={
-                       send: self.send,
                        push: route => self.send(Push(route, screen.key)),
                        pop: () => self.send(Pop(screen.key)),
-                       key: screen.key
+                       setOptions: opts =>
+                         self.send(SetOptions(opts, screen.key))
                      }
                    )
                  )
@@ -286,14 +284,11 @@ module CreateNavigation = (Config: NavigationConfig) => {
         ) => {
       ...component,
       didMount: _self => {
-        navigation.send(
-          SetOptions(
-            Some({title: headerTitle}),
-            animation,
-            style,
-            navigation.key
-          )
-        );
+        navigation.setOptions({
+          header: Some({title: headerTitle}),
+          animation,
+          style
+        });
         ReasonReact.NoUpdate;
       },
       render: _self => {
