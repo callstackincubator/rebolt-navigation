@@ -144,44 +144,73 @@ module CreateNavigation = (Config: NavigationConfig) => {
           ();
         };
       },
+      /***
+       * StackNavigator router
+       *
+       * Most actions are indempotent and have `isActiveScreen(state, key)` check
+       * to make sure we only accept one action from the screen that changes the
+       * state.
+       */
       reducer: (action, state) =>
         switch action {
+        /***
+         * Pushes new screen onto the stack
+         *
+         * Note: We push the item right after the active one (instead of always
+         * adding to the end). This is to make sure no glitches happen when you
+         * push in the middle of a pop.
+         */
         | Push(route, key) =>
-          if (! isActiveScreen(state, key)) {
-            ReasonReact.NoUpdate;
-          } else {
+          if (isActiveScreen(state, key)) {
             let index = state.activeScreen + 1;
-            let screens = Js.Array.copy(state.screens);
-            let screen = {
-              route,
-              header: None,
-              animation: Animation.default,
-              animatedValue: Animated.Value.create(1.0),
-              key: UUID.generate(),
-              style: Styles.card
-            };
-            let _ignored =
-              screens
-              |> Js.Array.spliceInPlace(~pos=index, ~remove=0, ~add=[|screen|]);
-            ReasonReact.Update({activeScreen: index, screens});
-          }
-        | Pop(key) =>
-          if (! isActiveScreen(state, key) || state.activeScreen == 0) {
-            ReasonReact.NoUpdate;
+            ReasonReact.Update({
+              activeScreen: index,
+              screens:
+                state.screens
+                |> ReArray.append(
+                     {
+                       route,
+                       header: None,
+                       animation: Animation.default,
+                       animatedValue: Animated.Value.create(1.0),
+                       key: UUID.generate(),
+                       style: Styles.card
+                     },
+                     index
+                   )
+            });
           } else {
+            ReasonReact.NoUpdate;
+          }
+        /***
+         * Pops screen from the stack
+         */
+        | Pop(key) =>
+          if (state.activeScreen > 0 && isActiveScreen(state, key)) {
             ReasonReact.Update({
               ...state,
               activeScreen: state.activeScreen - 1
             });
+          } else {
+            ReasonReact.NoUpdate;
           }
+        /***
+         * Removes a stale screen from the stack w/o animation.
+         *
+         * This is usually done when the pop animation of particular screen
+         * finishes and the screen is no longer within the viewport.
+         */
         | RemoveStaleScreen(key) =>
-          let screens = Js.Array.copy(state.screens);
           let idx =
-            screens
+            state.screens
             |> Js.Array.findIndex((screen: screenConfig) => screen.key == key);
-          let _removed =
-            Js.Array.spliceInPlace(~pos=idx, ~remove=1, ~add=[||], screens);
-          ReasonReact.Update({...state, screens});
+          ReasonReact.Update({
+            ...state,
+            screens: state.screens |> ReArray.remove(idx)
+          });
+        /***
+         * Sets option for a screen with a given key
+         */
         | SetOptions(headerConfig, animationConfig, style, key) =>
           let screens = Js.Array.copy(state.screens);
           let idx =

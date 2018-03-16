@@ -11,3 +11,21 @@ module UUID = {
     ++ string_of_int(count^);
   };
 };
+
+/**
+ * Some common Array operations used within ReRoute extracted to one place
+ */
+module ReArray = {
+  let append = (el, idx, arr) => {
+    let copied = Js.Array.copy(arr);
+    let _ignored =
+      copied |> Js.Array.spliceInPlace(~pos=idx, ~remove=0, ~add=[|el|]);
+    copied;
+  };
+  let remove = (idx, arr) => {
+    let copied = Js.Array.copy(arr);
+    let _ignored =
+      copied |> Js.Array.spliceInPlace(~pos=idx, ~remove=idx, ~add=[||]);
+    copied;
+  };
+};
