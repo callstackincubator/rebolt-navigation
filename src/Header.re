@@ -1,11 +1,24 @@
 open BsReactNative;
 
+/**
+ * Header config
+ */
 type config = {title: option(string)};
 
+/**
+ * Screen config that is used by this Header
+ */
 type screenConfig = {header: config};
 
+/**
+ * Default configuration used on Screen that is mounting or has
+ * no Screen component inside
+ */
 let default = {title: None};
 
+/**
+ * Default implementation of Header on iOS
+ */
 module FloatingHeader = {
   let component = ReasonReact.statelessComponent("FloatingHeader");
   let (appBarHeight, statusBarHeight) =
