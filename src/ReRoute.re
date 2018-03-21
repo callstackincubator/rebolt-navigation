@@ -12,6 +12,7 @@ module Styles = {
       right(Pt(0.0)),
       bottom(Pt(0.0))
     ]);
+  let flex = style([flex(1.0)]);
   let card =
     style([
       backgroundColor("#E9E9EF"),
@@ -20,6 +21,7 @@ module Styles = {
       shadowOpacity(0.2),
       shadowRadius(5.0)
     ]);
+  let stackContainer = concat([flex, style([flexDirection(ColumnReverse)])]);
 };
 
 module type NavigationConfig = {type route;};
@@ -39,27 +41,11 @@ module CreateNavigation = (Config: NavigationConfig) => {
    * StackNavigator
    */
   module StackNavigator = {
-    module Header = {
-      type t = {title: option(string)};
-      let component = ReasonReact.statelessComponent("StackHeader");
-      let make = (~config: t, _children) => {
-        ...component,
-        render: _self =>
-          <View>
-            <Text>
-              (
-                ReasonReact.stringToElement(
-                  Js.Option.getWithDefault("", config.title)
-                )
-              )
-            </Text>
-          </View>
-      };
-    };
+    type headerConfig = {title: option(string)};
     type screenConfig = {
       route: Config.route,
       key: string,
-      header: option(Header.t),
+      header: headerConfig,
       animatedValue: Animated.Value.t,
       animation: Animation.t,
       style: Style.t
@@ -69,7 +55,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
       activeScreen: int
     };
     type options = {
-      header: option(Header.t),
+      header: headerConfig,
       animation: option(Animation.t),
       style: option(Style.t)
     };
@@ -83,6 +69,42 @@ module CreateNavigation = (Config: NavigationConfig) => {
       setOptions: options => unit,
       pop: unit => unit
     };
+    module Header = {
+      let component = ReasonReact.statelessComponent("StackHeader");
+      let default = {title: None};
+      let (appBarHeight, statusBarHeight) =
+        Platform.(
+          switch (os()) {
+          | Platform.IOS(_) => (44.0, 20.0)
+          | Platform.Android => (56.0, 0.0)
+          }
+        );
+      let make = (~screens: array(screenConfig), _children) => {
+        ...component,
+        render: _self =>
+          <View
+            style=Style.(
+                    style([
+                      backgroundColor("#FFF"),
+                      height(Pt(appBarHeight +. statusBarHeight))
+                    ])
+                  )>
+            (
+              screens
+              |> Array.mapi((idx: int, {header}: screenConfig) =>
+                   <Text key=(string_of_int(idx))>
+                     (
+                       ReasonReact.stringToElement(
+                         Js.Option.getWithDefault("", header.title)
+                       )
+                     )
+                   </Text>
+                 )
+              |> ReasonReact.arrayToElement
+            )
+          </View>
+      };
+    };
     let component = ReasonReact.reducerComponent("StackNavigator");
     let isActiveScreen = (state, key) =>
       state.screens[state.activeScreen].key == key;
@@ -92,7 +114,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
         screens: [|
           {
             route: initialRoute,
-            header: None,
+            header: Header.default,
             animation: Animation.default,
             key: UUID.generate(),
             animatedValue: Animated.Value.create(0.0),
@@ -101,6 +123,14 @@ module CreateNavigation = (Config: NavigationConfig) => {
         |],
         activeScreen: 0
       },
+      /***
+       * Begin animating two states as soon as the index changes
+       *
+       * The animation is configured based on the latter screen. That said,
+       * when screen B (being removed) uses `fade` transition, the screen
+       * that is to appear will fade in (even though it doesn't define custom
+       * animation itself).
+       */
       didUpdate: ({oldSelf, newSelf: self}) => {
         let fromIdx = oldSelf.state.activeScreen;
         let toIdx = self.state.activeScreen;
@@ -169,7 +199,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                 |> ReArray.append(
                      {
                        route,
-                       header: None,
+                       header: Header.default,
                        animation: Animation.default,
                        animatedValue: Animated.Value.create(1.0),
                        key: UUID.generate(),
@@ -228,46 +258,52 @@ module CreateNavigation = (Config: NavigationConfig) => {
         let size = Array.length(self.state.screens);
         let action =
           self.state.activeScreen + 1 < size ? Animation.Pop : Animation.Push;
-        self.state.screens
-        |> Array.mapi((idx, screen: screenConfig) => {
-             let animation =
-               if (size == 1) {
-                 Style.style([]);
-               } else {
-                 let isLast = idx + 1 == size;
-                 let (first, second) =
-                   isLast ?
-                     (self.state.screens[idx - 1], screen) :
-                     (screen, self.state.screens[idx + 1]);
-                 screen.animatedValue
-                 |> second.animation((first.route, second.route), action)
-                 |> snd;
-               };
-             <Animated.View
-               key=screen.key
-               style=Style.(concat([Styles.fill, screen.style, animation]))>
-               (
-                 switch screen.header {
-                 | Some(config) => <Header config />
-                 | None => <View />
-                 }
-               )
-               <View style=Style.(style([flex(1.0)]))>
-                 (
-                   children(
-                     ~currentRoute=screen.route,
-                     ~navigation={
-                       push: route => self.send(Push(route, screen.key)),
-                       pop: () => self.send(Pop(screen.key)),
-                       setOptions: opts =>
-                         self.send(SetOptions(opts, screen.key))
-                     }
-                   )
-                 )
-               </View>
-             </Animated.View>;
-           })
-        |> ReasonReact.arrayToElement;
+        <View style=Styles.stackContainer>
+          <View style=Styles.flex>
+            (
+              self.state.screens
+              |> Array.mapi((idx, screen: screenConfig) => {
+                   let animation =
+                     if (size == 1) {
+                       Style.style([]);
+                     } else {
+                       let isLast = idx + 1 == size;
+                       let (first, second) =
+                         isLast ?
+                           (self.state.screens[idx - 1], screen) :
+                           (screen, self.state.screens[idx + 1]);
+                       screen.animatedValue
+                       |> second.animation(
+                            (first.route, second.route),
+                            action
+                          )
+                       |> snd;
+                     };
+                   <Animated.View
+                     key=screen.key
+                     style=Style.(
+                             concat([Styles.fill, screen.style, animation])
+                           )>
+                     <View>
+                       (
+                         children(
+                           ~currentRoute=screen.route,
+                           ~navigation={
+                             push: route => self.send(Push(route, screen.key)),
+                             pop: () => self.send(Pop(screen.key)),
+                             setOptions: opts =>
+                               self.send(SetOptions(opts, screen.key))
+                           }
+                         )
+                       )
+                     </View>
+                   </Animated.View>;
+                 })
+              |> ReasonReact.arrayToElement
+            )
+          </View>
+          <Header screens=self.state.screens />
+        </View>;
       }
     };
   };
@@ -285,7 +321,9 @@ module CreateNavigation = (Config: NavigationConfig) => {
       ...component,
       didMount: _self => {
         navigation.setOptions({
-          header: Some({title: headerTitle}),
+          header: {
+            title: headerTitle
+          },
           animation,
           style
         });
