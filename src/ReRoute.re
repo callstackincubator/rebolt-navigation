@@ -45,7 +45,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
     type screenConfig = {
       route: Config.route,
       key: string,
-      header: headerConfig,
+      header: Header.config,
       animatedValue: Animated.Value.t,
       animation: Animation.t,
       style: Style.t
@@ -55,7 +55,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
       activeScreen: int
     };
     type options = {
-      header: headerConfig,
+      header: Header.config,
       animation: option(Animation.t),
       style: option(Style.t)
     };
@@ -68,42 +68,6 @@ module CreateNavigation = (Config: NavigationConfig) => {
       push: Config.route => unit,
       setOptions: options => unit,
       pop: unit => unit
-    };
-    module Header = {
-      let component = ReasonReact.statelessComponent("StackHeader");
-      let default = {title: None};
-      let (appBarHeight, statusBarHeight) =
-        Platform.(
-          switch (os()) {
-          | Platform.IOS(_) => (44.0, 20.0)
-          | Platform.Android => (56.0, 0.0)
-          }
-        );
-      let make = (~screens: array(screenConfig), _children) => {
-        ...component,
-        render: _self =>
-          <View
-            style=Style.(
-                    style([
-                      backgroundColor("#FFF"),
-                      height(Pt(appBarHeight +. statusBarHeight))
-                    ])
-                  )>
-            (
-              screens
-              |> Array.mapi((idx: int, {header}: screenConfig) =>
-                   <Text key=(string_of_int(idx))>
-                     (
-                       ReasonReact.stringToElement(
-                         Js.Option.getWithDefault("", header.title)
-                       )
-                     )
-                   </Text>
-                 )
-              |> ReasonReact.arrayToElement
-            )
-          </View>
-      };
     };
     let component = ReasonReact.reducerComponent("StackNavigator");
     let isActiveScreen = (state, key) =>
@@ -302,7 +266,12 @@ module CreateNavigation = (Config: NavigationConfig) => {
               |> ReasonReact.arrayToElement
             )
           </View>
-          <Header screens=self.state.screens />
+          <Header.FloatingHeader
+            screens=(
+              self.state.screens
+              |> Array.map(({header}: screenConfig) => {Header.header: header})
+            )
+          />
         </View>;
       }
     };
