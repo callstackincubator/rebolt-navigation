@@ -31,11 +31,27 @@ module FloatingHeader = {
       style([
         backgroundColor(String("#FFF")),
         height(Pt(Constants.(appBarHeight +. statusBarHeight))),
-        position(Relative),
         borderBottomWidth(StyleSheet.hairlineWidth),
         borderBottomColor(String("#A7A7AA"))
       ]);
-    let header = style([flex(1.0)]);
+    let header =
+      style([
+        flex(1.0),
+        position(Relative),
+        /*
+         * SafeAreaView doesn't work on iOS < 11 and so, we add the
+         * statusBar padding manually
+         */
+        marginTop(
+          Pt(
+            Platform.(
+              equals(IOS(Phone)) && version() < 11 ?
+                Constants.statusBarHeight : 0.0
+            )
+          )
+        )
+      ]);
+    let flex = style([flex(1.0)]);
     let center =
       style([
         bottom(Pt(0.0)),
@@ -92,17 +108,19 @@ module FloatingHeader = {
     ...component,
     render: _self =>
       <SafeAreaView style=Styles.container>
-        (
-          screens
-          |> Array.mapi((idx: int, {header}) =>
-               <View key=(string_of_int(idx)) style=Styles.header>
-                 (idx > 1 ? renderLeft(screens[idx - 1].header) : <View />)
-                 (renderCenter(header))
-                 (renderRight(header))
-               </View>
-             )
-          |> ReasonReact.arrayToElement
-        )
+        <View style=Styles.header>
+          (
+            screens
+            |> Array.mapi((idx: int, {header}) =>
+                 <View key=(string_of_int(idx)) style=Styles.flex>
+                   (idx > 1 ? renderLeft(screens[idx - 1].header) : <View />)
+                   (renderCenter(header))
+                   (renderRight(header))
+                 </View>
+               )
+            |> ReasonReact.arrayToElement
+          )
+        </View>
       </SafeAreaView>
   };
 };
