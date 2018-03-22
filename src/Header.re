@@ -46,7 +46,7 @@ module FloatingHeader = {
           Pt(Platform.version() < 11 ? Constants.statusBarHeight : 0.0)
         )
       ]);
-    let flex = style([flex(1.0)]);
+    let flex = StyleSheet.absoluteFill;
     let center =
       style([
         bottom(Pt(0.0)),
