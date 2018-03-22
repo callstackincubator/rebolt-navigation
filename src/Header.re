@@ -29,12 +29,13 @@ module FloatingHeader = {
     };
     let container =
       style([
-        backgroundColor("#FFF"),
+        backgroundColor(String("#FFF")),
         height(Pt(Constants.(appBarHeight +. statusBarHeight))),
-        position(Relative)
+        position(Relative),
+        borderBottomWidth(StyleSheet.hairlineWidth),
+        borderBottomColor(String("#A7A7AA"))
       ]);
-    let header =
-      concat([StyleSheet.absoluteFill, style([flexDirection(Row)])]);
+    let header = style([flex(1.0)]);
     let center =
       style([
         bottom(Pt(0.0)),
@@ -52,7 +53,7 @@ module FloatingHeader = {
         fontWeight(`_700),
         textAlign(Center),
         marginHorizontal(Pt(16.0)),
-        color("rgba(0, 0, 0, .9)")
+        color(String("rgba(0, 0, 0, .9)"))
       ]);
     let left =
       style([
@@ -72,7 +73,7 @@ module FloatingHeader = {
         flexDirection(Row),
         alignItems(Center)
       ]);
-    let label = style([fontSize(Float(15.0)), color("red")]);
+    let label = style([fontSize(Float(15.0)), color(String("red"))]);
   };
   let renderLeft = _header => <View style=Styles.left />;
   let renderRight = _header => <View style=Styles.right />;
@@ -90,7 +91,7 @@ module FloatingHeader = {
   let make = (~screens: array(screenConfig), _children) => {
     ...component,
     render: _self =>
-      <View style=Styles.container>
+      <SafeAreaView style=Styles.container>
         (
           screens
           |> Array.mapi((idx: int, {header}) =>
@@ -102,6 +103,6 @@ module FloatingHeader = {
              )
           |> ReasonReact.arrayToElement
         )
-      </View>
+      </SafeAreaView>
   };
 };

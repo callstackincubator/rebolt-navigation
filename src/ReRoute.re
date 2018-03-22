@@ -15,8 +15,8 @@ module Styles = {
   let flex = style([flex(1.0)]);
   let card =
     style([
-      backgroundColor("#E9E9EF"),
-      shadowColor("black"),
+      backgroundColor(String("#E9E9EF")),
+      shadowColor(String("black")),
       shadowOffset(~width=0.0, ~height=0.0),
       shadowOpacity(0.2),
       shadowRadius(5.0)

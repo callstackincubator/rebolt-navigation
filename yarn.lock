@@ -1168,9 +1168,9 @@ bs-platform@^2.1.0:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-2.2.2.tgz#95ff37719771bbf310e8376fedd1148865c0da19"
 
-bs-react-native@0.6.0-beta.1:
-  version "0.6.0-beta.1"
-  resolved "https://registry.yarnpkg.com/bs-react-native/-/bs-react-native-0.6.0-beta.1.tgz#0eb267e8e8882492d8cb4d95d94bd750b953476f"
+bs-react-native@reasonml-community/bs-react-native#0b23dd8:
+  version "0.5.0"
+  resolved "https://codeload.github.com/reasonml-community/bs-react-native/tar.gz/0b23dd8adc48d4f69785ea52db2a564bda480adc"
 
 bser@^2.0.0:
   version "2.0.0"
