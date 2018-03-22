@@ -43,12 +43,7 @@ module FloatingHeader = {
          * statusBar padding manually
          */
         marginTop(
-          Pt(
-            Platform.(
-              equals(IOS(Phone)) && version() < 11 ?
-                Constants.statusBarHeight : 0.0
-            )
-          )
+          Pt(Platform.version() < 11 ? Constants.statusBarHeight : 0.0)
         )
       ]);
     let flex = style([flex(1.0)]);
