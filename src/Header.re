@@ -75,6 +75,17 @@ module FloatingHeader = {
         flexDirection(Row),
         alignItems(Center)
       ]);
+    let leftTitle = style([fontSize(Float(17.0)), color(String("#037aff"))]);
+    let leftContainer = style([flexDirection(Row), alignItems(Center)]);
+    let leftIcon = withTitle =>
+      style([
+        height(Pt(21.0)),
+        width(Pt(12.0)),
+        marginLeft(Pt(9.0)),
+        marginRight(Pt(withTitle ? 3.0 : 22.0)),
+        marginVertical(Pt(12.0)),
+        resizeMode(Contain)
+      ]);
     let right =
       style([
         right(Pt(0.0)),
@@ -86,7 +97,28 @@ module FloatingHeader = {
       ]);
     let label = style([fontSize(Float(15.0)), color(String("red"))]);
   };
-  let renderLeft = _header => <View style=Styles.left />;
+  let renderLeft = header =>
+    <View style=Styles.left>
+      <TouchableOpacity>
+        <View style=Styles.leftContainer>
+          <Image
+            style=(Styles.leftIcon(Js.Option.isSome(header.title)))
+            source=(
+              Required(Packager.require("../../../src/assets/back-icon.png"))
+            )
+          />
+          (
+            switch header.title {
+            | None => <View />
+            | Some(title) =>
+              <Text style=Styles.leftTitle numberOfLines=1>
+                (ReasonReact.stringToElement(title))
+              </Text>
+            }
+          )
+        </View>
+      </TouchableOpacity>
+    </View>;
   let renderRight = _header => <View style=Styles.right />;
   let renderCenter = header =>
     <View style=Styles.center>
@@ -108,7 +140,7 @@ module FloatingHeader = {
             screens
             |> Array.mapi((idx: int, {header}) =>
                  <View key=(string_of_int(idx)) style=Styles.flex>
-                   (idx > 1 ? renderLeft(screens[idx - 1].header) : <View />)
+                   (idx > 0 ? renderLeft(screens[idx - 1].header) : <View />)
                    (renderCenter(header))
                    (renderRight(header))
                  </View>
