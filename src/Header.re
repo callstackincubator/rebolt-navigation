@@ -144,7 +144,7 @@ module FloatingHeader = {
                                )
                              />
                              (
-                               switch screen.header.title {
+                               switch screens[idx - 1].header.title {
                                | None => <View />
                                | Some(title) =>
                                  <Text style=Styles.leftTitle numberOfLines=1>
