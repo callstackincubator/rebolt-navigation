@@ -27,16 +27,7 @@ module Styles = {
 module type NavigationConfig = {type route;};
 
 module CreateNavigation = (Config: NavigationConfig) => {
-  /**
-   * Configure Animation module to receive additional payload for
-   * configuration purposes.
-   */
-  include
-    Animation.Create(
-      {
-        type options = (Config.route, Config.route);
-      }
-    );
+  include Animation;
   /**
    * StackNavigator
    */
@@ -241,13 +232,11 @@ module CreateNavigation = (Config: NavigationConfig) => {
                      if (size == 1) {
                        Style.style([]);
                      } else {
-                       let isLast = idx + 1 == size;
-                       let (first, second) =
-                         isLast ?
-                           (self.state.screens[idx - 1], screen) :
-                           (screen, self.state.screens[idx + 1]);
+                       let scr =
+                         idx + 1 == size ?
+                           screen : self.state.screens[idx + 1];
                        screen.animatedValue
-                       |> second.animation.forCard((first.route, second.route));
+                       |> scr.animation.forCard({idx: idx});
                      };
                    <Animated.View
                      key=screen.key
