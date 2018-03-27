@@ -60,10 +60,10 @@ module CreateNavigation = (Config: NavigationConfig) => {
       style: option(Style.t)
     };
     type action =
-      | Push(Config.route, string)
+      | PushScreen(Config.route, string)
       | SetOptions(options, string)
       | RemoveStaleScreen(string)
-      | Pop(string);
+      | PopScreen(string);
     type navigation = {
       push: Config.route => unit,
       setOptions: options => unit,
@@ -94,6 +94,16 @@ module CreateNavigation = (Config: NavigationConfig) => {
        * when screen B (being removed) uses `fade` transition, the screen
        * that is to appear will fade in (even though it doesn't define custom
        * animation itself).
+       *
+       * Values -1, 0, 1 describe position on screen. Screen with value `0` is the
+       * one that is currently visible. Screen with "1" is rendered and hidden on the
+       * right hand side whereas "-1" is hidden on the left hand side.
+       *
+       * Example:
+       * 0 to -1 -> next screen has been pushed
+       * 0 to 1 -> this screen is getting popped
+       * -1 to 0 -> next screen has been popped
+       * 1 to 0 -> this screen has been pushed
        */
       didUpdate: ({oldSelf, newSelf: self}) => {
         let fromIdx = oldSelf.state.activeScreen;
@@ -103,25 +113,20 @@ module CreateNavigation = (Config: NavigationConfig) => {
             fromIdx < toIdx ?
               (self.state.screens[fromIdx], self.state.screens[toIdx]) :
               (self.state.screens[toIdx], self.state.screens[fromIdx]);
-          let action = fromIdx < toIdx ? Animation.Push : Animation.Pop;
-          let routes = (first.route, second.route);
-          let fstAnim =
-            first.animatedValue |> second.animation(routes, action) |> fst;
-          let sndAnim =
-            second.animatedValue |> second.animation(routes, action) |> fst;
+          let action = fromIdx < toIdx ? `Push : `Pop;
           let (fstValues, sndValues) =
             switch action {
-            | Animation.Push => ((0.0, (-1.0)), (1.0, 0.0))
-            | Animation.Pop => (((-1.0), 0.0), (0.0, 1.0))
+            | `Push => ((0.0, (-1.0)), (1.0, 0.0))
+            | `Pop => (((-1.0), 0.0), (0.0, 1.0))
             };
           Animated.CompositeAnimation.start(
             Animated.parallel(
               [|
-                fstAnim(
+                second.animation.func(
                   ~value=first.animatedValue,
                   ~toValue=`raw(fstValues |> snd)
                 ),
-                sndAnim(
+                second.animation.func(
                   ~value=second.animatedValue,
                   ~toValue=`raw(sndValues |> snd)
                 )
@@ -130,7 +135,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
             ),
             ~callback=
               end_ =>
-                action == Animation.Pop && Js.to_bool(end_##finished) ?
+                action == `Pop && Js.to_bool(end_##finished) ?
                   self.send(RemoveStaleScreen(second.key)) : (),
             ()
           );
@@ -153,7 +158,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
          * adding to the end). This is to make sure no glitches happen when you
          * push in the middle of a pop.
          */
-        | Push(route, key) =>
+        | PushScreen(route, key) =>
           if (isActiveScreen(state, key)) {
             let index = state.activeScreen + 1;
             ReasonReact.Update({
@@ -178,7 +183,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
         /***
          * Pops screen from the stack
          */
-        | Pop(key) =>
+        | PopScreen(key) =>
           if (state.activeScreen > 0 && isActiveScreen(state, key)) {
             ReasonReact.Update({
               ...state,
@@ -220,8 +225,6 @@ module CreateNavigation = (Config: NavigationConfig) => {
         },
       render: self => {
         let size = Array.length(self.state.screens);
-        let action =
-          self.state.activeScreen + 1 < size ? Animation.Pop : Animation.Push;
         <View style=Styles.stackContainer>
           <View style=Styles.flex>
             (
@@ -237,11 +240,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
                            (self.state.screens[idx - 1], screen) :
                            (screen, self.state.screens[idx + 1]);
                        screen.animatedValue
-                       |> second.animation(
-                            (first.route, second.route),
-                            action
-                          )
-                       |> snd;
+                       |> second.animation.forCard((first.route, second.route));
                      };
                    <Animated.View
                      key=screen.key
@@ -253,8 +252,9 @@ module CreateNavigation = (Config: NavigationConfig) => {
                          children(
                            ~currentRoute=screen.route,
                            ~navigation={
-                             push: route => self.send(Push(route, screen.key)),
-                             pop: () => self.send(Pop(screen.key)),
+                             push: route =>
+                               self.send(PushScreen(route, screen.key)),
+                             pop: () => self.send(PopScreen(screen.key)),
                              setOptions: opts =>
                                self.send(SetOptions(opts, screen.key))
                            }
