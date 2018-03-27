@@ -9,6 +9,12 @@ type interpolator = (options, Animated.Value.t) => Style.t;
 
 /**
  * Animation type
+ * 
+ * Lots of logic used for `forX` interpolators has been inspired and borrowed by
+ * great work by React Navigation team.
+ * 
+ * You can browse their implementation on Github:
+ * - /src/views/Header/HeaderStyleInterpolator.js
  */
 type t = {
   /** Partially applied Animated function to use for particular transition */
