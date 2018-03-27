@@ -14,25 +14,22 @@ module type AnimationConfig = {
  */
 module Create = (Config: AnimationConfig) => {
   module Animation = {
+    type interpolator = (Config.options, Animated.Value.t) => Style.t;
     /**
      * Animation type
-     *
-     * First element is partially applied Animated function (e.g. Spring)
-     * that specifies the configuration of the animation to use.
-     *
-     * Note that `value` and `toValue` are applied later by current navigator.
-     *
-     * Second element is a React Native style element that is applied to
-     * `Animated.View` container of the current scene.
      */
     type t = {
+      /** Partially applied Animated function to use for particular transition */
       func:
         (
           ~value: Animated.Value.value,
           ~toValue: [ | `animated(Animated.Value.value) | `raw(float)]
         ) =>
         Animated.CompositeAnimation.t,
-      forCard: (Config.options, Animated.Value.t) => Style.t
+      /** Card style interpolator */
+      forCard: interpolator,
+      /** Header center area interpolator */
+      forHeaderCenter: interpolator
     };
     /**
      * Slide in/out animation modelled after iOS platform interactions
@@ -73,7 +70,8 @@ module Create = (Config: AnimationConfig) => {
             )
           ])
         );
-      }
+      },
+      forHeaderCenter: (_opts, _value) => Style.style([])
     };
     /**
      * Platform-specific default animation that is picked by navigators when
@@ -85,7 +83,8 @@ module Create = (Config: AnimationConfig) => {
      */
     let none = {
       func: Animated.Timing.animate(~duration=0.0, ()),
-      forCard: (_options, _value) => Style.style([])
+      forCard: (_options, _value) => Style.style([]),
+      forHeaderCenter: (_opts, _value) => Style.style([])
     };
   };
 };
