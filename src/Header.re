@@ -20,6 +20,10 @@ type screenConfig = {
  */
 let default = {title: None};
 
+/**
+ * Bare minimum wrapper around MaskedViewIOS. Consider open sourcing to
+ * `bs-react-native` at some point
+ */
 module MaskedView = {
   [@bs.module "react-native"]
   external view : ReasonReact.reactClass = "MaskedViewIOS";
