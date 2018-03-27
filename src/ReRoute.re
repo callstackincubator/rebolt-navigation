@@ -27,10 +27,6 @@ module Styles = {
 module type NavigationConfig = {type route;};
 
 module CreateNavigation = (Config: NavigationConfig) => {
-  include Animation;
-  /**
-   * StackNavigator
-   */
   module StackNavigator = {
     type headerConfig = {title: option(string)};
     type screenConfig = {
