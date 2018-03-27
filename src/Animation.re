@@ -82,13 +82,40 @@ let slideInOut = {
     );
   },
   forHeaderCenter: ({ idx }, value) => {
+    let offset = float_of_int(Dimensions.get(`window)##width / 2 - 70 + 25);
     let index = float_of_int(idx);
+    let [first, last] = [index -. 1.0, index +. 1.0];
     Style.(
       style([
         opacity(
           Interpolated(
-            value |> crossFadeInterpolation([index -. 1.0, index, index +. 1.0])
+            Animated.Value.interpolate(
+              value,
+              ~inputRange=
+                [
+                  first,
+                  first +. 0.001, 
+                  index -. 0.5,
+                  index,
+                  index +. 0.7, 
+                  last -. 0.001, 
+                  last
+                ],
+              ~outputRange=`float([0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
+              ()
+            )
           )
+        ),
+        Transform.makeInterpolated(
+          ~translateX=
+            Animated.Value.interpolate(
+              value,
+              ~inputRange=[first, first +. 0.001, index, last -. 0.001, last], 
+              ~outputRange=
+                `float([offset, offset, 0.0, -.offset, -.offset]),
+              ()
+            ),
+          ()
         )
       ])
     );
