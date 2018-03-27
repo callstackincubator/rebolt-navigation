@@ -131,7 +131,12 @@ module FloatingHeader = {
       </Text>
     </View>;
   let component = ReasonReact.statelessComponent("FloatingHeader");
-  let make = (~screens: array(screenConfig), _children) => {
+  let make =
+      (
+        ~screens: array(screenConfig),
+        ~animatedValue: Animated.Value.t,
+        _children
+      ) => {
     ...component,
     render: _self =>
       <SafeAreaView style=Styles.container>
@@ -151,3 +156,5 @@ module FloatingHeader = {
       </SafeAreaView>
   };
 };
+
+module PlatformHeader = FloatingHeader;

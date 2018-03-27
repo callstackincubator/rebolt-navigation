@@ -52,6 +52,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
     };
     type state = {
       screens: array(screenConfig),
+      headerAnimatedValue: Animated.Value.t,
       activeScreen: int
     };
     type options = {
@@ -85,7 +86,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
             style: Styles.card
           }
         |],
-        activeScreen: 0
+        activeScreen: 0,
+        headerAnimatedValue: Animated.Value.create(0.0)
       },
       /***
        * Begin animating two states as soon as the index changes
@@ -122,6 +124,10 @@ module CreateNavigation = (Config: NavigationConfig) => {
           Animated.CompositeAnimation.start(
             Animated.parallel(
               [|
+                second.animation.func(
+                  ~value=self.state.headerAnimatedValue,
+                  ~toValue=`raw(float_of_int(toIdx))
+                ),
                 second.animation.func(
                   ~value=first.animatedValue,
                   ~toValue=`raw(fstValues |> snd)
@@ -162,6 +168,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
           if (isActiveScreen(state, key)) {
             let index = state.activeScreen + 1;
             ReasonReact.Update({
+              ...state,
               activeScreen: index,
               screens:
                 state.screens
@@ -266,7 +273,8 @@ module CreateNavigation = (Config: NavigationConfig) => {
               |> ReasonReact.arrayToElement
             )
           </View>
-          <Header.FloatingHeader
+          <Header.PlatformHeader
+            animatedValue=self.state.headerAnimatedValue
             screens=(
               self.state.screens
               |> Array.map(({header}: screenConfig) => {Header.header: header})
