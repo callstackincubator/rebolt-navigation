@@ -20,6 +20,17 @@ type screenConfig = {
  */
 let default = {title: None};
 
+module MaskedView = {
+  [@bs.module "react-native"]
+  external view : ReasonReact.reactClass = "MaskedViewIOS";
+  let make = (~maskElement, ~style, children) =>
+    ReasonReact.wrapJsForReason(
+      ~reactClass=view,
+      ~props={"maskElement": maskElement, "style": style},
+      children
+    );
+};
+
 /**
  * Default implementation of Header on iOS
  */
@@ -50,7 +61,7 @@ module FloatingHeader = {
           Pt(Platform.version() < 11 ? Constants.statusBarHeight : 0.0)
         )
       ]);
-    let flex = StyleSheet.absoluteFill;
+    let fill = StyleSheet.absoluteFill;
     let center =
       style([
         bottom(Pt(0.0)),
@@ -90,6 +101,23 @@ module FloatingHeader = {
         marginVertical(Pt(12.0)),
         resizeMode(Contain)
       ]);
+    let iconMaskContainer =
+      style([flex(1.0), flexDirection(Row), justifyContent(Center)]);
+    let iconMask =
+      style([
+        height(Pt(21.0)),
+        width(Pt(12.0)),
+        marginLeft(Pt(9.0)),
+        marginTop(Pt(-0.5)),
+        alignSelf(Center),
+        resizeMode(Contain)
+      ]);
+    let iconMaskFillerRect =
+      style([
+        flex(1.0),
+        backgroundColor(String("#d8d8d8")),
+        marginLeft(Pt(-1.0))
+      ]);
     let right =
       style([
         right(Pt(0.0)),
@@ -110,13 +138,26 @@ module FloatingHeader = {
         _children
       ) => {
     ...component,
-    render: _self =>
+    render: _self => {
+      let mask =
+        <View style=Styles.iconMaskContainer>
+          <Image
+            source=(
+              Required(
+                Packager.require("../../../src/assets/back-icon-mask.png")
+              )
+            )
+            style=Styles.iconMask
+          />
+          <View style=Styles.iconMaskFillerRect />
+        </View>;
       <SafeAreaView style=Styles.container>
         <View style=Styles.header>
           (
             screens
             |> Array.mapi((idx: int, screen) =>
-                 <View key=(string_of_int(idx)) style=Styles.flex>
+                 <MaskedView
+                   key=(string_of_int(idx)) maskElement=mask style=Styles.fill>
                    <Animated.View
                      style=(
                        Style.concat([
@@ -196,12 +237,13 @@ module FloatingHeader = {
                        ])
                      )
                    />
-                 </View>
+                 </MaskedView>
                )
             |> ReasonReact.arrayToElement
           )
         </View>
-      </SafeAreaView>
+      </SafeAreaView>;
+    }
   };
 };
 
