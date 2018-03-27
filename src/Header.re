@@ -10,7 +10,8 @@ type config = {title: option(string)};
  */
 type screenConfig = {
   header: config,
-  animation: Animation.t
+  animation: Animation.t,
+  key: string
 };
 
 /**
@@ -105,6 +106,7 @@ module FloatingHeader = {
       (
         ~screens: array(screenConfig),
         ~animatedValue as anim: Animated.Value.t,
+        ~pop: string => unit,
         _children
       ) => {
     ...component,
@@ -125,7 +127,7 @@ module FloatingHeader = {
                      (
                        idx === 0 ?
                          <View /> :
-                         <TouchableOpacity>
+                         <TouchableOpacity onPress=(_e => pop(screen.key))>
                            <View style=Styles.leftContainer>
                              <Image
                                style=(
