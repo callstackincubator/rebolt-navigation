@@ -27,7 +27,11 @@ type t = {
   /** Card style interpolator */
   forCard: interpolator,
   /** Header center area interpolator */
-  forHeaderCenter: interpolator
+  forHeaderCenter: interpolator,
+  /** Header left area interpolator */
+  forHeaderLeft: interpolator,
+  /** Header right area interpolator */
+  forHeaderRight: interpolator
 };
 
 let crossFadeInterpolation = ([start, mid, end_], value) => Animated.Value.interpolate(
@@ -88,6 +92,30 @@ let slideInOut = {
         )
       ])
     );
+  },
+  forHeaderLeft: ({ idx }, value) => {
+    let index = float_of_int(idx);
+    Style.(
+      style([
+        opacity(
+          Interpolated(
+            value |> crossFadeInterpolation([index -. 1.0, index, index +. 1.0])
+          )
+        )
+      ])
+    );
+  },
+  forHeaderRight: ({ idx }, value) => {
+    let index = float_of_int(idx);
+    Style.(
+      style([
+        opacity(
+          Interpolated(
+            value |> crossFadeInterpolation([index -. 1.0, index, index +. 1.0])
+          )
+        )
+      ])
+    );
   }
 };
 /**
@@ -101,5 +129,7 @@ let default = slideInOut;
 let none = {
   func: Animated.Timing.animate(~duration=0.0, ()),
   forCard: (_options, _value) => Style.style([]),
+  forHeaderLeft: (_opts, _value) => Style.style([]),
+  forHeaderRight: (_opts, _value) => Style.style([]),
   forHeaderCenter: (_opts, _value) => Style.style([])
 };

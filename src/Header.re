@@ -100,29 +100,6 @@ module FloatingHeader = {
       ]);
     let label = style([fontSize(Float(15.0)), color(String("red"))]);
   };
-  let renderLeft = header =>
-    <View style=Styles.left>
-      <TouchableOpacity>
-        <View style=Styles.leftContainer>
-          <Image
-            style=(Styles.leftIcon(Js.Option.isSome(header.title)))
-            source=(
-              Required(Packager.require("../../../src/assets/back-icon.png"))
-            )
-          />
-          (
-            switch header.title {
-            | None => <View />
-            | Some(title) =>
-              <Text style=Styles.leftTitle numberOfLines=1>
-                (ReasonReact.stringToElement(title))
-              </Text>
-            }
-          )
-        </View>
-      </TouchableOpacity>
-    </View>;
-  let renderRight = _header => <View style=Styles.right />;
   let component = ReasonReact.statelessComponent("FloatingHeader");
   let make =
       (
@@ -138,7 +115,45 @@ module FloatingHeader = {
             screens
             |> Array.mapi((idx: int, screen) =>
                  <View key=(string_of_int(idx)) style=Styles.flex>
-                   (idx > 0 ? renderLeft(screens[idx - 1].header) : <View />)
+                   <Animated.View
+                     style=(
+                       Style.concat([
+                         Styles.left,
+                         anim |> screen.animation.forHeaderLeft({idx: idx})
+                       ])
+                     )>
+                     (
+                       idx === 0 ?
+                         <View /> :
+                         <TouchableOpacity>
+                           <View style=Styles.leftContainer>
+                             <Image
+                               style=(
+                                 Styles.leftIcon(
+                                   Js.Option.isSome(screen.header.title)
+                                 )
+                               )
+                               source=(
+                                 Required(
+                                   Packager.require(
+                                     "../../../src/assets/back-icon.png"
+                                   )
+                                 )
+                               )
+                             />
+                             (
+                               switch screen.header.title {
+                               | None => <View />
+                               | Some(title) =>
+                                 <Text style=Styles.leftTitle numberOfLines=1>
+                                   (ReasonReact.stringToElement(title))
+                                 </Text>
+                               }
+                             )
+                           </View>
+                         </TouchableOpacity>
+                     )
+                   </Animated.View>
                    <Animated.View
                      style=(
                        Style.concat([
@@ -154,7 +169,14 @@ module FloatingHeader = {
                        )
                      </Text>
                    </Animated.View>
-                   (renderRight(screen.header))
+                   <Animated.View
+                     style=(
+                       Style.concat([
+                         Styles.right,
+                         anim |> screen.animation.forHeaderRight({idx: idx})
+                       ])
+                     )
+                   />
                  </View>
                )
             |> ReasonReact.arrayToElement
