@@ -147,9 +147,18 @@ module FloatingHeader = {
                                switch screens[idx - 1].header.title {
                                | None => <View />
                                | Some(title) =>
-                                 <Text style=Styles.leftTitle numberOfLines=1>
-                                   (ReasonReact.stringToElement(title))
-                                 </Text>
+                                 <Animated.View
+                                   style=(
+                                     anim
+                                     |> screen.animation.forHeaderLeftLabel({
+                                          idx: idx
+                                        })
+                                   )>
+                                   <Text
+                                     style=Styles.leftTitle numberOfLines=1>
+                                     (ReasonReact.stringToElement(title))
+                                   </Text>
+                                 </Animated.View>
                                }
                              )
                            </View>
