@@ -129,20 +129,28 @@ module FloatingHeader = {
                          <View /> :
                          <TouchableOpacity onPress=(_e => pop(screen.key))>
                            <View style=Styles.leftContainer>
-                             <Image
+                             <Animated.View
                                style=(
-                                 Styles.leftIcon(
-                                   Js.Option.isSome(screen.header.title)
-                                 )
-                               )
-                               source=(
-                                 Required(
-                                   Packager.require(
-                                     "../../../src/assets/back-icon.png"
+                                 anim
+                                 |> screen.animation.forHeaderLeftButton({
+                                      idx: idx
+                                    })
+                               )>
+                               <Image
+                                 style=(
+                                   Styles.leftIcon(
+                                     Js.Option.isSome(screen.header.title)
                                    )
                                  )
-                               )
-                             />
+                                 source=(
+                                   Required(
+                                     Packager.require(
+                                       "../../../src/assets/back-icon.png"
+                                     )
+                                   )
+                                 )
+                               />
+                             </Animated.View>
                              (
                                switch screens[idx - 1].header.title {
                                | None => <View />

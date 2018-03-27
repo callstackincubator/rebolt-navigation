@@ -27,6 +27,7 @@ type t = {
   forHeaderCenter: interpolator,
   forHeaderLeft: interpolator,
   forHeaderLeftLabel: interpolator,
+  forHeaderLeftButton: interpolator,
   forHeaderRight: interpolator
 };
 
@@ -124,6 +125,32 @@ let slideInOut = {
   },
   /*** Not used on iOS */
   forHeaderLeft: (_opts, _value) => Style.style([]),
+  forHeaderLeftButton: ({idx}, value) => {
+    let index = float_of_int(idx);
+    let (first, last) = (index -. 1.0, index +. 1.0);
+    Style.(
+      style([
+        opacity(
+          Interpolated(
+            Animated.Value.interpolate(
+              value,
+              ~inputRange=[
+                first,
+                first +. 0.001,
+                first +. 0.5,
+                index,
+                last -. 0.5,
+                last -. 0.001,
+                last
+              ],
+              ~outputRange=`float([0.0, 0.0, 0.1, 1.0, 0.1, 0.0, 0.0]),
+              ()
+            )
+          )
+        )
+      ])
+    );
+  },
   forHeaderLeftLabel: ({idx}, value) => {
     let offset = float_of_int(Dimensions.get(`window)##width / 2 - 70 + 25);
     let index = float_of_int(idx);
@@ -197,6 +224,7 @@ let none = {
   forCard: (_options, _value) => Style.style([]),
   forHeaderLeft: (_opts, _value) => Style.style([]),
   forHeaderLeftLabel: (_opts, _value) => Style.style([]),
+  forHeaderLeftButton: (_opts, _value) => Style.style([]),
   forHeaderRight: (_opts, _value) => Style.style([]),
   forHeaderCenter: (_opts, _value) => Style.style([])
 };
