@@ -24,6 +24,13 @@ type t = {
   forHeaderCenter: interpolator
 };
 
+let crossFadeInterpolation = ([start, mid, end_], value) => Animated.Value.interpolate(
+  value,
+  ~inputRange=[start, start +. 0.001, mid -. 0.9, mid -. 0.2, mid, end_ -. 0.001, end_],
+  ~outputRange=`float([0.0, 0.0, 0.0, 0.3, 1.0, 0.0, 0.0]),
+  ()
+);
+
 /**
  * Slide in/out animation modelled after iOS platform interactions
  */
@@ -64,7 +71,18 @@ let slideInOut = {
       ])
     );
   },
-  forHeaderCenter: (_opts, _value) => Style.style([])
+  forHeaderCenter: ({ idx }, value) => {
+    let index = float_of_int(idx);
+    Style.(
+      style([
+        opacity(
+          Interpolated(
+            value |> crossFadeInterpolation([index -. 1.0, index, index +. 1.0])
+          )
+        )
+      ])
+    );
+  }
 };
 /**
  * Platform-specific default animation that is picked by navigators when

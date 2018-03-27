@@ -266,7 +266,9 @@ module CreateNavigation = (Config: NavigationConfig) => {
             animatedValue=self.state.headerAnimatedValue
             screens=(
               self.state.screens
-              |> Array.map(({header}: screenConfig) => {Header.header: header})
+              |> Array.map((scr: screenConfig) =>
+                   {Header.header: scr.header, animation: scr.animation}
+                 )
             )
           />
         </View>;

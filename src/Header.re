@@ -8,7 +8,10 @@ type config = {title: option(string)};
 /**
  * Screen config that is used by this Header
  */
-type screenConfig = {header: config};
+type screenConfig = {
+  header: config,
+  animation: Animation.t
+};
 
 /**
  * Default configuration used on Screen that is mounting or has
@@ -120,21 +123,11 @@ module FloatingHeader = {
       </TouchableOpacity>
     </View>;
   let renderRight = _header => <View style=Styles.right />;
-  let renderCenter = header =>
-    <View style=Styles.center>
-      <Text style=Styles.headerTitle numberOfLines=1>
-        (
-          ReasonReact.stringToElement(
-            Js.Option.getWithDefault("", header.title)
-          )
-        )
-      </Text>
-    </View>;
   let component = ReasonReact.statelessComponent("FloatingHeader");
   let make =
       (
         ~screens: array(screenConfig),
-        ~animatedValue: Animated.Value.t,
+        ~animatedValue as anim: Animated.Value.t,
         _children
       ) => {
     ...component,
@@ -143,11 +136,25 @@ module FloatingHeader = {
         <View style=Styles.header>
           (
             screens
-            |> Array.mapi((idx: int, {header}) =>
+            |> Array.mapi((idx: int, screen) =>
                  <View key=(string_of_int(idx)) style=Styles.flex>
                    (idx > 0 ? renderLeft(screens[idx - 1].header) : <View />)
-                   (renderCenter(header))
-                   (renderRight(header))
+                   <Animated.View
+                     style=(
+                       Style.concat([
+                         Styles.center,
+                         anim |> screen.animation.forHeaderCenter({idx: idx})
+                       ])
+                     )>
+                     <Text style=Styles.headerTitle numberOfLines=1>
+                       (
+                         ReasonReact.stringToElement(
+                           Js.Option.getWithDefault("", screen.header.title)
+                         )
+                       )
+                     </Text>
+                   </Animated.View>
+                   (renderRight(screen.header))
                  </View>
                )
             |> ReasonReact.arrayToElement
