@@ -1,6 +1,6 @@
 open BsReactNative;
 
-type options = { idx: int };
+type options = {idx: int};
 
 /**
  * Interpolates style
@@ -9,39 +9,42 @@ type interpolator = (options, Animated.Value.t) => Style.t;
 
 /**
  * Animation type
- * 
+ *
  * Lots of logic used for `forX` interpolators has been inspired and borrowed by
  * great work by React Navigation team.
- * 
+ *
  * You can browse their implementation on Github:
  * - /src/views/Header/HeaderStyleInterpolator.js
  */
 type t = {
-  /** Partially applied Animated function to use for particular transition */
   func:
     (
       ~value: Animated.Value.value,
       ~toValue: [ | `animated(Animated.Value.value) | `raw(float)]
     ) =>
     Animated.CompositeAnimation.t,
-  /** Card style interpolator */
   forCard: interpolator,
-  /** Header center area interpolator */
   forHeaderCenter: interpolator,
-  /** Header left area interpolator */
   forHeaderLeft: interpolator,
-  /** Header left label area interpolator */
   forHeaderLeftLabel: interpolator,
-  /** Header right area interpolator */
   forHeaderRight: interpolator
 };
 
-let crossFadeInterpolation = ([start, mid, end_], value) => Animated.Value.interpolate(
-  value,
-  ~inputRange=[start, start +. 0.001, mid -. 0.9, mid -. 0.2, mid, end_ -. 0.001, end_],
-  ~outputRange=`float([0.0, 0.0, 0.0, 0.3, 1.0, 0.0, 0.0]),
-  ()
-);
+let crossFadeInterpolation = ([start, mid, end_], value) =>
+  Animated.Value.interpolate(
+    value,
+    ~inputRange=[
+      start,
+      start +. 0.001,
+      mid -. 0.9,
+      mid -. 0.2,
+      mid,
+      end_ -. 0.001,
+      end_
+    ],
+    ~outputRange=`float([0.0, 0.0, 0.0, 0.3, 1.0, 0.0, 0.0]),
+    ()
+  );
 
 /**
  * Slide in/out animation modelled after iOS platform interactions
@@ -74,8 +77,7 @@ let slideInOut = {
             Animated.Value.interpolate(
               value,
               ~inputRange=[(-1), 0, 1] |> List.map(float),
-              ~outputRange=
-                `float([-. screenWidth *. 0.3, 0.0, screenWidth]),
+              ~outputRange=`float([-. screenWidth *. 0.3, 0.0, screenWidth]),
               ()
             ),
           ()
@@ -83,26 +85,25 @@ let slideInOut = {
       ])
     );
   },
-  forHeaderCenter: ({ idx }, value) => {
+  forHeaderCenter: ({idx}, value) => {
     let offset = float_of_int(Dimensions.get(`window)##width / 2 - 70 + 25);
     let index = float_of_int(idx);
-    let [first, last] = [index -. 1.0, index +. 1.0];
+    let (first, last) = (index -. 1.0, index +. 1.0);
     Style.(
       style([
         opacity(
           Interpolated(
             Animated.Value.interpolate(
               value,
-              ~inputRange=
-                [
-                  first,
-                  first +. 0.001, 
-                  index -. 0.5,
-                  index,
-                  index +. 0.7, 
-                  last -. 0.001, 
-                  last
-                ],
+              ~inputRange=[
+                first,
+                first +. 0.001,
+                index -. 0.5,
+                index,
+                index +. 0.7,
+                last -. 0.001,
+                last
+              ],
               ~outputRange=`float([0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
               ()
             )
@@ -112,9 +113,8 @@ let slideInOut = {
           ~translateX=
             Animated.Value.interpolate(
               value,
-              ~inputRange=[first, first +. 0.001, index, last -. 0.001, last], 
-              ~outputRange=
-                `float([offset, offset, 0.0, -.offset, -.offset]),
+              ~inputRange=[first, first +. 0.001, index, last -. 0.001, last],
+              ~outputRange=`float([offset, offset, 0.0, -. offset, -. offset]),
               ()
             ),
           ()
@@ -122,28 +122,27 @@ let slideInOut = {
       ])
     );
   },
-  /** Not used on iOS */
-  forHeaderLeft: ({ idx }, value) => Style.style([]),
-  forHeaderLeftLabel: ({ idx }, value) => {
+  /*** Not used on iOS */
+  forHeaderLeft: (_opts, _value) => Style.style([]),
+  forHeaderLeftLabel: ({idx}, value) => {
     let offset = float_of_int(Dimensions.get(`window)##width / 2 - 70 + 25);
     let index = float_of_int(idx);
-    let [first, last] = [index -. 1.0, index +. 1.0];
+    let (first, last) = (index -. 1.0, index +. 1.0);
     Style.(
       style([
         opacity(
           Interpolated(
             Animated.Value.interpolate(
               value,
-              ~inputRange=
-                [
-                  first,
-                  first +. 0.001, 
-                  index -. 0.35,
-                  index,
-                  index +. 0.5, 
-                  last -. 0.001, 
-                  last
-                ],
+              ~inputRange=[
+                first,
+                first +. 0.001,
+                index -. 0.35,
+                index,
+                index +. 0.5,
+                last -. 0.001,
+                last
+              ],
               ~outputRange=`float([0.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.0]),
               ()
             )
@@ -153,9 +152,15 @@ let slideInOut = {
           ~translateX=
             Animated.Value.interpolate(
               value,
-              ~inputRange=[first, first +. 0.001, index, last -. 0.001, last], 
+              ~inputRange=[first, first +. 0.001, index, last -. 0.001, last],
               ~outputRange=
-                `float([offset, offset, 0.0, -.offset *. 1.5, -.offset *. 1.5]),
+                `float([
+                  offset,
+                  offset,
+                  0.0,
+                  -. offset *. 1.5,
+                  -. offset *. 1.5
+                ]),
               ()
             ),
           ()
@@ -163,24 +168,27 @@ let slideInOut = {
       ])
     );
   },
-  forHeaderRight: ({ idx }, value) => {
+  forHeaderRight: ({idx}, value) => {
     let index = float_of_int(idx);
     Style.(
       style([
         opacity(
           Interpolated(
-            value |> crossFadeInterpolation([index -. 1.0, index, index +. 1.0])
+            value
+            |> crossFadeInterpolation([index -. 1.0, index, index +. 1.0])
           )
         )
       ])
     );
   }
 };
+
 /**
  * Platform-specific default animation that is picked by navigators when
  * nothing else is set
  */
 let default = slideInOut;
+
 /**
  * No animation
  */
