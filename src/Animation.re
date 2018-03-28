@@ -53,7 +53,7 @@ let crossFadeInterpolation = ([start, mid, end_], value) =>
 let slideInOut = {
   func:
     Animated.Spring.animate(
-      ~stiffness=100.0,
+      ~stiffness=1000.0,
       ~damping=500.0,
       ~mass=3.0,
       ~useNativeDriver=Js.Boolean.to_js_boolean(true),
@@ -143,7 +143,7 @@ let slideInOut = {
                 last -. 0.001,
                 last
               ],
-              ~outputRange=`float([0.0, 0.0, 0.8, 1.0, 0.8, 0.0, 0.0]),
+              ~outputRange=`float([0.0, 0.0, 0.1, 1.0, 0.1, 0.0, 0.0]),
               ()
             )
           )
