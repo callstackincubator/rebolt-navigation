@@ -273,8 +273,8 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                            idx + 1 == size ?
                              screen : self.state.screens[idx + 1];
                          Animated.Value.add(
-                           screen.animatedValue,
-                           gestureProgress
+                           gestureProgress,
+                           screen.animatedValue
                          )
                          |> scr.animation.forCard({idx: idx});
                        };
@@ -304,7 +304,15 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             </View>
           </PanGestureHandler>
           <Header.PlatformHeader
-            animatedValue=self.state.headerAnimatedValue
+            animatedValue=(
+              Animated.Value.add(
+                self.state.headerAnimatedValue,
+                Animated.Value.multiply(
+                  gestureProgress,
+                  Animated.Value.create(-1.0)
+                )
+              )
+            )
             pop=(key => self.send(PopScreen(key)))
             activeScreen=self.state.activeScreen
             screens=(
