@@ -258,10 +258,10 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                     }
                   }
                 |],
-                {}
+                {"useNativeDriver": true}
               )
             )>
-            <View style=Styles.flex>
+            <Animated.View style=Styles.flex>
               (
                 self.state.screens
                 |> Array.mapi((idx, screen: screenConfig) => {
@@ -301,7 +301,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                    })
                 |> ReasonReact.arrayToElement
               )
-            </View>
+            </Animated.View>
           </PanGestureHandler>
           <Header.PlatformHeader
             animatedValue=(

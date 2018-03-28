@@ -148,6 +148,21 @@ module FloatingHeader = {
       ) => {
     ...component,
     render: _self => {
+      /**
+       * The animated value passed to Header is screen index -
+       * gesture progress. When user starts moving its finger
+       * on initial screen, this value can get negative. We do the
+       * following interpolation to guard against such invalid state.
+       */
+      let upperBound = float_of_int(Array.length(screens));
+      let anim =
+        Animated.Value.interpolate(
+          anim,
+          ~inputRange=[0.0, upperBound],
+          ~outputRange=`float([0.0, upperBound]),
+          ~extrapolate=Animated.Interpolation.Clamp,
+          ()
+        );
       let mask =
         <View style=Styles.iconMaskContainer>
           <Image
