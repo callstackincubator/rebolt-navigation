@@ -27,10 +27,14 @@ let default = {title: None};
 module MaskedView = {
   [@bs.module "react-native"]
   external view : ReasonReact.reactClass = "MaskedViewIOS";
-  let make = (~maskElement, ~style, children) =>
+  let make = (~maskElement, ~pointerEvents, ~style, children) =>
     ReasonReact.wrapJsForReason(
       ~reactClass=view,
-      ~props={"maskElement": maskElement, "style": style},
+      ~props={
+        "maskElement": maskElement,
+        "pointerEvents": pointerEvents,
+        "style": style
+      },
       children
     );
 };
@@ -137,6 +141,7 @@ module FloatingHeader = {
   let make =
       (
         ~screens: array(screenConfig),
+        ~activeScreen: int,
         ~animatedValue as anim: Animated.Value.t,
         ~pop: string => unit,
         _children
@@ -161,7 +166,10 @@ module FloatingHeader = {
             screens
             |> Array.mapi((idx: int, screen) =>
                  <MaskedView
-                   key=(string_of_int(idx)) maskElement=mask style=Styles.fill>
+                   key=(string_of_int(idx))
+                   maskElement=mask
+                   style=Styles.fill
+                   pointerEvents=(activeScreen == idx ? "box-none" : "none")>
                    <Animated.View
                      style=(
                        Style.concat([

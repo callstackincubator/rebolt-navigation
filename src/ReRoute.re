@@ -261,6 +261,7 @@ module CreateNavigation = (Config: NavigationConfig) => {
           <Header.PlatformHeader
             animatedValue=self.state.headerAnimatedValue
             pop=(key => self.send(PopScreen(key)))
+            activeScreen=self.state.activeScreen
             screens=(
               self.state.screens
               |> Array.map((scr: screenConfig) =>
