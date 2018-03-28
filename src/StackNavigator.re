@@ -54,8 +54,6 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
     };
     type state = {
       screens: array(screenConfig),
-      headerAnimatedValue: Animated.Value.t,
-      gestureAnimatedValue: Animated.Value.t,
       activeScreen: int
     };
     type options = {
@@ -73,9 +71,53 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
       setOptions: options => unit,
       pop: unit => unit
     };
+    /**
+     * All Animated Values used by Stack Navigator grouped
+     * in one place:
+     *
+     * - `gesture` - holds raw deltaX values as received through
+     * Animated.Event form PanGestureHandler
+     *
+     * - `gestureProgress` - interpolated `gesture` in range [0, 1]
+     * with 0, meaning beginning of the gesture and 1 - its end.
+     *
+     * - `header` - Animated index of current screen, used for
+     * animating layers in header in particular (hence the name).
+     */
+    module AnimatedValues = {
+      let screenWidth = Dimensions.get(`window)##width;
+      let gesture = Animated.Value.create(0.0);
+      let gestureHandler =
+        Animated.event(
+          [|{
+              "nativeEvent": {
+                "translationX": gesture
+              }
+            }|],
+          {"useNativeDriver": true}
+        );
+      let gestureProgress =
+        Animated.Value.interpolate(
+          gesture,
+          ~inputRange=[0.0, float_of_int(screenWidth)],
+          ~outputRange=`float([0.0, 1.0]),
+          ~extrapolate=Animated.Interpolation.Clamp,
+          ()
+        );
+      let header = Animated.Value.create(0.0);
+      [@bs.send] external get : Animated.Value.t => float = "__getValue";
+    };
+    /**
+     * Helpers specific to this module
+     */
+    module Helpers = {
+      let isActiveScreen = (state, key) =>
+        state.screens[state.activeScreen].key == key;
+    };
+    /**
+     * StackNavigator component
+     */
     let component = ReasonReact.reducerComponent("StackNavigator");
-    let isActiveScreen = (state, key) =>
-      state.screens[state.activeScreen].key == key;
     let make = (~initialRoute, children) => {
       ...component,
       initialState: () => {
@@ -89,9 +131,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             style: Styles.card
           }
         |],
-        activeScreen: 0,
-        gestureAnimatedValue: Animated.Value.create(0.0),
-        headerAnimatedValue: Animated.Value.create(0.0)
+        activeScreen: 0
       },
       /***
        * Begin animating two states as soon as the index changes
@@ -129,7 +169,11 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             Animated.parallel(
               [|
                 second.animation.func(
-                  ~value=self.state.headerAnimatedValue,
+                  ~value=AnimatedValues.gesture,
+                  ~toValue=`raw(0.0)
+                ),
+                second.animation.func(
+                  ~value=AnimatedValues.header,
                   ~toValue=`raw(float_of_int(toIdx))
                 ),
                 second.animation.func(
@@ -145,8 +189,9 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             ),
             ~callback=
               end_ =>
-                action == `Pop && Js.to_bool(end_##finished) ?
-                  self.send(RemoveStaleScreen(second.key)) : (),
+                if (action == `Pop && Js.to_bool(end_##finished)) {
+                  self.send(RemoveStaleScreen(second.key));
+                },
             ()
           );
           ();
@@ -169,10 +214,9 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
          * push in the middle of a pop.
          */
         | PushScreen(route, key) =>
-          if (isActiveScreen(state, key)) {
+          if (Helpers.isActiveScreen(state, key)) {
             let index = state.activeScreen + 1;
             ReasonReact.Update({
-              ...state,
               activeScreen: index,
               screens:
                 state.screens
@@ -195,7 +239,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
          * Pops screen from the stack
          */
         | PopScreen(key) =>
-          if (state.activeScreen > 0 && isActiveScreen(state, key)) {
+          if (state.activeScreen > 0 && Helpers.isActiveScreen(state, key)) {
             ReasonReact.Update({
               ...state,
               activeScreen: state.activeScreen - 1
@@ -236,31 +280,11 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
         },
       render: self => {
         let size = Array.length(self.state.screens);
-        let screenWidth = Dimensions.get(`window)##width;
-        let gestureProgress =
-          Animated.Value.interpolate(
-            self.state.gestureAnimatedValue,
-            ~inputRange=[0.0, float_of_int(screenWidth)],
-            ~outputRange=`float([0.0, 1.0]),
-            ~extrapolate=Animated.Interpolation.Clamp,
-            ()
-          );
         <View style=Styles.stackContainer>
           <PanGestureHandler
             minDeltaX=0
-            maxDeltaX=screenWidth
-            onGestureEvent=(
-              Animated.event(
-                [|
-                  {
-                    "nativeEvent": {
-                      "translationX": self.state.gestureAnimatedValue
-                    }
-                  }
-                |],
-                {"useNativeDriver": true}
-              )
-            )>
+            maxDeltaX=Dimensions.get(`window)##width
+            onGestureEvent=AnimatedValues.gestureHandler>
             <Animated.View style=Styles.flex>
               (
                 self.state.screens
@@ -273,7 +297,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                            idx + 1 == size ?
                              screen : self.state.screens[idx + 1];
                          Animated.Value.add(
-                           gestureProgress,
+                           AnimatedValues.gestureProgress,
                            screen.animatedValue
                          )
                          |> scr.animation.forCard({idx: idx});
@@ -306,9 +330,9 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
           <Header.PlatformHeader
             animatedValue=(
               Animated.Value.add(
-                self.state.headerAnimatedValue,
+                AnimatedValues.header,
                 Animated.Value.multiply(
-                  gestureProgress,
+                  AnimatedValues.gestureProgress,
                   Animated.Value.create(-1.0)
                 )
               )
