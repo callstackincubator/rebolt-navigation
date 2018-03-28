@@ -26,6 +26,21 @@ module Styles = {
   let stackContainer = concat([flex, style([flexDirection(ColumnReverse)])]);
 };
 
+module PanGestureHandler = {
+  [@bs.module "react-native-gesture-handler"]
+  external view : ReasonReact.reactClass = "PanGestureHandler";
+  let make = (~onGestureEvent, ~maxDeltaX, ~minDeltaX, children) =>
+    ReasonReact.wrapJsForReason(
+      ~reactClass=view,
+      ~props={
+        "onGestureEvent": onGestureEvent,
+        "maxDeltaX": maxDeltaX,
+        "minDeltaY": minDeltaX
+      },
+      children
+    );
+};
+
 module CreateStackNavigator = (Config: NavigationConfig) => {
   module StackNavigator = {
     type headerConfig = {title: option(string)};
@@ -40,6 +55,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
     type state = {
       screens: array(screenConfig),
       headerAnimatedValue: Animated.Value.t,
+      gestureAnimatedValue: Animated.Value.t,
       activeScreen: int
     };
     type options = {
@@ -74,6 +90,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
           }
         |],
         activeScreen: 0,
+        gestureAnimatedValue: Animated.Value.create(0.0),
         headerAnimatedValue: Animated.Value.create(0.0)
       },
       /***
@@ -219,45 +236,73 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
         },
       render: self => {
         let size = Array.length(self.state.screens);
+        let screenWidth = Dimensions.get(`window)##width;
+        let gestureProgress =
+          Animated.Value.interpolate(
+            self.state.gestureAnimatedValue,
+            ~inputRange=[0.0, float_of_int(screenWidth)],
+            ~outputRange=`float([0.0, 1.0]),
+            ~extrapolate=Animated.Interpolation.Clamp,
+            ()
+          );
         <View style=Styles.stackContainer>
-          <View style=Styles.flex>
-            (
-              self.state.screens
-              |> Array.mapi((idx, screen: screenConfig) => {
-                   let animation =
-                     if (size == 1) {
-                       Style.style([]);
-                     } else {
-                       let scr =
-                         idx + 1 == size ?
-                           screen : self.state.screens[idx + 1];
-                       screen.animatedValue
-                       |> scr.animation.forCard({idx: idx});
-                     };
-                   <Animated.View
-                     key=screen.key
-                     style=Style.(
-                             concat([Styles.fill, screen.style, animation])
-                           )>
-                     <View>
-                       (
-                         children(
-                           ~currentRoute=screen.route,
-                           ~navigation={
-                             push: route =>
-                               self.send(PushScreen(route, screen.key)),
-                             pop: () => self.send(PopScreen(screen.key)),
-                             setOptions: opts =>
-                               self.send(SetOptions(opts, screen.key))
-                           }
+          <PanGestureHandler
+            minDeltaX=0
+            maxDeltaX=screenWidth
+            onGestureEvent=(
+              Animated.event(
+                [|
+                  {
+                    "nativeEvent": {
+                      "translationX": self.state.gestureAnimatedValue
+                    }
+                  }
+                |],
+                {}
+              )
+            )>
+            <View style=Styles.flex>
+              (
+                self.state.screens
+                |> Array.mapi((idx, screen: screenConfig) => {
+                     let animation =
+                       if (size == 1) {
+                         Style.style([]);
+                       } else {
+                         let scr =
+                           idx + 1 == size ?
+                             screen : self.state.screens[idx + 1];
+                         Animated.Value.add(
+                           screen.animatedValue,
+                           gestureProgress
                          )
-                       )
-                     </View>
-                   </Animated.View>;
-                 })
-              |> ReasonReact.arrayToElement
-            )
-          </View>
+                         |> scr.animation.forCard({idx: idx});
+                       };
+                     <Animated.View
+                       key=screen.key
+                       style=Style.(
+                               concat([Styles.fill, screen.style, animation])
+                             )>
+                       <View>
+                         (
+                           children(
+                             ~currentRoute=screen.route,
+                             ~navigation={
+                               push: route =>
+                                 self.send(PushScreen(route, screen.key)),
+                               pop: () => self.send(PopScreen(screen.key)),
+                               setOptions: opts =>
+                                 self.send(SetOptions(opts, screen.key))
+                             }
+                           )
+                         )
+                       </View>
+                     </Animated.View>;
+                   })
+                |> ReasonReact.arrayToElement
+              )
+            </View>
+          </PanGestureHandler>
           <Header.PlatformHeader
             animatedValue=self.state.headerAnimatedValue
             pop=(key => self.send(PopScreen(key)))

@@ -64,7 +64,7 @@ let slideInOut = {
     Style.(
       style([
         opacity(
-          Interpolated(
+          Animated(
             Animated.Value.interpolate(
               value,
               ~inputRange=[(-1.0), (-0.99), 0.0, 0.99, 1.0],
@@ -73,7 +73,7 @@ let slideInOut = {
             )
           )
         ),
-        Transform.makeInterpolated(
+        Transform.makeAnimated(
           ~translateX=
             Animated.Value.interpolate(
               value,
@@ -93,7 +93,7 @@ let slideInOut = {
     Style.(
       style([
         opacity(
-          Interpolated(
+          Animated(
             Animated.Value.interpolate(
               value,
               ~inputRange=[
@@ -110,7 +110,7 @@ let slideInOut = {
             )
           )
         ),
-        Transform.makeInterpolated(
+        Transform.makeAnimated(
           ~translateX=
             Animated.Value.interpolate(
               value,
@@ -131,7 +131,7 @@ let slideInOut = {
     Style.(
       style([
         opacity(
-          Interpolated(
+          Animated(
             Animated.Value.interpolate(
               value,
               ~inputRange=[
@@ -158,7 +158,7 @@ let slideInOut = {
     Style.(
       style([
         opacity(
-          Interpolated(
+          Animated(
             Animated.Value.interpolate(
               value,
               ~inputRange=[
@@ -175,7 +175,7 @@ let slideInOut = {
             )
           )
         ),
-        Transform.makeInterpolated(
+        Transform.makeAnimated(
           ~translateX=
             Animated.Value.interpolate(
               value,
@@ -200,7 +200,7 @@ let slideInOut = {
     Style.(
       style([
         opacity(
-          Interpolated(
+          Animated(
             value
             |> crossFadeInterpolation([index -. 1.0, index, index +. 1.0])
           )
