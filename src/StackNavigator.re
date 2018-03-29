@@ -26,21 +26,6 @@ module Styles = {
   let stackContainer = concat([flex, style([flexDirection(ColumnReverse)])]);
 };
 
-module PanGestureHandler = {
-  [@bs.module "react-native-gesture-handler"]
-  external view : ReasonReact.reactClass = "PanGestureHandler";
-  let make = (~onGestureEvent, ~maxDeltaX, ~minDeltaX, children) =>
-    ReasonReact.wrapJsForReason(
-      ~reactClass=view,
-      ~props={
-        "onGestureEvent": onGestureEvent,
-        "maxDeltaX": maxDeltaX,
-        "minDeltaY": minDeltaX
-      },
-      children
-    );
-};
-
 module CreateStackNavigator = (Config: NavigationConfig) => {
   module StackNavigator = {
     type headerConfig = {title: option(string)};
@@ -72,40 +57,55 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
       pop: unit => unit
     };
     /**
-     * All Animated Values used by Stack Navigator grouped
-     * in one place:
-     *
-     * - `gesture` - holds raw deltaX values as received through
-     * Animated.Event form PanGestureHandler
-     *
-     * - `gestureProgress` - interpolated `gesture` in range [0, 1]
-     * with 0, meaning beginning of the gesture and 1 - its end.
-     *
-     * - `header` - Animated index of current screen, used for
-     * animating layers in header in particular (hence the name).
+     * Gestures
      */
-    module AnimatedValues = {
+    module Gestures = {
+      /** PanGestureHandler from `react-native-gesture-handler */
+      module PanHandler = {
+        [@bs.module "react-native-gesture-handler"]
+        external view : ReasonReact.reactClass = "PanGestureHandler";
+        let make =
+            (
+              ~onGestureEvent,
+              ~maxDeltaX,
+              ~onHandlerStateChange,
+              ~minDeltaX,
+              children
+            ) =>
+          ReasonReact.wrapJsForReason(
+            ~reactClass=view,
+            ~props={
+              "onGestureEvent": onGestureEvent,
+              "onHandlerStateChange": onHandlerStateChange,
+              "maxDeltaX": maxDeltaX,
+              "minDeltaY": minDeltaX
+            },
+            children
+          );
+      };
       let screenWidth = Dimensions.get(`window)##width;
-      let gesture = Animated.Value.create(0.0);
-      let gestureHandler =
+      /** Raw value as updated via `handler` from PanGestureHandler */
+      let animatedValue = Animated.Value.create(0.0);
+      let handler =
         Animated.event(
           [|{
               "nativeEvent": {
-                "translationX": gesture
+                "translationX": animatedValue
               }
             }|],
           {"useNativeDriver": true}
         );
-      let gestureProgress =
+      /** Interpolated progress in range of 0 to 1 (start to end) */
+      let animatedProgress =
         Animated.Value.interpolate(
-          gesture,
+          animatedValue,
           ~inputRange=[0.0, float_of_int(screenWidth)],
           ~outputRange=`float([0.0, 1.0]),
           ~extrapolate=Animated.Interpolation.Clamp,
           ()
         );
-      let header = Animated.Value.create(0.0);
-      [@bs.send] external get : Animated.Value.t => float = "__getValue";
+      /** Called when gesture state changes */
+      let onStateChange = (event, self) => ();
     };
     /**
      * Helpers specific to this module
@@ -114,6 +114,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
       let isActiveScreen = (state, key) =>
         state.screens[state.activeScreen].key == key;
     };
+    let headerAnimatedValue = Animated.Value.create(0.0);
     /**
      * StackNavigator component
      */
@@ -169,11 +170,11 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             Animated.parallel(
               [|
                 second.animation.func(
-                  ~value=AnimatedValues.gesture,
+                  ~value=Gestures.animatedValue,
                   ~toValue=`raw(0.0)
                 ),
                 second.animation.func(
-                  ~value=AnimatedValues.header,
+                  ~value=headerAnimatedValue,
                   ~toValue=`raw(float_of_int(toIdx))
                 ),
                 second.animation.func(
@@ -281,10 +282,11 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
       render: self => {
         let size = Array.length(self.state.screens);
         <View style=Styles.stackContainer>
-          <PanGestureHandler
+          <Gestures.PanHandler
             minDeltaX=0
             maxDeltaX=Dimensions.get(`window)##width
-            onGestureEvent=AnimatedValues.gestureHandler>
+            onGestureEvent=Gestures.handler
+            onHandlerStateChange=(self.handle(Gestures.onStateChange))>
             <Animated.View style=Styles.flex>
               (
                 self.state.screens
@@ -297,7 +299,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                            idx + 1 == size ?
                              screen : self.state.screens[idx + 1];
                          Animated.Value.add(
-                           AnimatedValues.gestureProgress,
+                           Gestures.animatedProgress,
                            screen.animatedValue
                          )
                          |> scr.animation.forCard({idx: idx});
@@ -326,13 +328,13 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                 |> ReasonReact.arrayToElement
               )
             </Animated.View>
-          </PanGestureHandler>
+          </Gestures.PanHandler>
           <Header.PlatformHeader
             animatedValue=(
               Animated.Value.add(
-                AnimatedValues.header,
+                headerAnimatedValue,
                 Animated.Value.multiply(
-                  AnimatedValues.gestureProgress,
+                  Gestures.animatedProgress,
                   Animated.Value.create(-1.0)
                 )
               )
