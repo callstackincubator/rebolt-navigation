@@ -156,7 +156,7 @@ module FloatingHeader = {
        */
       let upperBound = float_of_int(Array.length(screens));
       let anim =
-        Animated.Value.interpolate(
+        AnimatedUtils.interpolate(
           anim,
           ~inputRange=[0.0, upperBound],
           ~outputRange=`float([0.0, upperBound]),

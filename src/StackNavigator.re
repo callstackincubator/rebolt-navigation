@@ -101,7 +101,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
         );
       /** Interpolated progress in range of 0 to 1 (start to end) */
       let animatedProgress =
-        Animated.Value.interpolate(
+        AnimatedUtils.interpolate(
           animatedValue,
           ~inputRange=[0.0, float_of_int(screenWidth)],
           ~outputRange=`float([0.0, 1.0]),
