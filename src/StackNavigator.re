@@ -72,6 +72,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
               ~maxDeltaX,
               ~onHandlerStateChange,
               ~minDeltaX,
+              ~hitSlop,
               children
             ) =>
           ReasonReact.wrapJsForReason(
@@ -80,7 +81,8 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
               "onGestureEvent": onGestureEvent,
               "onHandlerStateChange": onHandlerStateChange,
               "maxDeltaX": maxDeltaX,
-              "minDeltaY": minDeltaX
+              "minDeltaX": minDeltaX,
+              "hitSlop": hitSlop
             },
             children
           );
@@ -335,10 +337,21 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
         },
       render: self => {
         let size = Array.length(self.state.screens);
+        let screenWidth = Dimensions.get(`window)##width;
+        /**
+         * Aquapoint is the distance between parent and its sibling
+         * used by default on iOS (auto-layout constraint). This is
+         * the used for defining how far from the screen your gesture
+         * can start.
+         *
+         * Source: https://goo.gl/FVKnzZ
+         */
+        let aquaPoint = 20;
         <View style=Styles.stackContainer>
           <Gestures.PanHandler
-            minDeltaX=0
-            maxDeltaX=Dimensions.get(`window)##width
+            minDeltaX=aquaPoint
+            hitSlop={"right": aquaPoint - screenWidth}
+            maxDeltaX=screenWidth
             onGestureEvent=Gestures.handler
             onHandlerStateChange=(self.handle(Gestures.onStateChange))>
             <Animated.View style=Styles.flex>
