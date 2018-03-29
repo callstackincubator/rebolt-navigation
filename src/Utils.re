@@ -29,3 +29,13 @@ module ReArray = {
     copied;
   };
 };
+
+/**
+ * Checks if the phone is an iPhoneX
+ */
+let isIphoneX = () => {
+  open BsReactNative;
+  let width = Dimensions.get(`window)##width;
+  let height = Dimensions.get(`window)##height;
+  Platform.equals(IOS(Phone)) && (width === 812 || height === 812);
+};

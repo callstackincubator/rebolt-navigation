@@ -22,5 +22,5 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
                </View>
              </View>
          )
-    </Screen>
+    </Screen>,
 };
