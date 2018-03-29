@@ -117,7 +117,9 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
         let e = event##nativeEvent;
         switch e##state {
         | 5 =>
-          let toValue = e##translationX > screenWidth / 2 ? screenWidth : 0;
+          let toValue =
+            e##translationX > screenWidth / 2 || e##velocityX > 150.00 ?
+              screenWidth : 0;
           Animated.CompositeAnimation.start(
             Animated.Spring.animate(
               ~value=animatedValue,
