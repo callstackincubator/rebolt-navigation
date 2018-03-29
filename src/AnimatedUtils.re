@@ -5,7 +5,10 @@ open BsReactNative.Animated;
  * Built-in Animated doesn't allow for interpolated Animated.Values
  * to be combined with other non-interpolated Values (e.g. `add`).
  *
- * This module introduces phantom types to fix that problem.
+ * This module provides `interpolate` that returns Animated.Value.t instead.
+ *
+ * Be aware that this is unsafe since interpolated values are a bit different
+ * than regular ones.
  */
 type config;
 
