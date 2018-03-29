@@ -85,8 +85,6 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             children
           );
       };
-      [@bs.send]
-      external getAnimatedValue : Animated.Value.t => float = "__getValue";
       let screenWidth = Dimensions.get(`window)##width;
       /** Raw value as updated via `handler` from PanGestureHandler */
       let animatedValue = Animated.Value.create(0.0);
@@ -108,7 +106,13 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
           ~extrapolate=Animated.Interpolation.Clamp,
           ()
         );
-      /** Called when gesture state changes (5 - end) */
+      /**
+       * Called when gesture state changes (5 - end)
+       *
+       * At the end of the animation, make sure to reset gesture
+       * state to `0` and update all the other animated values
+       * accordingly.
+       */
       let onStateChange = (event, self) => {
         let e = event##nativeEvent;
         switch e##state {
@@ -136,7 +140,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                   );
                   Animated.Value.setValue(
                     headerAnimatedValue,
-                    getAnimatedValue(headerAnimatedValue) -. 1.0
+                    float_of_int(activeScreen - 1)
                   );
                   Animated.Value.setValue(animatedValue, 0.0);
                   self.ReasonReact.send(RemoveLastScreen);
