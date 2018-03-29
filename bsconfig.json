@@ -13,6 +13,10 @@
       "public": "all"
     },
     {
+      "dir": "src/private",
+      "public": "all"
+    },
+    {
       "dir": "example",
       "type": "dev"
     }

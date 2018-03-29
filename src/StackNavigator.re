@@ -39,7 +39,6 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
     };
     type state = {
       screens: array(screenConfig),
-      headerAnimatedValue: Animated.Value.t,
       activeScreen: int
     };
     type options = {
@@ -51,15 +50,122 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
       | PushScreen(Config.route, string)
       | SetOptions(options, string)
       | RemoveStaleScreen(string)
+      | RemoveLastScreen
       | PopScreen(string);
     type navigation = {
       push: Config.route => unit,
       setOptions: options => unit,
       pop: unit => unit
     };
+    let headerAnimatedValue = Animated.Value.create(0.0);
+    /**
+     * Gestures
+     */
+    module Gestures = {
+      /** PanGestureHandler from `react-native-gesture-handler */
+      module PanHandler = {
+        [@bs.module "react-native-gesture-handler"]
+        external view : ReasonReact.reactClass = "PanGestureHandler";
+        let make =
+            (
+              ~onGestureEvent,
+              ~maxDeltaX,
+              ~onHandlerStateChange,
+              ~minDeltaX,
+              ~hitSlop,
+              children
+            ) =>
+          ReasonReact.wrapJsForReason(
+            ~reactClass=view,
+            ~props={
+              "onGestureEvent": onGestureEvent,
+              "onHandlerStateChange": onHandlerStateChange,
+              "maxDeltaX": maxDeltaX,
+              "minDeltaX": minDeltaX,
+              "hitSlop": hitSlop
+            },
+            children
+          );
+      };
+      let screenWidth = Dimensions.get(`window)##width;
+      /** Raw value as updated via `handler` from PanGestureHandler */
+      let animatedValue = Animated.Value.create(0.0);
+      let handler =
+        Animated.event(
+          [|{
+              "nativeEvent": {
+                "translationX": animatedValue
+              }
+            }|],
+          {"useNativeDriver": true}
+        );
+      /** Interpolated progress in range of 0 to 1 (start to end) */
+      let animatedProgress =
+        AnimatedUtils.interpolate(
+          animatedValue,
+          ~inputRange=[0.0, float_of_int(screenWidth)],
+          ~outputRange=`float([0.0, 1.0]),
+          ~extrapolate=Animated.Interpolation.Clamp,
+          ()
+        );
+      /**
+       * Called when gesture state changes (5 - end)
+       *
+       * At the end of the animation, make sure to reset gesture
+       * state to `0` and update all the other animated values
+       * accordingly.
+       */
+      let onStateChange = (event, self) => {
+        let e = event##nativeEvent;
+        switch e##state {
+        | 5 =>
+          let toValue =
+            e##translationX > screenWidth / 2 || e##velocityX > 150.00 ?
+              screenWidth : 0;
+          Animated.CompositeAnimation.start(
+            Animated.Spring.animate(
+              ~value=animatedValue,
+              ~velocity=e##velocityX,
+              ~useNativeDriver=Js.true_,
+              ~toValue=`raw(float_of_int(toValue)),
+              ()
+            ),
+            ~callback=
+              _end_ =>
+                if (toValue != 0) {
+                  let {screens, activeScreen} = self.ReasonReact.state;
+                  Animated.Value.setValue(
+                    screens[activeScreen - 1].animatedValue,
+                    0.0
+                  );
+                  Animated.Value.setValue(
+                    screens[activeScreen].animatedValue,
+                    1.0
+                  );
+                  Animated.Value.setValue(
+                    headerAnimatedValue,
+                    float_of_int(activeScreen - 1)
+                  );
+                  Animated.Value.setValue(animatedValue, 0.0);
+                  self.ReasonReact.send(RemoveLastScreen);
+                },
+            ()
+          );
+        | _ => ()
+        };
+      };
+    };
+    /**
+     * Helpers specific to this module
+     */
+    module Helpers = {
+      let isActiveScreen = (state, key) =>
+        state.screens[state.activeScreen].key == key;
+    };
+    /**
+     * StackNavigator component
+     */
     let component = ReasonReact.reducerComponent("StackNavigator");
-    let isActiveScreen = (state, key) =>
-      state.screens[state.activeScreen].key == key;
     let make = (~initialRoute, children) => {
       ...component,
       initialState: () => {
@@ -73,11 +179,12 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             style: Styles.card
           }
         |],
-        activeScreen: 0,
-        headerAnimatedValue: Animated.Value.create(0.0)
+        activeScreen: 0
       },
       /***
-       * Begin animating two states as soon as the index changes
+       * Begin animating two states as soon as the index changes.
+       *
+       * No animation is done when screen has been already removed from the array.
        *
        * The animation is configured based on the latter screen. That said,
        * when screen B (being removed) uses `fade` transition, the screen
@@ -97,7 +204,9 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
       didUpdate: ({oldSelf, newSelf: self}) => {
         let fromIdx = oldSelf.state.activeScreen;
         let toIdx = self.state.activeScreen;
-        if (fromIdx !== toIdx) {
+        let needsAnimation =
+          Array.length(self.state.screens) > Js.Math.max_int(toIdx, fromIdx);
+        if (fromIdx !== toIdx && needsAnimation) {
           let (first, second) =
             fromIdx < toIdx ?
               (self.state.screens[fromIdx], self.state.screens[toIdx]) :
@@ -112,7 +221,11 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             Animated.parallel(
               [|
                 second.animation.func(
-                  ~value=self.state.headerAnimatedValue,
+                  ~value=Gestures.animatedValue,
+                  ~toValue=`raw(0.0)
+                ),
+                second.animation.func(
+                  ~value=headerAnimatedValue,
                   ~toValue=`raw(float_of_int(toIdx))
                 ),
                 second.animation.func(
@@ -128,8 +241,9 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             ),
             ~callback=
               end_ =>
-                action == `Pop && Js.to_bool(end_##finished) ?
-                  self.send(RemoveStaleScreen(second.key)) : (),
+                if (action == `Pop && Js.to_bool(end_##finished)) {
+                  self.send(RemoveStaleScreen(second.key));
+                },
             ()
           );
           ();
@@ -152,10 +266,9 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
          * push in the middle of a pop.
          */
         | PushScreen(route, key) =>
-          if (isActiveScreen(state, key)) {
+          if (Helpers.isActiveScreen(state, key)) {
             let index = state.activeScreen + 1;
             ReasonReact.Update({
-              ...state,
               activeScreen: index,
               screens:
                 state.screens
@@ -178,7 +291,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
          * Pops screen from the stack
          */
         | PopScreen(key) =>
-          if (state.activeScreen > 0 && isActiveScreen(state, key)) {
+          if (state.activeScreen > 0 && Helpers.isActiveScreen(state, key)) {
             ReasonReact.Update({
               ...state,
               activeScreen: state.activeScreen - 1
@@ -200,6 +313,11 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             ...state,
             screens: state.screens |> ReArray.remove(idx)
           });
+        | RemoveLastScreen =>
+          ReasonReact.Update({
+            activeScreen: state.activeScreen - 1,
+            screens: state.screens |> ReArray.remove(state.activeScreen)
+          })
         /***
          * Sets option for a screen with a given key
          */
@@ -219,47 +337,75 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
         },
       render: self => {
         let size = Array.length(self.state.screens);
+        let screenWidth = Dimensions.get(`window)##width;
+        /**
+         * Aquapoint is the distance between parent and its sibling
+         * used by default on iOS (auto-layout constraint). This is
+         * the used for defining how far from the screen your gesture
+         * can start.
+         *
+         * Source: https://goo.gl/FVKnzZ
+         */
+        let aquaPoint = 20;
         <View style=Styles.stackContainer>
-          <View style=Styles.flex>
-            (
-              self.state.screens
-              |> Array.mapi((idx, screen: screenConfig) => {
-                   let animation =
-                     if (size == 1) {
-                       Style.style([]);
-                     } else {
-                       let scr =
-                         idx + 1 == size ?
-                           screen : self.state.screens[idx + 1];
-                       screen.animatedValue
-                       |> scr.animation.forCard({idx: idx});
-                     };
-                   <Animated.View
-                     key=screen.key
-                     style=Style.(
-                             concat([Styles.fill, screen.style, animation])
-                           )>
-                     <View>
-                       (
-                         children(
-                           ~currentRoute=screen.route,
-                           ~navigation={
-                             push: route =>
-                               self.send(PushScreen(route, screen.key)),
-                             pop: () => self.send(PopScreen(screen.key)),
-                             setOptions: opts =>
-                               self.send(SetOptions(opts, screen.key))
-                           }
+          <Gestures.PanHandler
+            minDeltaX=aquaPoint
+            hitSlop={"right": aquaPoint - screenWidth}
+            maxDeltaX=screenWidth
+            onGestureEvent=Gestures.handler
+            onHandlerStateChange=(self.handle(Gestures.onStateChange))>
+            <Animated.View style=Styles.flex>
+              (
+                self.state.screens
+                |> Array.mapi((idx, screen: screenConfig) => {
+                     let animation =
+                       if (size == 1) {
+                         Style.style([]);
+                       } else {
+                         let scr =
+                           idx + 1 == size ?
+                             screen : self.state.screens[idx + 1];
+                         Animated.Value.add(
+                           Gestures.animatedProgress,
+                           screen.animatedValue
                          )
-                       )
-                     </View>
-                   </Animated.View>;
-                 })
-              |> ReasonReact.arrayToElement
-            )
-          </View>
+                         |> scr.animation.forCard({idx: idx});
+                       };
+                     <Animated.View
+                       key=screen.key
+                       style=Style.(
+                               concat([Styles.fill, screen.style, animation])
+                             )>
+                       <View>
+                         (
+                           children(
+                             ~currentRoute=screen.route,
+                             ~navigation={
+                               push: route =>
+                                 self.send(PushScreen(route, screen.key)),
+                               pop: () => self.send(PopScreen(screen.key)),
+                               setOptions: opts =>
+                                 self.send(SetOptions(opts, screen.key))
+                             }
+                           )
+                         )
+                       </View>
+                     </Animated.View>;
+                   })
+                |> ReasonReact.arrayToElement
+              )
+            </Animated.View>
+          </Gestures.PanHandler>
           <Header.PlatformHeader
-            animatedValue=self.state.headerAnimatedValue
+            animatedValue=(
+              Animated.Value.add(
+                headerAnimatedValue,
+                Animated.Value.multiply(
+                  Gestures.animatedProgress,
+                  Animated.Value.create(-1.0)
+                )
+              )
+            )
             pop=(key => self.send(PopScreen(key)))
             activeScreen=self.state.activeScreen
             screens=(
