@@ -50,12 +50,14 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
       | PushScreen(Config.route, string)
       | SetOptions(options, string)
       | RemoveStaleScreen(string)
+      | RemoveLastScreen
       | PopScreen(string);
     type navigation = {
       push: Config.route => unit,
       setOptions: options => unit,
       pop: unit => unit
     };
+    let headerAnimatedValue = Animated.Value.create(0.0);
     /**
      * Gestures
      */
@@ -83,6 +85,8 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             children
           );
       };
+      [@bs.send]
+      external getAnimatedValue : Animated.Value.t => float = "__getValue";
       let screenWidth = Dimensions.get(`window)##width;
       /** Raw value as updated via `handler` from PanGestureHandler */
       let animatedValue = Animated.Value.create(0.0);
@@ -104,8 +108,44 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
           ~extrapolate=Animated.Interpolation.Clamp,
           ()
         );
-      /** Called when gesture state changes */
-      let onStateChange = (event, self) => ();
+      /** Called when gesture state changes (5 - end) */
+      let onStateChange = (event, self) => {
+        let e = event##nativeEvent;
+        switch e##state {
+        | 5 =>
+          let toValue = e##translationX > screenWidth / 2 ? screenWidth : 0;
+          Animated.CompositeAnimation.start(
+            Animated.Spring.animate(
+              ~value=animatedValue,
+              ~velocity=e##velocityX,
+              ~useNativeDriver=Js.true_,
+              ~toValue=`raw(float_of_int(toValue)),
+              ()
+            ),
+            ~callback=
+              _end_ =>
+                if (toValue != 0) {
+                  let {screens, activeScreen} = self.ReasonReact.state;
+                  Animated.Value.setValue(
+                    screens[activeScreen - 1].animatedValue,
+                    0.0
+                  );
+                  Animated.Value.setValue(
+                    screens[activeScreen].animatedValue,
+                    1.0
+                  );
+                  Animated.Value.setValue(
+                    headerAnimatedValue,
+                    getAnimatedValue(headerAnimatedValue) -. 1.0
+                  );
+                  Animated.Value.setValue(animatedValue, 0.0);
+                  self.ReasonReact.send(RemoveLastScreen);
+                },
+            ()
+          );
+        | _ => ()
+        };
+      };
     };
     /**
      * Helpers specific to this module
@@ -114,7 +154,6 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
       let isActiveScreen = (state, key) =>
         state.screens[state.activeScreen].key == key;
     };
-    let headerAnimatedValue = Animated.Value.create(0.0);
     /**
      * StackNavigator component
      */
@@ -135,7 +174,9 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
         activeScreen: 0
       },
       /***
-       * Begin animating two states as soon as the index changes
+       * Begin animating two states as soon as the index changes.
+       *
+       * No animation is done when screen has been already removed from the array.
        *
        * The animation is configured based on the latter screen. That said,
        * when screen B (being removed) uses `fade` transition, the screen
@@ -155,7 +196,9 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
       didUpdate: ({oldSelf, newSelf: self}) => {
         let fromIdx = oldSelf.state.activeScreen;
         let toIdx = self.state.activeScreen;
-        if (fromIdx !== toIdx) {
+        let needsAnimation =
+          Array.length(self.state.screens) > Js.Math.max_int(toIdx, fromIdx);
+        if (fromIdx !== toIdx && needsAnimation) {
           let (first, second) =
             fromIdx < toIdx ?
               (self.state.screens[fromIdx], self.state.screens[toIdx]) :
@@ -262,6 +305,11 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             ...state,
             screens: state.screens |> ReArray.remove(idx)
           });
+        | RemoveLastScreen =>
+          ReasonReact.Update({
+            activeScreen: state.activeScreen - 1,
+            screens: state.screens |> ReArray.remove(state.activeScreen)
+          })
         /***
          * Sets option for a screen with a given key
          */
