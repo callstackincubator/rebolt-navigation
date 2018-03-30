@@ -52,15 +52,13 @@ module FloatingHeader = {
     };
     let container =
       style([
-        backgroundColor(String("#FFF")),
-        height(Pt(Constants.(appBarHeight +. statusBarHeight))),
+        backgroundColor(String("#fff")),
         borderBottomWidth(StyleSheet.hairlineWidth),
         borderBottomColor(String("#A7A7AA")),
       ]);
     let header =
       style([
-        flex(1.0),
-        position(Relative),
+        height(Pt(Constants.(appBarHeight))),
         /*
          * SafeAreaView doesn't work on iOS < 11 and so, we add the
          * statusBar padding manually
