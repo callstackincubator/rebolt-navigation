@@ -47,13 +47,13 @@ module FloatingHeader = {
     open Style;
     module Constants = {
       let titleOffset = 70.0;
-      /* let appBarHeight = 44.0; */
+      let appBarHeight = 44.0;
       let statusBarHeight = 20.0;
     };
     let container =
       style([
         backgroundColor(String("#FFF")),
-        height(Pt(Constants.(statusBarHeight))),
+        height(Pt(Constants.(appBarHeight +. statusBarHeight))),
         borderBottomWidth(StyleSheet.hairlineWidth),
         borderBottomColor(String("#A7A7AA")),
       ]);
