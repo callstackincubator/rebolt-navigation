@@ -59,6 +59,7 @@ module FloatingHeader = {
     let header =
       style([
         height(Pt(Constants.(appBarHeight))),
+        position(Relative),
         /*
          * SafeAreaView doesn't work on iOS < 11 and so, we add the
          * statusBar padding manually
