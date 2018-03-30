@@ -11,7 +11,7 @@ type config = {title: option(string)};
 type screenConfig = {
   header: config,
   animation: Animation.t,
-  key: string
+  key: string,
 };
 
 /**
@@ -33,9 +33,9 @@ module MaskedView = {
       ~props={
         "maskElement": maskElement,
         "pointerEvents": pointerEvents,
-        "style": style
+        "style": style,
       },
-      children
+      children,
     );
 };
 
@@ -47,15 +47,15 @@ module FloatingHeader = {
     open Style;
     module Constants = {
       let titleOffset = 70.0;
-      let appBarHeight = 44.0;
+      /* let appBarHeight = 44.0; */
       let statusBarHeight = 20.0;
     };
     let container =
       style([
         backgroundColor(String("#FFF")),
-        height(Pt(Constants.(appBarHeight +. statusBarHeight))),
+        height(Pt(Constants.(statusBarHeight))),
         borderBottomWidth(StyleSheet.hairlineWidth),
-        borderBottomColor(String("#A7A7AA"))
+        borderBottomColor(String("#A7A7AA")),
       ]);
     let header =
       style([
@@ -66,8 +66,8 @@ module FloatingHeader = {
          * statusBar padding manually
          */
         marginTop(
-          Pt(Platform.version() < 11 ? Constants.statusBarHeight : 0.0)
-        )
+          Pt(Platform.version() < 11 ? Constants.statusBarHeight : 0.0),
+        ),
       ]);
     let fill = StyleSheet.absoluteFill;
     let center =
@@ -79,7 +79,7 @@ module FloatingHeader = {
         position(Absolute),
         flexDirection(Row),
         justifyContent(Center),
-        alignItems(Center)
+        alignItems(Center),
       ]);
     let headerTitle =
       style([
@@ -87,7 +87,7 @@ module FloatingHeader = {
         fontWeight(`_700),
         textAlign(Center),
         marginHorizontal(Pt(16.0)),
-        color(String("rgba(0, 0, 0, .9)"))
+        color(String("rgba(0, 0, 0, .9)")),
       ]);
     let left =
       style([
@@ -96,9 +96,10 @@ module FloatingHeader = {
         bottom(Pt(0.0)),
         position(Absolute),
         flexDirection(Row),
-        alignItems(Center)
+        alignItems(Center),
       ]);
-    let leftTitle = style([fontSize(Float(17.0)), color(String("#037aff"))]);
+    let leftTitle =
+      style([fontSize(Float(17.0)), color(String("#037aff"))]);
     let leftContainer = style([flexDirection(Row), alignItems(Center)]);
     let leftIcon = withTitle =>
       style([
@@ -107,7 +108,7 @@ module FloatingHeader = {
         marginLeft(Pt(9.0)),
         marginRight(Pt(withTitle ? 3.0 : 22.0)),
         marginVertical(Pt(12.0)),
-        resizeMode(Contain)
+        resizeMode(Contain),
       ]);
     let iconMaskContainer =
       style([flex(1.0), flexDirection(Row), justifyContent(Center)]);
@@ -118,13 +119,13 @@ module FloatingHeader = {
         marginLeft(Pt(9.0)),
         marginTop(Pt(-0.5)),
         alignSelf(Center),
-        resizeMode(Contain)
+        resizeMode(Contain),
       ]);
     let iconMaskFillerRect =
       style([
         flex(1.0),
         backgroundColor(String("#d8d8d8")),
-        marginLeft(Pt(-1.0))
+        marginLeft(Pt(-1.0)),
       ]);
     let right =
       style([
@@ -133,7 +134,7 @@ module FloatingHeader = {
         bottom(Pt(0.0)),
         position(Absolute),
         flexDirection(Row),
-        alignItems(Center)
+        alignItems(Center),
       ]);
     let label = style([fontSize(Float(15.0)), color(String("red"))]);
   };
@@ -144,7 +145,7 @@ module FloatingHeader = {
         ~activeScreen: int,
         ~animatedValue as anim: Animated.Value.t,
         ~pop: string => unit,
-        _children
+        _children,
       ) => {
     ...component,
     render: _self => {
@@ -161,14 +162,14 @@ module FloatingHeader = {
           ~inputRange=[0.0, upperBound],
           ~outputRange=`float([0.0, upperBound]),
           ~extrapolate=Animated.Interpolation.Clamp,
-          ()
+          (),
         );
       let mask =
         <View style=Styles.iconMaskContainer>
           <Image
             source=(
               Required(
-                Packager.require("../../../src/assets/back-icon-mask.png")
+                Packager.require("../../../src/assets/back-icon-mask.png"),
               )
             )
             style=Styles.iconMask
@@ -189,7 +190,7 @@ module FloatingHeader = {
                      style=(
                        Style.concat([
                          Styles.left,
-                         anim |> screen.animation.forHeaderLeft({idx: idx})
+                         anim |> screen.animation.forHeaderLeft({idx: idx}),
                        ])
                      )>
                      (
@@ -201,33 +202,33 @@ module FloatingHeader = {
                                style=(
                                  anim
                                  |> screen.animation.forHeaderLeftButton({
-                                      idx: idx
+                                      idx: idx,
                                     })
                                )>
                                <Image
                                  style=(
                                    Styles.leftIcon(
-                                     Js.Option.isSome(screen.header.title)
+                                     Js.Option.isSome(screen.header.title),
                                    )
                                  )
                                  source=(
                                    Required(
                                      Packager.require(
-                                       "../../../src/assets/back-icon.png"
-                                     )
+                                       "../../../src/assets/back-icon.png",
+                                     ),
                                    )
                                  )
                                />
                              </Animated.View>
                              (
-                               switch screens[idx - 1].header.title {
+                               switch (screens[idx - 1].header.title) {
                                | None => <View />
                                | Some(title) =>
                                  <Animated.View
                                    style=(
                                      anim
                                      |> screen.animation.forHeaderLeftLabel({
-                                          idx: idx
+                                          idx: idx,
                                         })
                                    )>
                                    <Text
@@ -245,13 +246,13 @@ module FloatingHeader = {
                      style=(
                        Style.concat([
                          Styles.center,
-                         anim |> screen.animation.forHeaderCenter({idx: idx})
+                         anim |> screen.animation.forHeaderCenter({idx: idx}),
                        ])
                      )>
                      <Text style=Styles.headerTitle numberOfLines=1>
                        (
                          ReasonReact.stringToElement(
-                           Js.Option.getWithDefault("", screen.header.title)
+                           Js.Option.getWithDefault("", screen.header.title),
                          )
                        )
                      </Text>
@@ -260,7 +261,7 @@ module FloatingHeader = {
                      style=(
                        Style.concat([
                          Styles.right,
-                         anim |> screen.animation.forHeaderRight({idx: idx})
+                         anim |> screen.animation.forHeaderRight({idx: idx}),
                        ])
                      )
                    />
@@ -270,7 +271,7 @@ module FloatingHeader = {
           )
         </View>
       </SafeAreaView>;
-    }
+    },
   };
 };
 

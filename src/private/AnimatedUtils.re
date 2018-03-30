@@ -30,7 +30,7 @@ external makeConfig :
 external outputRangeCreate : 'a => outputRange = "%identity";
 
 let extrapolateString = x =>
-  switch x {
+  switch (x) {
   | Interpolation.Extend => "extend"
   | Interpolation.Clamp => "clamp"
   | Interpolation.Identity => "identity"
@@ -48,20 +48,21 @@ let interpolate =
       ~extrapolate=?,
       ~extrapolateLeft=?,
       ~extrapolateRight=?,
-      ()
+      (),
     ) =>
   _interpolate(
     value,
     makeConfig(
       ~inputRange=Array.of_list(inputRange),
       ~outputRange=
-        switch outputRange {
+        switch (outputRange) {
         | `string((x: list(string))) => outputRangeCreate(Array.of_list(x))
         | `float((x: list(float))) => outputRangeCreate(Array.of_list(x))
         },
       ~easing?,
       ~extrapolate=?Utils.option_map(extrapolateString, extrapolate),
       ~extrapolateLeft=?Utils.option_map(extrapolateString, extrapolateLeft),
-      ~extrapolateRight=?Utils.option_map(extrapolateString, extrapolateRight)
-    )
+      ~extrapolateRight=?
+        Utils.option_map(extrapolateString, extrapolateRight),
+    ),
   );
