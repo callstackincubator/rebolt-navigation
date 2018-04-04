@@ -1,5 +1,5 @@
 module CreateStackNavigator:
-  (Config: ReRouteTypes.NavigationConfig) =>
+  (Config: {type route;}) =>
   {
     module StackNavigator: {
       type state;

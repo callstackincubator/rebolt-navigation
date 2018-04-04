@@ -1,5 +1,3 @@
-open ReRouteTypes;
-
-module CreateNavigation = (Config: NavigationConfig) => {
+module CreateNavigation = (Config: {type route;}) => {
   include StackNavigator.CreateStackNavigator(Config);
 };
