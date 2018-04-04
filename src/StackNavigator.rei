@@ -2,7 +2,6 @@ module CreateStackNavigator:
   (Config: ReRouteTypes.NavigationConfig) =>
   {
     module StackNavigator: {
-      type screenConfig;
       type state;
       type options;
       type action;

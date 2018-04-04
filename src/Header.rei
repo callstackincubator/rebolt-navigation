@@ -1,13 +1,26 @@
+/**
+ * Header config
+ */
 type config = {title: option(string)};
 
+/**
+ * Screen config that is used by this Header
+ */
 type screenConfig = {
   header: config,
   animation: Animation.t,
   key: string
 };
 
+/**
+ * Default configuration used on Screen that is mounting or has
+ * no Screen component inside
+ */
 let default: config;
 
+/**
+ * Default implementation of Header on iOS
+ */
 module FloatingHeader: {
   let component:
     ReasonReact.componentSpec(
