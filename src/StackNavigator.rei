@@ -2,29 +2,10 @@ module CreateStackNavigator:
   (Config: ReRouteTypes.NavigationConfig) =>
   {
     module StackNavigator: {
-      type screenConfig = {
-        route: Config.route,
-        key: string,
-        header: Header.config,
-        animatedValue: BsReactNative.Animated.Value.t,
-        animation: Animation.t,
-        style: BsReactNative.Style.t
-      };
-      type state = {
-        screens: array(screenConfig),
-        activeScreen: int
-      };
-      type options = {
-        header: Header.config,
-        animation: option(Animation.t),
-        style: option(BsReactNative.Style.t)
-      };
-      type action =
-        | PushScreen(Config.route, string)
-        | SetOptions(options, string)
-        | RemoveStaleScreen(string)
-        | RemoveLastScreen
-        | PopScreen(string);
+      type screenConfig;
+      type state;
+      type options;
+      type action;
       type navigation = {
         push: Config.route => unit,
         setOptions: options => unit,
