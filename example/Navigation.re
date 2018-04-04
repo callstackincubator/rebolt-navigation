@@ -4,7 +4,4 @@ module Config = {
     | Home;
 };
 
-/** todo figure out namespacing this */
-module ReactNavigation = ReRoute.CreateNavigation(Config);
-
-module StackNavigator = ReactNavigation.StackNavigator;
+include ReRoute.CreateNavigation(Config);
