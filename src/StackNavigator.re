@@ -69,6 +69,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             (
               ~onGestureEvent,
               ~maxDeltaX,
+              ~enabled,
               ~onHandlerStateChange,
               ~minDeltaX,
               ~hitSlop,
@@ -81,6 +82,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
               "onHandlerStateChange": onHandlerStateChange,
               "maxDeltaX": maxDeltaX,
               "minDeltaX": minDeltaX,
+              "enabled": Js.Boolean.to_js_boolean(enabled),
               "hitSlop": hitSlop
             },
             children
@@ -351,6 +353,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             minDeltaX=aquaPoint
             hitSlop={"right": aquaPoint - screenWidth}
             maxDeltaX=screenWidth
+            enabled=(size > 1)
             onGestureEvent=Gestures.handler
             onHandlerStateChange=(self.handle(Gestures.onStateChange))>
             <Animated.View style=Styles.flex>
