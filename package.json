@@ -8,8 +8,8 @@
     "start": "bsb -make-world -w",
     "clean": "bsb -clean-world",
     "prepublish": "npm run build",
-    "run-example":
-      "react-native run-ios --project-path \"./example/.native/ios\"",
+    "run-ios": "react-native run-ios --project-path \"./example/.native/ios\"",
+    "run-android": "react-native run-android --root \"./example/.native\"",
     "start-example":
       "node ./node_modules/react-native/local-cli/cli.js start --root ./example",
     "test": "exit 0"
