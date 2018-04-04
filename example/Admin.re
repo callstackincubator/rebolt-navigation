@@ -22,7 +22,7 @@ let renderButtons = (nav: StackNavigator.navigation) =>
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <Screen headerTitle="Admin" navigation>
+    <StackNavigator.Screen headerTitle="Admin" navigation>
       ...(
            () =>
              <View>
@@ -30,5 +30,5 @@ let make = (~navigation, _children) => {
                (renderButtons(navigation))
              </View>
          )
-    </Screen>
+    </StackNavigator.Screen>
 };

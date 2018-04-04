@@ -422,33 +422,32 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
         </View>;
       }
     };
-  };
-  module Screen = {
-    open StackNavigator;
-    let component = ReasonReact.statelessComponent("CallstackScreen");
-    let make =
-        (
-          ~navigation: navigation,
-          ~style=?,
-          ~headerTitle=?,
-          ~animation=?,
-          children
-        ) => {
-      ...component,
-      didMount: _self => {
-        navigation.setOptions({
-          header: {
-            title: headerTitle
-          },
-          animation,
-          style
-        });
-        ReasonReact.NoUpdate;
-      },
-      render: _self => {
-        let body = children();
-        <View> body </View>;
-      }
+    module Screen = {
+      let component = ReasonReact.statelessComponent("CallstackScreen");
+      let make =
+          (
+            ~navigation: navigation,
+            ~style=?,
+            ~headerTitle=?,
+            ~animation=?,
+            children
+          ) => {
+        ...component,
+        didMount: _self => {
+          navigation.setOptions({
+            header: {
+              title: headerTitle
+            },
+            animation,
+            style
+          });
+          ReasonReact.NoUpdate;
+        },
+        render: _self => {
+          let body = children();
+          <View> body </View>;
+        }
+      };
     };
   };
 };
