@@ -28,7 +28,6 @@ module Styles = {
 
 module CreateStackNavigator = (Config: NavigationConfig) => {
   module StackNavigator = {
-    type headerConfig = {title: option(string)};
     type screenConfig = {
       route: Config.route,
       key: string,
