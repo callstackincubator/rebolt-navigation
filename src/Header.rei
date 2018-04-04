@@ -22,14 +22,6 @@ let default: config;
  * Default implementation of Header on iOS
  */
 module FloatingHeader: {
-  let component:
-    ReasonReact.componentSpec(
-      ReasonReact.stateless,
-      ReasonReact.stateless,
-      ReasonReact.noRetainedProps,
-      ReasonReact.noRetainedProps,
-      ReasonReact.actionless
-    );
   let make:
     (
       ~screens: array(screenConfig),

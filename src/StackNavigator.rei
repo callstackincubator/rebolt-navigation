@@ -10,14 +10,6 @@ module CreateStackNavigator:
         setOptions: options => unit,
         pop: unit => unit
       };
-      let component:
-        ReasonReact.componentSpec(
-          state,
-          ReasonReact.stateless,
-          ReasonReact.noRetainedProps,
-          ReasonReact.noRetainedProps,
-          action
-        );
       let make:
         (
           ~initialRoute: Config.route,
@@ -32,14 +24,6 @@ module CreateStackNavigator:
           action
         );
       module Screen: {
-        let component:
-          ReasonReact.componentSpec(
-            ReasonReact.stateless,
-            ReasonReact.stateless,
-            ReasonReact.noRetainedProps,
-            ReasonReact.noRetainedProps,
-            ReasonReact.actionless
-          );
         let make:
           (
             ~navigation: navigation,
