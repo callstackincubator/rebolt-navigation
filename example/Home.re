@@ -1,26 +1,22 @@
-open Navigation;
-
 open BsReactNative;
 
 let component = ReasonReact.statelessComponent("Home");
 
-let make = (~navigation as nav: StackNavigator.navigation, _children) => {
+let make = (~push, ~pop, _children) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen headerTitle="Home" navigation=nav>
-      ...(
-           () =>
-             <View>
-               <Text> (ReasonReact.stringToElement("Home")) </Text>
-               <View>
-                 <TouchableOpacity onPress=(_e => nav.push(Config.Admin))>
-                   <Text> (ReasonReact.stringToElement("Push")) </Text>
-                 </TouchableOpacity>
-                 <TouchableOpacity onPress=(_e => nav.pop())>
-                   <Text> (ReasonReact.stringToElement("Pop")) </Text>
-                 </TouchableOpacity>
-               </View>
-             </View>
-         )
-    </StackNavigator.Screen>
+    <View>
+      <View>
+        <Text> (ReasonReact.stringToElement("Home")) </Text>
+        <View>
+          <TouchableOpacity onPress=(_e => push())>
+            <Text> (ReasonReact.stringToElement("Push")) </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress=(_e => pop())>
+            <Text> (ReasonReact.stringToElement("Pop")) </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
 };
+
