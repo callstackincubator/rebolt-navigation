@@ -12,7 +12,7 @@ module Styles = {
       top(Pt(0.0)),
       left(Pt(0.0)),
       right(Pt(0.0)),
-      bottom(Pt(0.0))
+      bottom(Pt(0.0)),
     ]);
   let flex = style([flex(1.0)]);
   let card =
@@ -21,9 +21,10 @@ module Styles = {
       shadowColor(String("black")),
       shadowOffset(~width=0.0, ~height=0.0),
       shadowOpacity(0.2),
-      shadowRadius(5.0)
+      shadowRadius(5.0),
     ]);
-  let stackContainer = concat([flex, style([flexDirection(ColumnReverse)])]);
+  let stackContainer =
+    concat([flex, style([flexDirection(ColumnReverse)])]);
 };
 
 module CreateStackNavigator = (Config: NavigationConfig) => {
@@ -35,16 +36,16 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
       header: Header.config,
       animatedValue: Animated.Value.t,
       animation: Animation.t,
-      style: Style.t
+      style: Style.t,
     };
     type state = {
       screens: array(screenConfig),
-      activeScreen: int
+      activeScreen: int,
     };
     type options = {
       header: Header.config,
       animation: option(Animation.t),
-      style: option(Style.t)
+      style: option(Style.t),
     };
     type action =
       | PushScreen(Config.route, string)
@@ -55,7 +56,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
     type navigation = {
       push: Config.route => unit,
       setOptions: options => unit,
-      pop: unit => unit
+      pop: unit => unit,
     };
     let headerAnimatedValue = Animated.Value.create(0.0);
     /**
@@ -73,7 +74,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
               ~onHandlerStateChange,
               ~minDeltaX,
               ~hitSlop,
-              children
+              children,
             ) =>
           ReasonReact.wrapJsForReason(
             ~reactClass=view,
@@ -82,9 +83,9 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
               "onHandlerStateChange": onHandlerStateChange,
               "maxDeltaX": maxDeltaX,
               "minDeltaX": minDeltaX,
-              "hitSlop": hitSlop
+              "hitSlop": hitSlop,
             },
-            children
+            children,
           );
       };
       let screenWidth = Dimensions.get(`window)##width;
@@ -94,10 +95,10 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
         Animated.event(
           [|{
               "nativeEvent": {
-                "translationX": animatedValue
-              }
+                "translationX": animatedValue,
+              },
             }|],
-          {"useNativeDriver": true}
+          {"useNativeDriver": true},
         );
       /** Interpolated progress in range of 0 to 1 (start to end) */
       let animatedProgress =
@@ -106,7 +107,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
           ~inputRange=[0.0, float_of_int(screenWidth)],
           ~outputRange=`float([0.0, 1.0]),
           ~extrapolate=Animated.Interpolation.Clamp,
-          ()
+          (),
         );
       /**
        * Called when gesture state changes (5 - end)
@@ -117,7 +118,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
        */
       let onStateChange = (event, self) => {
         let e = event##nativeEvent;
-        switch e##state {
+        switch (e##state) {
         | 5 =>
           let toValue =
             e##translationX > screenWidth / 2 || e##velocityX > 150.00 ?
@@ -128,7 +129,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
               ~velocity=e##velocityX,
               ~useNativeDriver=Js.true_,
               ~toValue=`raw(float_of_int(toValue)),
-              ()
+              (),
             ),
             ~callback=
               _end_ =>
@@ -136,20 +137,20 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                   let {screens, activeScreen} = self.ReasonReact.state;
                   Animated.Value.setValue(
                     screens[activeScreen - 1].animatedValue,
-                    0.0
+                    0.0,
                   );
                   Animated.Value.setValue(
                     screens[activeScreen].animatedValue,
-                    1.0
+                    1.0,
                   );
                   Animated.Value.setValue(
                     headerAnimatedValue,
-                    float_of_int(activeScreen - 1)
+                    float_of_int(activeScreen - 1),
                   );
                   Animated.Value.setValue(animatedValue, 0.0);
                   self.ReasonReact.send(RemoveLastScreen);
                 },
-            ()
+            (),
           );
         | _ => ()
         };
@@ -176,10 +177,10 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             animation: Animation.default,
             key: UUID.generate(),
             animatedValue: Animated.Value.create(0.0),
-            style: Styles.card
-          }
+            style: Styles.card,
+          },
         |],
-        activeScreen: 0
+        activeScreen: 0,
       },
       /***
        * Begin animating two states as soon as the index changes.
@@ -213,7 +214,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
               (self.state.screens[toIdx], self.state.screens[fromIdx]);
           let action = fromIdx < toIdx ? `Push : `Pop;
           let (fstValues, sndValues) =
-            switch action {
+            switch (action) {
             | `Push => ((0.0, (-1.0)), (1.0, 0.0))
             | `Pop => (((-1.0), 0.0), (0.0, 1.0))
             };
@@ -222,29 +223,29 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
               [|
                 second.animation.func(
                   ~value=Gestures.animatedValue,
-                  ~toValue=`raw(0.0)
+                  ~toValue=`raw(0.0),
                 ),
                 second.animation.func(
                   ~value=headerAnimatedValue,
-                  ~toValue=`raw(float_of_int(toIdx))
+                  ~toValue=`raw(float_of_int(toIdx)),
                 ),
                 second.animation.func(
                   ~value=first.animatedValue,
-                  ~toValue=`raw(fstValues |> snd)
+                  ~toValue=`raw(fstValues |> snd),
                 ),
                 second.animation.func(
                   ~value=second.animatedValue,
-                  ~toValue=`raw(sndValues |> snd)
-                )
+                  ~toValue=`raw(sndValues |> snd),
+                ),
               |],
-              {"stopTogether": Js.Boolean.to_js_boolean(false)}
+              {"stopTogether": Js.Boolean.to_js_boolean(false)},
             ),
             ~callback=
               end_ =>
                 if (action == `Pop && Js.to_bool(end_##finished)) {
                   self.send(RemoveStaleScreen(second.key));
                 },
-            ()
+            (),
           );
           ();
         };
@@ -257,7 +258,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
        * state.
        */
       reducer: (action, state) =>
-        switch action {
+        switch (action) {
         /***
          * Pushes new screen onto the stack
          *
@@ -279,10 +280,10 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                        animation: Animation.default,
                        animatedValue: Animated.Value.create(1.0),
                        key: UUID.generate(),
-                       style: Styles.card
+                       style: Styles.card,
                      },
-                     index
-                   )
+                     index,
+                   ),
             });
           } else {
             ReasonReact.NoUpdate;
@@ -294,7 +295,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
           if (state.activeScreen > 0 && Helpers.isActiveScreen(state, key)) {
             ReasonReact.Update({
               ...state,
-              activeScreen: state.activeScreen - 1
+              activeScreen: state.activeScreen - 1,
             });
           } else {
             ReasonReact.NoUpdate;
@@ -311,12 +312,12 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             |> Js.Array.findIndex((screen: screenConfig) => screen.key == key);
           ReasonReact.Update({
             ...state,
-            screens: state.screens |> ReArray.remove(idx)
+            screens: state.screens |> ReArray.remove(idx),
           });
         | RemoveLastScreen =>
           ReasonReact.Update({
             activeScreen: state.activeScreen - 1,
-            screens: state.screens |> ReArray.remove(state.activeScreen)
+            screens: state.screens |> ReArray.remove(state.activeScreen),
           })
         /***
          * Sets option for a screen with a given key
@@ -331,7 +332,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             header,
             style: style |> Js.Option.getWithDefault(screens[idx].style),
             animation:
-              animation |> Js.Option.getWithDefault(screens[idx].animation)
+              animation |> Js.Option.getWithDefault(screens[idx].animation),
           };
           ReasonReact.Update({...state, screens});
         },
@@ -367,7 +368,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                              screen : self.state.screens[idx + 1];
                          Animated.Value.add(
                            Gestures.animatedProgress,
-                           screen.animatedValue
+                           screen.animatedValue,
                          )
                          |> scr.animation.forCard({idx: idx});
                        };
@@ -376,7 +377,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                        style=Style.(
                                concat([Styles.fill, screen.style, animation])
                              )>
-                       <View>
+                       <View style=Styles.flex>
                          (
                            children(
                              ~currentRoute=screen.route,
@@ -385,8 +386,8 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                                  self.send(PushScreen(route, screen.key)),
                                pop: () => self.send(PopScreen(screen.key)),
                                setOptions: opts =>
-                                 self.send(SetOptions(opts, screen.key))
-                             }
+                                 self.send(SetOptions(opts, screen.key)),
+                             },
                            )
                          )
                        </View>
@@ -402,8 +403,8 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                 headerAnimatedValue,
                 Animated.Value.multiply(
                   Gestures.animatedProgress,
-                  Animated.Value.create(-1.0)
-                )
+                  Animated.Value.create(-1.0),
+                ),
               )
             )
             pop=(key => self.send(PopScreen(key)))
@@ -414,41 +415,41 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
                    {
                      Header.header: scr.header,
                      animation: scr.animation,
-                     key: scr.key
+                     key: scr.key,
                    }
                  )
             )
           />
         </View>;
-      }
+      },
     };
   };
   module Screen = {
     open StackNavigator;
-    let component = ReasonReact.statelessComponent("CallstackScreen");
+    let component = ReasonReact.statelessComponent("Screen");
     let make =
         (
           ~navigation: navigation,
           ~style=?,
           ~headerTitle=?,
           ~animation=?,
-          children
+          children,
         ) => {
       ...component,
       didMount: _self => {
         navigation.setOptions({
           header: {
-            title: headerTitle
+            title: headerTitle,
           },
           animation,
-          style
+          style,
         });
         ReasonReact.NoUpdate;
       },
       render: _self => {
         let body = children();
-        <View> body </View>;
-      }
+        <View style=Styles.flex> body </View>;
+      },
     };
   };
 };

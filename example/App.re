@@ -5,15 +5,17 @@ module Main = {
   let make = _children => {
     ...component,
     render: _self =>
-      <StackNavigator initialRoute=Config.Admin>
+      <StackNavigator initialRoute=Config.TabExample>
         ...(
              (~currentRoute, ~navigation) =>
-               switch currentRoute {
-               | Config.Admin => <Admin navigation />
+               switch (currentRoute) {
+               | Config.TabExample => <TabExample navigation />
                | Config.Home => <Home navigation />
+               | Config.Admin => <Admin navigation />
+               | _ => <TabExample navigation />
                }
            )
-      </StackNavigator>
+      </StackNavigator>,
   };
 };
 

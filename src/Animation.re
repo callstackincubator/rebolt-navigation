@@ -28,7 +28,7 @@ type t = {
   forHeaderLeft: interpolator,
   forHeaderLeftLabel: interpolator,
   forHeaderLeftButton: interpolator,
-  forHeaderRight: interpolator
+  forHeaderRight: interpolator,
 };
 
 let crossFadeInterpolation = ([start, mid, end_], value) =>
@@ -41,10 +41,10 @@ let crossFadeInterpolation = ([start, mid, end_], value) =>
       mid -. 0.2,
       mid,
       end_ -. 0.001,
-      end_
+      end_,
     ],
     ~outputRange=`float([0.0, 0.0, 0.0, 0.3, 1.0, 0.0, 0.0]),
-    ()
+    (),
   );
 
 /**
@@ -57,7 +57,7 @@ let slideInOut = {
       ~damping=500.0,
       ~mass=3.0,
       ~useNativeDriver=Js.Boolean.to_js_boolean(true),
-      ()
+      (),
     ),
   forCard: (_options, value) => {
     let screenWidth = float(Dimensions.get(`window)##width);
@@ -69,9 +69,9 @@ let slideInOut = {
               value,
               ~inputRange=[(-1.0), (-0.99), 0.0, 0.99, 1.0],
               ~outputRange=`float([0.0, 1.0, 1.0, 0.85, 0.0]),
-              ()
-            )
-          )
+              (),
+            ),
+          ),
         ),
         Transform.makeInterpolated(
           ~translateX=
@@ -79,10 +79,10 @@ let slideInOut = {
               value,
               ~inputRange=[(-1), 0, 1] |> List.map(float),
               ~outputRange=`float([-. screenWidth *. 0.3, 0.0, screenWidth]),
-              ()
+              (),
             ),
-          ()
-        )
+          (),
+        ),
       ])
     );
   },
@@ -103,23 +103,24 @@ let slideInOut = {
                 index,
                 index +. 0.7,
                 last -. 0.001,
-                last
+                last,
               ],
               ~outputRange=`float([0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
-              ()
-            )
-          )
+              (),
+            ),
+          ),
         ),
         Transform.makeInterpolated(
           ~translateX=
             Animated.Value.interpolate(
               value,
               ~inputRange=[first, first +. 0.001, index, last -. 0.001, last],
-              ~outputRange=`float([offset, offset, 0.0, -. offset, -. offset]),
-              ()
+              ~outputRange=
+                `float([offset, offset, 0.0, -. offset, -. offset]),
+              (),
             ),
-          ()
-        )
+          (),
+        ),
       ])
     );
   },
@@ -141,13 +142,13 @@ let slideInOut = {
                 index,
                 last -. 0.5,
                 last -. 0.001,
-                last
+                last,
               ],
               ~outputRange=`float([0.0, 0.0, 0.7, 1.0, 0.7, 0.0, 0.0]),
-              ()
-            )
-          )
-        )
+              (),
+            ),
+          ),
+        ),
       ])
     );
   },
@@ -168,12 +169,12 @@ let slideInOut = {
                 index,
                 index +. 0.5,
                 last -. 0.001,
-                last
+                last,
               ],
               ~outputRange=`float([0.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.0]),
-              ()
-            )
-          )
+              (),
+            ),
+          ),
         ),
         Transform.makeInterpolated(
           ~translateX=
@@ -186,12 +187,12 @@ let slideInOut = {
                   offset,
                   0.0,
                   -. offset *. 1.5,
-                  -. offset *. 1.5
+                  -. offset *. 1.5,
                 ]),
-              ()
+              (),
             ),
-          ()
-        )
+          (),
+        ),
       ])
     );
   },
@@ -202,12 +203,12 @@ let slideInOut = {
         opacity(
           Interpolated(
             value
-            |> crossFadeInterpolation([index -. 1.0, index, index +. 1.0])
-          )
-        )
+            |> crossFadeInterpolation([index -. 1.0, index, index +. 1.0]),
+          ),
+        ),
       ])
     );
-  }
+  },
 };
 
 /**
@@ -226,5 +227,5 @@ let none = {
   forHeaderLeftLabel: (_opts, _value) => Style.style([]),
   forHeaderLeftButton: (_opts, _value) => Style.style([]),
   forHeaderRight: (_opts, _value) => Style.style([]),
-  forHeaderCenter: (_opts, _value) => Style.style([])
+  forHeaderCenter: (_opts, _value) => Style.style([]),
 };
