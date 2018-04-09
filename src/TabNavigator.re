@@ -1,14 +1,12 @@
 open BsReactNative;
 
-open ReRouteTypes;
-
 module Styles = {
   open Style;
   let tabContainer = style([flex(1.)]);
   let screenContainer = style([flex(1.)]);
 };
 
-module CreateTabNavigator = (Config: NavigationConfig) => {
+module CreateTabNavigator = (Config: {type route;}) => {
   module TabNavigator = {
     type action =
       | GoToRoute(Config.route);

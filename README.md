@@ -23,6 +23,19 @@ After installation, you will need to add this library to your `bsconfig.json` de
 
 ## Usage
 
+## Developing
+
+```
+# Starts Metro (React Native Packager)
+$ npm run start-example
+
+# Runs the app on iOS/Android
+$ npm run run-ios
+
+# Watches for source build changes
+$ npm start
+```
+
 ## License
 
 MIT (c) 2018 Callstack

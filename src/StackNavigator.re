@@ -1,7 +1,5 @@
 open BsReactNative;
 
-open ReRouteTypes;
-
 open Utils;
 
 module Styles = {
@@ -27,9 +25,8 @@ module Styles = {
     concat([flex, style([flexDirection(ColumnReverse)])]);
 };
 
-module CreateStackNavigator = (Config: NavigationConfig) => {
+module CreateStackNavigator = (Config: {type route;}) => {
   module StackNavigator = {
-    type headerConfig = {title: option(string)};
     type screenConfig = {
       route: Config.route,
       key: string,
@@ -71,6 +68,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             (
               ~onGestureEvent,
               ~maxDeltaX,
+              ~enabled,
               ~onHandlerStateChange,
               ~minDeltaX,
               ~hitSlop,
@@ -83,6 +81,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
               "onHandlerStateChange": onHandlerStateChange,
               "maxDeltaX": maxDeltaX,
               "minDeltaX": minDeltaX,
+              "enabled": Js.Boolean.to_js_boolean(enabled),
               "hitSlop": hitSlop,
             },
             children,
@@ -353,6 +352,7 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
             minDeltaX=aquaPoint
             hitSlop={"right": aquaPoint - screenWidth}
             maxDeltaX=screenWidth
+            enabled=(size > 1)
             onGestureEvent=Gestures.handler
             onHandlerStateChange=(self.handle(Gestures.onStateChange))>
             <Animated.View style=Styles.flex>
@@ -423,33 +423,32 @@ module CreateStackNavigator = (Config: NavigationConfig) => {
         </View>;
       },
     };
-  };
-  module Screen = {
-    open StackNavigator;
-    let component = ReasonReact.statelessComponent("Screen");
-    let make =
-        (
-          ~navigation: navigation,
-          ~style=?,
-          ~headerTitle=?,
-          ~animation=?,
-          children,
-        ) => {
-      ...component,
-      didMount: _self => {
-        navigation.setOptions({
-          header: {
-            title: headerTitle,
-          },
-          animation,
-          style,
-        });
-        ReasonReact.NoUpdate;
-      },
-      render: _self => {
-        let body = children();
-        <View style=Styles.flex> body </View>;
-      },
+    module Screen = {
+      let component = ReasonReact.statelessComponent("Screen");
+      let make =
+          (
+            ~navigation: navigation,
+            ~style=?,
+            ~headerTitle=?,
+            ~animation=?,
+            children,
+          ) => {
+        ...component,
+        didMount: _self => {
+          navigation.setOptions({
+            header: {
+              title: headerTitle,
+            },
+            animation,
+            style,
+          });
+          ReasonReact.NoUpdate;
+        },
+        render: _self => {
+          let body = children();
+          <View style=Styles.flex> body </View>;
+        },
+      };
     };
   };
 };

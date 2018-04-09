@@ -8,11 +8,4 @@ module Config = {
     | TabExample;
 };
 
-/** todo figure out namespacing this */
-module ReactNavigation = ReRoute.CreateNavigation(Config);
-
-module StackNavigator = ReactNavigation.StackNavigator;
-
-module TabNavigator = ReactNavigation.TabNavigator;
-
-module Screen = ReactNavigation.Screen;
+include ReRoute.CreateNavigation(Config);

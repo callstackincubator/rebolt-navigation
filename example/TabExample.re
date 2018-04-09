@@ -107,7 +107,7 @@ let component = ReasonReact.statelessComponent("TabExample");
 let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <Screen headerTitle="Tab example" navigation=nav>
+    <StackNavigator.Screen headerTitle="Tab example" navigation=nav>
       ...(
            () =>
              <TabNavigator
@@ -128,5 +128,5 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
                   )
              </TabNavigator>
          )
-    </Screen>,
+    </StackNavigator.Screen>,
 };

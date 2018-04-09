@@ -2,20 +2,8 @@ open BsReactNative;
 
 type options = {idx: int};
 
-/**
- * Interpolates style
- */
 type interpolator = (options, Animated.Value.t) => Style.t;
 
-/**
- * Animation type
- *
- * Lots of logic used for `forX` interpolators has been inspired and borrowed by
- * great work by React Navigation team.
- *
- * You can browse their implementation on Github:
- * - /src/views/Header/HeaderStyleInterpolator.js
- */
 type t = {
   func:
     (
@@ -47,9 +35,6 @@ let crossFadeInterpolation = ([start, mid, end_], value) =>
     (),
   );
 
-/**
- * Slide in/out animation modelled after iOS platform interactions
- */
 let slideInOut = {
   func:
     Animated.Spring.animate(
@@ -211,15 +196,8 @@ let slideInOut = {
   },
 };
 
-/**
- * Platform-specific default animation that is picked by navigators when
- * nothing else is set
- */
 let default = slideInOut;
 
-/**
- * No animation
- */
 let none = {
   func: Animated.Timing.animate(~duration=0.0, ()),
   forCard: (_options, _value) => Style.style([]),
