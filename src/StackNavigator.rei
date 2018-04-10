@@ -8,7 +8,7 @@ module CreateStackNavigator:
       type navigation = {
         push: Config.route => unit,
         setOptions: options => unit,
-        pop: unit => unit
+        pop: unit => unit,
       };
       let make:
         (
@@ -21,7 +21,7 @@ module CreateStackNavigator:
           state,
           ReasonReact.noRetainedProps,
           ReasonReact.noRetainedProps,
-          action
+          action,
         );
       module Screen: {
         let make:
@@ -37,7 +37,7 @@ module CreateStackNavigator:
             ReasonReact.stateless,
             ReasonReact.noRetainedProps,
             ReasonReact.noRetainedProps,
-            ReasonReact.actionless
+            ReasonReact.actionless,
           );
       };
     };

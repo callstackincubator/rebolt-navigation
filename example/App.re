@@ -8,12 +8,12 @@ module Main = {
       <StackNavigator initialRoute=Config.Admin>
         ...(
              (~currentRoute, ~navigation) =>
-               switch currentRoute {
+               switch (currentRoute) {
                | Config.Admin => <Admin navigation />
                | Config.Home => <Home navigation />
                }
            )
-      </StackNavigator>
+      </StackNavigator>,
   };
 };
 

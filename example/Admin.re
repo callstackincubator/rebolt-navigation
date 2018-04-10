@@ -30,5 +30,5 @@ let make = (~navigation, _children) => {
                (renderButtons(navigation))
              </View>
          )
-    </StackNavigator.Screen>
+    </StackNavigator.Screen>,
 };
