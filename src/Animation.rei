@@ -30,7 +30,7 @@ type t = {
   forHeaderLeft: interpolator,
   forHeaderLeftLabel: interpolator,
   forHeaderLeftButton: interpolator,
-  forHeaderRight: interpolator
+  forHeaderRight: interpolator,
 };
 
 /**

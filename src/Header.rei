@@ -9,7 +9,7 @@ type config = {title: option(string)};
 type screenConfig = {
   header: config,
   animation: Animation.t,
-  key: string
+  key: string,
 };
 
 /**
@@ -35,7 +35,7 @@ module FloatingHeader: {
       ReasonReact.stateless,
       ReasonReact.noRetainedProps,
       ReasonReact.noRetainedProps,
-      ReasonReact.actionless
+      ReasonReact.actionless,
     );
 };
 
