@@ -339,6 +339,11 @@ module CreateStackNavigator = (Config: {type route;}) => {
         let size = Array.length(self.state.screens);
         let screenWidth = Dimensions.get(`window)##width;
         /**
+         * Animation for a screen is always defined by the one that is after it.
+         */
+        let getAnimation = (idx, screens: array(screenConfig)) =>
+          idx + 1 == size ? screens[idx].animation : screens[idx + 1].animation;
+        /**
          * Aquapoint is the distance between parent and its sibling
          * used by default on iOS (auto-layout constraint). This is
          * the used for defining how far from the screen your gesture
@@ -363,14 +368,11 @@ module CreateStackNavigator = (Config: {type route;}) => {
                        if (size == 1) {
                          Style.style([]);
                        } else {
-                         let scr =
-                           idx + 1 == size ?
-                             screen : self.state.screens[idx + 1];
                          Animated.Value.add(
                            Gestures.animatedProgress,
                            screen.animatedValue,
                          )
-                         |> scr.animation.forCard({idx: idx});
+                         |> getAnimation(idx, self.state.screens).forCard({idx: idx});
                        };
                      <Animated.View
                        key=screen.key
@@ -411,11 +413,11 @@ module CreateStackNavigator = (Config: {type route;}) => {
             activeScreen=self.state.activeScreen
             screens=(
               self.state.screens
-              |> Array.map((scr: screenConfig) =>
+              |> Array.mapi((idx, screen: screenConfig) =>
                    {
-                     Header.header: scr.header,
-                     animation: scr.animation,
-                     key: scr.key,
+                     Header.header: screen.header,
+                     animation: getAnimation(idx, self.state.screens),
+                     key: screen.key,
                    }
                  )
             )
