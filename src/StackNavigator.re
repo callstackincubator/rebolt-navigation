@@ -208,11 +208,11 @@ module CreateStackNavigator = (Config: {type route;}) => {
         let needsAnimation =
           Array.length(self.state.screens) > Js.Math.max_int(toIdx, fromIdx);
         if (fromIdx !== toIdx && needsAnimation) {
+          let action = fromIdx < toIdx ? `Push : `Pop;
           let (first, second) =
-            fromIdx < toIdx ?
+            action == `Push ?
               (self.state.screens[fromIdx], self.state.screens[toIdx]) :
               (self.state.screens[toIdx], self.state.screens[fromIdx]);
-          let action = fromIdx < toIdx ? `Push : `Pop;
           let (fstValues, sndValues) =
             switch (action) {
             | `Push => ((0.0, (-1.0)), (1.0, 0.0))
@@ -343,7 +343,8 @@ module CreateStackNavigator = (Config: {type route;}) => {
          * Animation for a screen is always defined by the one that is after it.
          */
         let getAnimation = (idx, screens: array(screenConfig)) =>
-          idx + 1 == size ? screens[idx].animation : screens[idx + 1].animation;
+          idx + 1 == size ?
+            screens[idx].animation : screens[idx + 1].animation;
         /**
          * Aquapoint is the distance between parent and its sibling
          * used by default on iOS (auto-layout constraint). This is
@@ -373,7 +374,9 @@ module CreateStackNavigator = (Config: {type route;}) => {
                            Gestures.animatedProgress,
                            screen.animatedValue,
                          )
-                         |> getAnimation(idx, self.state.screens).forCard({idx: idx});
+                         |> getAnimation(idx, self.state.screens).forCard({
+                              idx: idx,
+                            });
                        };
                      <Animated.View
                        key=screen.key
