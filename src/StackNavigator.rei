@@ -23,6 +23,7 @@ module CreateStackNavigator:
           ReasonReact.noRetainedProps,
           action,
         );
+      module Animation = Animation;
       module Screen: {
         let make:
           (

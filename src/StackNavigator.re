@@ -27,6 +27,7 @@ module Styles = {
 
 module CreateStackNavigator = (Config: {type route;}) => {
   module StackNavigator = {
+    module Animation = Animation;
     type screenConfig = {
       route: Config.route,
       key: string,
