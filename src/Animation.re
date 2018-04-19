@@ -199,11 +199,6 @@ let slideInOut = {
 let default = slideInOut;
 
 let none = {
-  func: Animated.Timing.animate(~duration=0.0, ()),
-  forCard: (_options, _value) => Style.style([]),
-  forHeaderLeft: (_opts, _value) => Style.style([]),
-  forHeaderLeftLabel: (_opts, _value) => Style.style([]),
-  forHeaderLeftButton: (_opts, _value) => Style.style([]),
-  forHeaderRight: (_opts, _value) => Style.style([]),
-  forHeaderCenter: (_opts, _value) => Style.style([]),
+  ...slideInOut,
+  func: Animated.Timing.animate(~duration=0.0, ~useNativeDriver=Js.Boolean.to_js_boolean(true), ()),
 };

@@ -7,7 +7,8 @@ let component = ReasonReact.statelessComponent("Home");
 let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen headerTitle="Home" navigation=nav>
+    <StackNavigator.Screen
+      headerTitle="Home" navigation=nav animation=StackNavigator.Animation.none>
       ...(
            () =>
              <View>

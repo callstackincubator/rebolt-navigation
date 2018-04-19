@@ -27,6 +27,7 @@ module Styles = {
 
 module CreateStackNavigator = (Config: {type route;}) => {
   module StackNavigator = {
+    module Animation = Animation;
     type screenConfig = {
       route: Config.route,
       key: string,
@@ -166,7 +167,8 @@ module CreateStackNavigator = (Config: {type route;}) => {
      * StackNavigator component
      */
     let component = ReasonReact.reducerComponent("StackNavigator");
-    let make = (~initialRoute, children) => {
+    let make =
+        (~initialRoute, ~headerComponent=Header.PlatformHeader.make, children) => {
       ...component,
       initialState: () => {
         screens: [|
@@ -207,11 +209,11 @@ module CreateStackNavigator = (Config: {type route;}) => {
         let needsAnimation =
           Array.length(self.state.screens) > Js.Math.max_int(toIdx, fromIdx);
         if (fromIdx !== toIdx && needsAnimation) {
+          let action = fromIdx < toIdx ? `Push : `Pop;
           let (first, second) =
-            fromIdx < toIdx ?
+            action == `Push ?
               (self.state.screens[fromIdx], self.state.screens[toIdx]) :
               (self.state.screens[toIdx], self.state.screens[fromIdx]);
-          let action = fromIdx < toIdx ? `Push : `Pop;
           let (fstValues, sndValues) =
             switch (action) {
             | `Push => ((0.0, (-1.0)), (1.0, 0.0))
@@ -339,6 +341,12 @@ module CreateStackNavigator = (Config: {type route;}) => {
         let size = Array.length(self.state.screens);
         let screenWidth = Dimensions.get(`window)##width;
         /**
+         * Animation for a screen is always defined by the one that is after it.
+         */
+        let getAnimation = (idx, screens: array(screenConfig)) =>
+          idx + 1 == size ?
+            screens[idx].animation : screens[idx + 1].animation;
+        /**
          * Aquapoint is the distance between parent and its sibling
          * used by default on iOS (auto-layout constraint). This is
          * the used for defining how far from the screen your gesture
@@ -363,14 +371,13 @@ module CreateStackNavigator = (Config: {type route;}) => {
                        if (size == 1) {
                          Style.style([]);
                        } else {
-                         let scr =
-                           idx + 1 == size ?
-                             screen : self.state.screens[idx + 1];
                          Animated.Value.add(
                            Gestures.animatedProgress,
                            screen.animatedValue,
                          )
-                         |> scr.animation.forCard({idx: idx});
+                         |> getAnimation(idx, self.state.screens).forCard({
+                              idx: idx,
+                            });
                        };
                      <Animated.View
                        key=screen.key
@@ -397,29 +404,32 @@ module CreateStackNavigator = (Config: {type route;}) => {
               )
             </Animated.View>
           </Gestures.PanHandler>
-          <Header.PlatformHeader
-            animatedValue=(
-              Animated.Value.add(
-                headerAnimatedValue,
-                Animated.Value.multiply(
-                  Gestures.animatedProgress,
-                  Animated.Value.create(-1.0),
-                ),
-              )
+          (
+            ReasonReact.element(
+              headerComponent(
+                ~animatedValue=
+                  Animated.Value.add(
+                    headerAnimatedValue,
+                    Animated.Value.multiply(
+                      Gestures.animatedProgress,
+                      Animated.Value.create(-1.0),
+                    ),
+                  ),
+                ~pop=key => self.send(PopScreen(key)),
+                ~activeScreen=self.state.activeScreen,
+                ~screens=
+                  self.state.screens
+                  |> Array.mapi((idx, screen: screenConfig) =>
+                       {
+                         Header.header: screen.header,
+                         animation: getAnimation(idx, self.state.screens),
+                         key: screen.key,
+                       }
+                     ),
+                [||],
+              ),
             )
-            pop=(key => self.send(PopScreen(key)))
-            activeScreen=self.state.activeScreen
-            screens=(
-              self.state.screens
-              |> Array.map((scr: screenConfig) =>
-                   {
-                     Header.header: scr.header,
-                     animation: scr.animation,
-                     key: scr.key,
-                   }
-                 )
-            )
-          />
+          )
         </View>;
       },
     };
