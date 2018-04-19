@@ -14,10 +14,13 @@ let make = (~navigation, _children) => {
   ...component,
   render: _self =>
     <TabNavigator.Screen label="Likes" navigation>
-      <View style=Styles.container>
-        <Text style=Style.(style([fontSize(Float(24.))]))>
-          (ReasonReact.stringToElement("Likes"))
-        </Text>
-      </View>
+      ...(
+           () =>
+             <View style=Styles.container>
+               <Text style=Style.(style([fontSize(Float(24.))]))>
+                 (ReasonReact.stringToElement("Likes"))
+               </Text>
+             </View>
+         )
     </TabNavigator.Screen>,
 };

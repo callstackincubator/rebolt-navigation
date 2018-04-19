@@ -43,8 +43,6 @@ module CreateTabNavigator = (Config: {type route;}) => {
     type currentRoute = Config.route;
     type goTo = Config.route => unit;
     type options = {label: string};
-    type index = int;
-    type setOptions = options => unit;
     type screenConfig = {
       route: Config.route,
       label: string,
@@ -54,7 +52,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
       screens,
       currentRoute,
       goTo,
-      setOptions,
+      setOptions: options => unit,
       isActive: bool,
     };
     type tabBarProps = {
@@ -64,7 +62,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
     };
     type action =
       | GoTo(Config.route)
-      | SetOptions(options, index);
+      | SetOptions(options, int);
     type state = {
       screens,
       currentRoute,
@@ -179,7 +177,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
         },
         render: _self =>
           navigation.isActive ?
-            <View style=Styles.tabContainer> ...children </View> :
+            <View style=Styles.tabContainer> (children()) </View> :
             ReasonReact.nullElement,
       };
     };
