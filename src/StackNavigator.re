@@ -318,6 +318,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
             let index = state.activeScreen + 1;
             ReasonReact.Update({
               ...state,
+              pendingTransition: None,
               activeScreen: index,
               screens:
                 state.screens
@@ -344,6 +345,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
           if (state.activeScreen > 0 && Helpers.isActiveScreen(state, key)) {
             ReasonReact.Update({
               ...state,
+              pendingTransition: None,
               activeScreen: state.activeScreen - 1,
             });
           } else {
@@ -365,7 +367,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
           });
         | RemoveLastScreen =>
           ReasonReact.Update({
-            ...state,
+            pendingTransition: None,
             activeScreen: state.activeScreen - 1,
             screens: state.screens |> ReArray.remove(state.activeScreen),
           })
