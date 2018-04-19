@@ -259,23 +259,22 @@ module CreateStackNavigator = (Config: {type route;}) => {
        * until that happens.
        */
       didUpdate: ({oldSelf, newSelf: self}) => {
-        let fromIdx = oldSelf.state.activeScreen;
-        let toIdx = self.state.activeScreen;
         /**
          * If there is pending transition and the active screen did mount, execute the animation.
-         *
-         * Note: Every time we change the state, we clear the transition. That way, there's no need
-         * to check whether `pendingToIdx` matches `toIdx`
          */
         (
-          if (Js.Option.isSome(self.state.pendingTransition)
-              && self.state.screens[toIdx].didMount) {
+          if (Js.Option.isSome(self.state.pendingTransition)) {
             let (pendingFromIdx, pendingToIdx) =
               Js.Option.getExn(self.state.pendingTransition);
-            self.send(DequeueTransition);
-            self |> Helpers.beginScreenAnimation(pendingFromIdx, pendingToIdx);
+            if (self.state.screens[pendingToIdx].didMount) {
+              self.send(DequeueTransition);
+              self
+              |> Helpers.beginScreenAnimation(pendingFromIdx, pendingToIdx);
+            };
           }
         );
+        let fromIdx = oldSelf.state.activeScreen;
+        let toIdx = self.state.activeScreen;
         let needsAnimation =
           Array.length(self.state.screens) > Js.Math.max_int(toIdx, fromIdx);
         if (fromIdx !== toIdx && needsAnimation) {
