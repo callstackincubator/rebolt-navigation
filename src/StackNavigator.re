@@ -34,10 +34,13 @@ module CreateStackNavigator = (Config: {type route;}) => {
       header: Header.config,
       animatedValue: Animated.Value.t,
       animation: Animation.t,
+      didMount: bool,
       style: Style.t,
     };
+    type pendingTransition = (int, int);
     type state = {
       screens: array(screenConfig),
+      pendingTransition: option(pendingTransition),
       activeScreen: int,
     };
     type options = {
@@ -50,6 +53,8 @@ module CreateStackNavigator = (Config: {type route;}) => {
       | SetOptions(options, string)
       | RemoveStaleScreen(string)
       | RemoveLastScreen
+      | DequeueTransition
+      | EnqueueTransition(int, int)
       | PopScreen(string);
     type navigation = {
       push: Config.route => unit,
@@ -162,31 +167,8 @@ module CreateStackNavigator = (Config: {type route;}) => {
     module Helpers = {
       let isActiveScreen = (state, key) =>
         state.screens[state.activeScreen].key == key;
-    };
-    /**
-     * StackNavigator component
-     */
-    let component = ReasonReact.reducerComponent("StackNavigator");
-    let make =
-        (~initialRoute, ~headerComponent=Header.PlatformHeader.make, children) => {
-      ...component,
-      initialState: () => {
-        screens: [|
-          {
-            route: initialRoute,
-            header: Header.default,
-            animation: Animation.default,
-            key: UUID.generate(),
-            animatedValue: Animated.Value.create(0.0),
-            style: Styles.card,
-          },
-        |],
-        activeScreen: 0,
-      },
-      /***
-       * Begin animating two states as soon as the index changes.
-       *
-       * No animation is done when screen has been already removed from the array.
+      /**
+       * Starts Animated transition between two screens
        *
        * The animation is configured based on the latter screen. That said,
        * when screen B (being removed) uses `fade` transition, the screen
@@ -203,52 +185,105 @@ module CreateStackNavigator = (Config: {type route;}) => {
        * -1 to 0 -> next screen has been popped
        * 1 to 0 -> this screen has been pushed
        */
+      let beginScreenAnimation = (fromIdx, toIdx, self) => {
+        let action = fromIdx < toIdx ? `Push : `Pop;
+        let (first, second) =
+          action == `Push ?
+            (
+              self.ReasonReact.state.screens[fromIdx],
+              self.state.screens[toIdx],
+            ) :
+            (self.state.screens[toIdx], self.state.screens[fromIdx]);
+        let (fstValues, sndValues) =
+          switch (action) {
+          | `Push => ((0.0, (-1.0)), (1.0, 0.0))
+          | `Pop => (((-1.0), 0.0), (0.0, 1.0))
+          };
+        Animated.CompositeAnimation.start(
+          Animated.parallel(
+            [|
+              second.animation.func(
+                ~value=Gestures.animatedValue,
+                ~toValue=`raw(0.0),
+              ),
+              second.animation.func(
+                ~value=headerAnimatedValue,
+                ~toValue=`raw(float_of_int(toIdx)),
+              ),
+              second.animation.func(
+                ~value=first.animatedValue,
+                ~toValue=`raw(fstValues |> snd),
+              ),
+              second.animation.func(
+                ~value=second.animatedValue,
+                ~toValue=`raw(sndValues |> snd),
+              ),
+            |],
+            {"stopTogether": Js.Boolean.to_js_boolean(false)},
+          ),
+          ~callback=
+            end_ =>
+              if (action == `Pop && Js.to_bool(end_##finished)) {
+                self.send(RemoveStaleScreen(second.key));
+              },
+          (),
+        );
+        ();
+      };
+    };
+    /**
+     * StackNavigator component
+     */
+    let component = ReasonReact.reducerComponent("StackNavigator");
+    let make =
+        (~initialRoute, ~headerComponent=Header.PlatformHeader.make, children) => {
+      ...component,
+      initialState: () => {
+        pendingTransition: None,
+        screens: [|
+          {
+            route: initialRoute,
+            header: Header.default,
+            animation: Animation.default,
+            key: UUID.generate(),
+            animatedValue: Animated.Value.create(0.0),
+            style: Styles.card,
+            didMount: false,
+          },
+        |],
+        activeScreen: 0,
+      },
+      /***
+       * Begin animating two states as soon as the index changes.
+       *
+       * If screen we are transitioning to didn't mount yet, we delay the transition
+       * until that happens.
+       */
       didUpdate: ({oldSelf, newSelf: self}) => {
+        /**
+         * If there is pending transition and the active screen did mount, execute the animation.
+         */
+        (
+          if (Js.Option.isSome(self.state.pendingTransition)) {
+            let (pendingFromIdx, pendingToIdx) =
+              Js.Option.getExn(self.state.pendingTransition);
+            if (self.state.screens[pendingToIdx].didMount) {
+              self.send(DequeueTransition);
+              self
+              |> Helpers.beginScreenAnimation(pendingFromIdx, pendingToIdx);
+            };
+          }
+        );
         let fromIdx = oldSelf.state.activeScreen;
         let toIdx = self.state.activeScreen;
         let needsAnimation =
           Array.length(self.state.screens) > Js.Math.max_int(toIdx, fromIdx);
         if (fromIdx !== toIdx && needsAnimation) {
-          let action = fromIdx < toIdx ? `Push : `Pop;
-          let (first, second) =
-            action == `Push ?
-              (self.state.screens[fromIdx], self.state.screens[toIdx]) :
-              (self.state.screens[toIdx], self.state.screens[fromIdx]);
-          let (fstValues, sndValues) =
-            switch (action) {
-            | `Push => ((0.0, (-1.0)), (1.0, 0.0))
-            | `Pop => (((-1.0), 0.0), (0.0, 1.0))
-            };
-          Animated.CompositeAnimation.start(
-            Animated.parallel(
-              [|
-                second.animation.func(
-                  ~value=Gestures.animatedValue,
-                  ~toValue=`raw(0.0),
-                ),
-                second.animation.func(
-                  ~value=headerAnimatedValue,
-                  ~toValue=`raw(float_of_int(toIdx)),
-                ),
-                second.animation.func(
-                  ~value=first.animatedValue,
-                  ~toValue=`raw(fstValues |> snd),
-                ),
-                second.animation.func(
-                  ~value=second.animatedValue,
-                  ~toValue=`raw(sndValues |> snd),
-                ),
-              |],
-              {"stopTogether": Js.Boolean.to_js_boolean(false)},
-            ),
-            ~callback=
-              end_ =>
-                if (action == `Pop && Js.to_bool(end_##finished)) {
-                  self.send(RemoveStaleScreen(second.key));
-                },
-            (),
-          );
-          ();
+          if (self.state.screens[toIdx].didMount) {
+            self |> Helpers.beginScreenAnimation(fromIdx, toIdx);
+          } else {
+            self.send(EnqueueTransition(fromIdx, toIdx));
+          };
         };
       },
       /***
@@ -261,6 +296,18 @@ module CreateStackNavigator = (Config: {type route;}) => {
       reducer: (action, state) =>
         switch (action) {
         /***
+         * The screen is not mounted at the time of the push. In order to guarantee
+         * smooth transition to an already configured screen, we store it here and
+         * will execute as soon as it mounts.
+         */
+        | EnqueueTransition(fromIdx, toIdx) =>
+          ReasonReact.Update({
+            ...state,
+            pendingTransition: Some((fromIdx, toIdx)),
+          })
+        | DequeueTransition =>
+          ReasonReact.Update({...state, pendingTransition: None})
+        /***
          * Pushes new screen onto the stack
          *
          * Note: We push the item right after the active one (instead of always
@@ -271,6 +318,8 @@ module CreateStackNavigator = (Config: {type route;}) => {
           if (Helpers.isActiveScreen(state, key)) {
             let index = state.activeScreen + 1;
             ReasonReact.Update({
+              ...state,
+              pendingTransition: None,
               activeScreen: index,
               screens:
                 state.screens
@@ -281,6 +330,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                        animation: Animation.default,
                        animatedValue: Animated.Value.create(1.0),
                        key: UUID.generate(),
+                       didMount: false,
                        style: Styles.card,
                      },
                      index,
@@ -296,6 +346,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
           if (state.activeScreen > 0 && Helpers.isActiveScreen(state, key)) {
             ReasonReact.Update({
               ...state,
+              pendingTransition: None,
               activeScreen: state.activeScreen - 1,
             });
           } else {
@@ -317,11 +368,16 @@ module CreateStackNavigator = (Config: {type route;}) => {
           });
         | RemoveLastScreen =>
           ReasonReact.Update({
+            pendingTransition: None,
             activeScreen: state.activeScreen - 1,
             screens: state.screens |> ReArray.remove(state.activeScreen),
           })
         /***
-         * Sets option for a screen with a given key
+         * Sets option for a screen with a given key.
+         *
+         * First time options are called, we assume the screen mounted.
+         * This is to notify the animation controller that it's now
+         * ready to go.
          */
         | SetOptions({header, animation, style}, key) =>
           let screens = Js.Array.copy(state.screens);
@@ -332,6 +388,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
             ...screens[idx],
             header,
             style: style |> Js.Option.getWithDefault(screens[idx].style),
+            didMount: true,
             animation:
               animation |> Js.Option.getWithDefault(screens[idx].animation),
           };
