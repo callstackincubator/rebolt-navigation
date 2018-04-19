@@ -1,3 +1,5 @@
+open Navigation;
+
 open BsReactNative;
 
 module Styles = {
@@ -8,12 +10,14 @@ module Styles = {
 
 let component = ReasonReact.statelessComponent("About");
 
-let make = _children => {
+let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <View style=Styles.container>
-      <Text style=Style.(style([fontSize(Float(24.))]))>
-        (ReasonReact.stringToElement("About"))
-      </Text>
-    </View>,
+    <TabNavigator.Screen label="About us" navigation>
+      <View style=Styles.container>
+        <Text style=Style.(style([fontSize(Float(24.))]))>
+          (ReasonReact.stringToElement("About"))
+        </Text>
+      </View>
+    </TabNavigator.Screen>,
 };

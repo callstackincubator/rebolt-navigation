@@ -28,21 +28,25 @@ let make =
     (~navigation, ~stackNavigation: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <View style=Styles.container>
-      <Text style=Styles.title> (ReasonReact.stringToElement("Feed")) </Text>
-      <TouchableOpacity onPress=(_e => navigation.goToRoute(Config.Likes))>
-        <View style=(Styles.button("#1155DD"))>
-          <Text style=Styles.buttonText>
-            (ReasonReact.stringToElement("Show likes"))
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity onPress=(_e => stackNavigation.push(Config.Home))>
-        <View style=(Styles.button("tomato"))>
-          <Text style=Styles.buttonText>
-            (ReasonReact.stringToElement("Take me home"))
-          </Text>
-        </View>
-      </TouchableOpacity>
-    </View>,
+    <TabNavigator.Screen label="My Feed" navigation>
+      <View style=Styles.container>
+        <Text style=Styles.title>
+          (ReasonReact.stringToElement("Feed"))
+        </Text>
+        <TouchableOpacity onPress=(_e => navigation.goTo(Config.Likes))>
+          <View style=(Styles.button("#2180f7"))>
+            <Text style=Styles.buttonText>
+              (ReasonReact.stringToElement("Show likes"))
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress=(_e => stackNavigation.push(Config.Home))>
+          <View style=(Styles.button("#ff2242"))>
+            <Text style=Styles.buttonText>
+              (ReasonReact.stringToElement("Take me home"))
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </TabNavigator.Screen>,
 };
