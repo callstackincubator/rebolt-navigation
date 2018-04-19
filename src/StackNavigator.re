@@ -235,8 +235,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
      * StackNavigator component
      */
     let component = ReasonReact.reducerComponent("StackNavigator");
-    let make =
-        (~initialRoute, ~headerComponent=Header.PlatformHeader.make, children) => {
+    let make = (~initialRoute, ~headerComponent=?, children) => {
       ...component,
       initialState: () => {
         pendingTransition: None,
@@ -463,7 +462,15 @@ module CreateStackNavigator = (Config: {type route;}) => {
           </Gestures.PanHandler>
           (
             ReasonReact.element(
-              headerComponent(
+              (
+                headerComponent
+                |> Js.Option.getWithDefault(
+                     switch (Platform.os()) {
+                     | Platform.IOS(_) => Header.IOS.make
+                     | _ => Header.Android.make
+                     },
+                   )
+              )(
                 ~animatedValue=
                   Animated.Value.add(
                     headerAnimatedValue,

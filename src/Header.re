@@ -29,7 +29,7 @@ module MaskedView = {
     );
 };
 
-module FloatingHeader = {
+module IOS = {
   module Styles = {
     open Style;
     module Constants = {
@@ -261,4 +261,16 @@ module FloatingHeader = {
   };
 };
 
-module PlatformHeader = FloatingHeader;
+module Android = {
+  let component = ReasonReact.statelessComponent("AndroidHeader");
+  let make = (
+    ~screens: array(screenConfig),
+    ~activeScreen: int,
+    ~animatedValue as anim: Animated.Value.t,
+    ~pop: string => unit,
+    _children,
+  ) => {
+    ...component,
+    render: (_self) => <View />,
+  };
+};

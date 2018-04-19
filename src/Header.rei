@@ -21,7 +21,7 @@ let default: config;
 /**
  * Default implementation of Header on iOS
  */
-module FloatingHeader: {
+module IOS: {
   let make:
     (
       ~screens: array(screenConfig),
@@ -39,4 +39,20 @@ module FloatingHeader: {
     );
 };
 
-module PlatformHeader = FloatingHeader;
+module Android: {
+  let make:
+    (
+      ~screens: array(screenConfig),
+      ~activeScreen: int,
+      ~animatedValue: BsReactNative.Animated.Value.t,
+      ~pop: string => unit,
+      'a
+    ) =>
+    ReasonReact.componentSpec(
+      ReasonReact.stateless,
+      ReasonReact.stateless,
+      ReasonReact.noRetainedProps,
+      ReasonReact.noRetainedProps,
+      ReasonReact.actionless,
+    );
+};
