@@ -167,10 +167,9 @@ module CreateStackNavigator = (Config: {type route;}) => {
     module Helpers = {
       let isActiveScreen = (state, key) =>
         state.screens[state.activeScreen].key == key;
-
       /**
        * Starts Animated transition between two screens
-       * 
+       *
        * The animation is configured based on the latter screen. That said,
        * when screen B (being removed) uses `fade` transition, the screen
        * that is to appear will fade in (even though it doesn't define custom
@@ -190,7 +189,10 @@ module CreateStackNavigator = (Config: {type route;}) => {
         let action = fromIdx < toIdx ? `Push : `Pop;
         let (first, second) =
           action == `Push ?
-            (self.ReasonReact.state.screens[fromIdx], self.state.screens[toIdx]) :
+            (
+              self.ReasonReact.state.screens[fromIdx],
+              self.state.screens[toIdx],
+            ) :
             (self.state.screens[toIdx], self.state.screens[fromIdx]);
         let (fstValues, sndValues) =
           switch (action) {
@@ -259,28 +261,29 @@ module CreateStackNavigator = (Config: {type route;}) => {
       didUpdate: ({oldSelf, newSelf: self}) => {
         let fromIdx = oldSelf.state.activeScreen;
         let toIdx = self.state.activeScreen;
-
         /**
          * If there is pending transition and the active screen did mount, execute the animation.
-         * 
+         *
          * Note: Every time we change the state, we clear the transition. That way, there's no need
          * to check whether `pendingToIdx` matches `toIdx`
          */
-        if (Js.Option.isSome(self.state.pendingTransition) && self.state.screens[toIdx].didMount) {
-          let (pendingFromIdx, pendingToIdx) = Js.Option.getExn(self.state.pendingTransition);
-          self.send(DequeueTransition);
-          self |> Helpers.beginScreenAnimation(pendingFromIdx, pendingToIdx);
-        };
-
+        (
+          if (Js.Option.isSome(self.state.pendingTransition)
+              && self.state.screens[toIdx].didMount) {
+            let (pendingFromIdx, pendingToIdx) =
+              Js.Option.getExn(self.state.pendingTransition);
+            self.send(DequeueTransition);
+            self |> Helpers.beginScreenAnimation(pendingFromIdx, pendingToIdx);
+          }
+        );
         let needsAnimation =
           Array.length(self.state.screens) > Js.Math.max_int(toIdx, fromIdx);
-
         if (fromIdx !== toIdx && needsAnimation) {
           if (self.state.screens[toIdx].didMount) {
             self |> Helpers.beginScreenAnimation(fromIdx, toIdx);
           } else {
             self.send(EnqueueTransition(fromIdx, toIdx));
-          }
+          };
         };
       },
       /***
@@ -292,17 +295,18 @@ module CreateStackNavigator = (Config: {type route;}) => {
        */
       reducer: (action, state) =>
         switch (action) {
-        /**
+        /***
          * The screen is not mounted at the time of the push. In order to guarantee
          * smooth transition to an already configured screen, we store it here and
-         * will execute as soon as it mounts. 
+         * will execute as soon as it mounts.
          */
         | EnqueueTransition(fromIdx, toIdx) =>
           ReasonReact.Update({
             ...state,
             pendingTransition: Some((fromIdx, toIdx)),
-          });
-        | DequeueTransition => ReasonReact.Update({ ...state, pendingTransition: None });
+          })
+        | DequeueTransition =>
+          ReasonReact.Update({...state, pendingTransition: None})
         /***
          * Pushes new screen onto the stack
          *
