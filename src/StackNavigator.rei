@@ -13,6 +13,19 @@ module CreateStackNavigator:
       let make:
         (
           ~initialRoute: Config.route,
+          ~headerComponent: (
+                              ~screens: array(Header.screenConfig),
+                              ~activeScreen: int,
+                              ~animatedValue: BsReactNative.Animated.Value.t,
+                              ~pop: string => unit,
+                              array('a)
+                            ) =>
+                            ReasonReact.component(
+                              ReasonReact.stateless,
+                              ReasonReact.noRetainedProps,
+                              ReasonReact.actionless,
+                            )
+                              =?,
           (~currentRoute: Config.route, ~navigation: navigation) =>
           ReasonReact.reactElement
         ) =>

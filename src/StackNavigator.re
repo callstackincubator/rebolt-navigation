@@ -167,7 +167,8 @@ module CreateStackNavigator = (Config: {type route;}) => {
      * StackNavigator component
      */
     let component = ReasonReact.reducerComponent("StackNavigator");
-    let make = (~initialRoute, children) => {
+    let make =
+        (~initialRoute, ~headerComponent=Header.PlatformHeader.make, children) => {
       ...component,
       initialState: () => {
         screens: [|
@@ -403,29 +404,32 @@ module CreateStackNavigator = (Config: {type route;}) => {
               )
             </Animated.View>
           </Gestures.PanHandler>
-          <Header.PlatformHeader
-            animatedValue=(
-              Animated.Value.add(
-                headerAnimatedValue,
-                Animated.Value.multiply(
-                  Gestures.animatedProgress,
-                  Animated.Value.create(-1.0),
-                ),
-              )
+          (
+            ReasonReact.element(
+              headerComponent(
+                ~animatedValue=
+                  Animated.Value.add(
+                    headerAnimatedValue,
+                    Animated.Value.multiply(
+                      Gestures.animatedProgress,
+                      Animated.Value.create(-1.0),
+                    ),
+                  ),
+                ~pop=key => self.send(PopScreen(key)),
+                ~activeScreen=self.state.activeScreen,
+                ~screens=
+                  self.state.screens
+                  |> Array.mapi((idx, screen: screenConfig) =>
+                       {
+                         Header.header: screen.header,
+                         animation: getAnimation(idx, self.state.screens),
+                         key: screen.key,
+                       }
+                     ),
+                [||],
+              ),
             )
-            pop=(key => self.send(PopScreen(key)))
-            activeScreen=self.state.activeScreen
-            screens=(
-              self.state.screens
-              |> Array.mapi((idx, screen: screenConfig) =>
-                   {
-                     Header.header: screen.header,
-                     animation: getAnimation(idx, self.state.screens),
-                     key: screen.key,
-                   }
-                 )
-            )
-          />
+          )
         </View>;
       },
     };
