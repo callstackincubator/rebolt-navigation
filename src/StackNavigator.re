@@ -317,7 +317,6 @@ module CreateStackNavigator = (Config: {type route;}) => {
           if (Helpers.isActiveScreen(state, key)) {
             let index = state.activeScreen + 1;
             ReasonReact.Update({
-              ...state,
               pendingTransition: None,
               activeScreen: index,
               screens:
