@@ -424,7 +424,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
       },
     };
     module Screen = {
-      let component = ReasonReact.statelessComponent("Screen");
+      let component = ReasonReact.statelessComponent("CallstackScreen");
       let make =
           (
             ~navigation: navigation,
