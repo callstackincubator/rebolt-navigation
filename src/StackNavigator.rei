@@ -5,6 +5,7 @@ module CreateStackNavigator:
       type state;
       type options;
       type action;
+      type headerMode;
       type navigation = {
         push: Config.route => unit,
         setOptions: options => unit,
@@ -26,6 +27,7 @@ module CreateStackNavigator:
                               ReasonReact.actionless,
                             )
                               =?,
+          ~headerMode: headerMode=?,
           (~currentRoute: Config.route, ~navigation: navigation) =>
           ReasonReact.reactElement
         ) =>

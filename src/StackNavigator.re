@@ -37,6 +37,9 @@ module CreateStackNavigator = (Config: {type route;}) => {
       didMount: bool,
       style: Style.t,
     };
+    type headerMode =
+      | Screen
+      | Floating;
     type pendingTransition = (int, int);
     type state = {
       screens: array(screenConfig),
@@ -235,7 +238,19 @@ module CreateStackNavigator = (Config: {type route;}) => {
      * StackNavigator component
      */
     let component = ReasonReact.reducerComponent("StackNavigator");
-    let make = (~initialRoute, ~headerComponent=?, children) => {
+    let make =
+        (
+          ~initialRoute,
+          ~headerComponent=switch (Platform.os()) {
+                           | Platform.Android => Header.Android.make
+                           | _ => Header.IOS.make
+                           },
+          ~headerMode=switch (Platform.os()) {
+                      | Platform.Android => Screen
+                      | _ => Floating
+                      },
+          children,
+        ) => {
       ...component,
       initialState: () => {
         pendingTransition: None,
@@ -410,6 +425,31 @@ module CreateStackNavigator = (Config: {type route;}) => {
          * Source: https://goo.gl/FVKnzZ
          */
         let aquaPoint = 20;
+        let header =
+          ReasonReact.element(
+            headerComponent(
+              ~animatedValue=
+                Animated.Value.add(
+                  headerAnimatedValue,
+                  Animated.Value.multiply(
+                    Gestures.animatedProgress,
+                    Animated.Value.create(-1.0),
+                  ),
+                ),
+              ~pop=key => self.send(PopScreen(key)),
+              ~activeScreen=self.state.activeScreen,
+              ~screens=
+                self.state.screens
+                |> Array.mapi((idx, screen: screenConfig) =>
+                     {
+                       Header.header: screen.header,
+                       animation: getAnimation(idx, self.state.screens),
+                       key: screen.key,
+                     }
+                   ),
+              [||],
+            ),
+          );
         <View style=Styles.stackContainer>
           <Gestures.PanHandler
             minDeltaX=aquaPoint
@@ -440,6 +480,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                                concat([Styles.fill, screen.style, animation])
                              )>
                        <View>
+                         (headerMode == Screen ? header : <View />)
                          (
                            children(
                              ~currentRoute=screen.route,
@@ -459,40 +500,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
               )
             </Animated.View>
           </Gestures.PanHandler>
-          (
-            ReasonReact.element(
-              (
-                headerComponent
-                |> Js.Option.getWithDefault(
-                     switch (Platform.os()) {
-                     | Platform.IOS(_) => Header.IOS.make
-                     | _ => Header.Android.make
-                     },
-                   )
-              )(
-                ~animatedValue=
-                  Animated.Value.add(
-                    headerAnimatedValue,
-                    Animated.Value.multiply(
-                      Gestures.animatedProgress,
-                      Animated.Value.create(-1.0),
-                    ),
-                  ),
-                ~pop=key => self.send(PopScreen(key)),
-                ~activeScreen=self.state.activeScreen,
-                ~screens=
-                  self.state.screens
-                  |> Array.mapi((idx, screen: screenConfig) =>
-                       {
-                         Header.header: screen.header,
-                         animation: getAnimation(idx, self.state.screens),
-                         key: screen.key,
-                       }
-                     ),
-                [||],
-              ),
-            )
-          )
+          (headerMode == Floating ? header : <View />)
         </View>;
       },
     };

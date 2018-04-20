@@ -211,7 +211,7 @@ let fadeVertical = {
           Interpolated(
             Animated.Value.interpolate(
               value,
-              ~inputRange=[(-1.0), -0.99, 0.0, 1.0],
+              ~inputRange=[(-1.0), (-0.99), 0.0, 1.0],
               ~outputRange=`float([0.0, 1.0, 1.0, 0.0]),
               (),
             ),
@@ -221,11 +221,11 @@ let fadeVertical = {
           ~translateY=
             Animated.Value.interpolate(
               value,
-              ~inputRange=[(-1.0), -0.99, 0.0, 1.0],
+              ~inputRange=[(-1.0), (-0.99), 0.0, 1.0],
               ~outputRange=`float([0.0, 0.0, 0.0, 50.0]),
               (),
             ),
-            (),
+          (),
         ),
       ])
     ),
