@@ -41,7 +41,7 @@ module Styles = {
 module CreateTabNavigator = (Config: {type route;}) => {
   module TabNavigator = {
     type currentRoute = Config.route;
-    type goTo = Config.route => unit;
+    type jumpTo = Config.route => unit;
     type options = {label: string};
     type screenConfig = {
       route: Config.route,
@@ -51,17 +51,17 @@ module CreateTabNavigator = (Config: {type route;}) => {
     type navigation = {
       screens,
       currentRoute,
-      goTo,
+      jumpTo,
       setOptions: options => unit,
       isActive: bool,
     };
     type tabBarProps = {
       screens,
       currentRoute,
-      goTo,
+      jumpTo,
     };
     type action =
-      | GoTo(Config.route)
+      | JumpTo(Config.route)
       | SetOptions(options, int);
     type state = {
       screens,
@@ -90,7 +90,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
                    <TouchableOpacity
                      key=(string_of_int(index))
                      style=Styles.tabBarItem
-                     onPress=(_e => tabBarProps.goTo(screen.route))>
+                     onPress=(_e => tabBarProps.jumpTo(screen.route))>
                      <TabBarItem label=screen.label isActive />
                    </TouchableOpacity>;
                  })
@@ -108,7 +108,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
       },
       reducer: (action, state) =>
         switch (action) {
-        | GoTo(route) =>
+        | JumpTo(route) =>
           if (route !== state.currentRoute) {
             ReasonReact.Update({...state, currentRoute: route});
           } else {
@@ -132,7 +132,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
                    (
                      children(
                        ~navigation={
-                         goTo: route => self.send(GoTo(route)),
+                         jumpTo: route => self.send(JumpTo(route)),
                          currentRoute: screen.route,
                          screens: self.state.screens,
                          setOptions: options =>
@@ -152,7 +152,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
                 ~tabBarProps={
                   screens: self.state.screens,
                   currentRoute: self.state.currentRoute,
-                  goTo: route => self.send(GoTo(route)),
+                  jumpTo: route => self.send(JumpTo(route)),
                 },
               )
             | None =>
@@ -160,7 +160,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
                 tabBarProps={
                   screens: self.state.screens,
                   currentRoute: self.state.currentRoute,
-                  goTo: route => self.send(GoTo(route)),
+                  jumpTo: route => self.send(JumpTo(route)),
                 }
               />
             }

@@ -36,7 +36,7 @@ let make =
                  (ReasonReact.stringToElement("Feed"))
                </Text>
                <TouchableOpacity
-                 onPress=(_e => navigation.goTo(Config.Likes))>
+                 onPress=(_e => navigation.jumpTo(Config.Likes))>
                  <View style=(Styles.button("#2180f7"))>
                    <Text style=Styles.buttonText>
                      (ReasonReact.stringToElement("Show likes"))

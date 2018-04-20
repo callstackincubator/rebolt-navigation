@@ -3,7 +3,7 @@ module CreateTabNavigator:
   {
     module TabNavigator: {
       type currentRoute = Config.route;
-      type goTo = Config.route => unit;
+      type jumpTo = Config.route => unit;
       type options = {label: string};
       type screenConfig = {
         route: Config.route,
@@ -13,17 +13,17 @@ module CreateTabNavigator:
       type navigation = {
         screens,
         currentRoute,
-        goTo,
+        jumpTo,
         setOptions: options => unit,
         isActive: bool,
       };
       type tabBarProps = {
         screens,
         currentRoute,
-        goTo,
+        jumpTo,
       };
       type action =
-        | GoTo(Config.route)
+        | JumpTo(Config.route)
         | SetOptions(options, int);
       type state = {
         screens,
