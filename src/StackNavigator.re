@@ -425,31 +425,27 @@ module CreateStackNavigator = (Config: {type route;}) => {
          * Source: https://goo.gl/FVKnzZ
          */
         let aquaPoint = 20;
-        let header =
-          ReasonReact.element(
-            headerComponent(
-              ~animatedValue=
-                Animated.Value.add(
-                  headerAnimatedValue,
-                  Animated.Value.multiply(
-                    Gestures.animatedProgress,
-                    Animated.Value.create(-1.0),
-                  ),
-                ),
-              ~pop=key => self.send(PopScreen(key)),
-              ~activeScreen=self.state.activeScreen,
-              ~screens=
-                self.state.screens
-                |> Array.mapi((idx, screen: screenConfig) =>
-                     {
-                       Header.header: screen.header,
-                       animation: getAnimation(idx, self.state.screens),
-                       key: screen.key,
-                     }
-                   ),
-              [||],
+        let headerProps: Header.props = {
+          activeScreen: self.state.activeScreen,
+          animatedValue:
+            Animated.Value.add(
+              headerAnimatedValue,
+              Animated.Value.multiply(
+                Gestures.animatedProgress,
+                Animated.Value.create(-1.0),
+              ),
             ),
-          );
+          pop: key => self.send(PopScreen(key)),
+          screens:
+            self.state.screens
+            |> Array.mapi((idx, screen: screenConfig) =>
+                 {
+                   Header.header: screen.header,
+                   animation: getAnimation(idx, self.state.screens),
+                   key: screen.key,
+                 }
+               ),
+        };
         <View style=Styles.stackContainer>
           <Gestures.PanHandler
             minDeltaX=aquaPoint
@@ -480,7 +476,16 @@ module CreateStackNavigator = (Config: {type route;}) => {
                                concat([Styles.fill, screen.style, animation])
                              )>
                        <View>
-                         (headerMode == Screen ? header : <View />)
+                         (
+                           headerMode == Screen ?
+                             ReasonReact.element(
+                               headerComponent(
+                                 {...headerProps, activeScreen: idx},
+                                 [||],
+                               ),
+                             ) :
+                             <View />
+                         )
                          (
                            children(
                              ~currentRoute=screen.route,
@@ -500,7 +505,11 @@ module CreateStackNavigator = (Config: {type route;}) => {
               )
             </Animated.View>
           </Gestures.PanHandler>
-          (headerMode == Floating ? header : <View />)
+          (
+            headerMode == Floating ?
+              ReasonReact.element(headerComponent(headerProps, [||])) :
+              <View />
+          )
         </View>;
       },
     };
@@ -511,6 +520,10 @@ module CreateStackNavigator = (Config: {type route;}) => {
             ~navigation: navigation,
             ~style=?,
             ~headerTitle=?,
+            ~headerStyle=?,
+            ~renderHeaderTitle=?,
+            ~renderHeaderLeft=?,
+            ~renderHeaderRight=?,
             ~animation=?,
             children,
           ) => {
@@ -519,6 +532,10 @@ module CreateStackNavigator = (Config: {type route;}) => {
           navigation.setOptions({
             header: {
               title: headerTitle,
+              style: headerStyle,
+              renderTitle: renderHeaderTitle,
+              renderLeft: renderHeaderLeft,
+              renderRight: renderHeaderRight,
             },
             animation,
             style,

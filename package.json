@@ -32,14 +32,20 @@
   "devDependencies": {
     "bs-platform": "^2.1.0",
     "bs-react-native": "reasonml-community/bs-react-native#f0795f6",
+    "bs-react-native-paper": "grabbou/bs-react-native-paper#b10ba83",
     "react": "^16.3.0-alpha.1",
     "react-native": "0.54.0",
     "react-native-gesture-handler": "^1.0.0-alpha.41",
+    "react-native-paper": "^1.4.0",
+    "react-native-vector-icons": "^4.6.0",
     "reason-react": "^0.3.2"
   },
   "peerDependencies": {
-    "reason-react": "*",
     "bs-react-native": "reasonml-community/bs-react-native#f0795f6",
-    "react-native-gesture-handler": "*"
+    "react-native-gesture-handler": "*",
+    "bs-react-native-paper": "^2.1.1",
+    "react-native-paper": "*",
+    "react-native-vector-icons": "*",
+    "reason-react": "*"
   }
 }
