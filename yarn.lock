@@ -1168,12 +1168,12 @@ bs-platform@^2.1.0:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-2.2.2.tgz#95ff37719771bbf310e8376fedd1148865c0da19"
 
-bs-react-native-paper@^2.1.1:
+bs-react-native-paper@grabbou/bs-react-native-paper#07043b8:
   version "2.1.1"
-  resolved "https://registry.yarnpkg.com/bs-react-native-paper/-/bs-react-native-paper-2.1.1.tgz#c46f1b1a0f19d92c96477a95bfa0dfe37fdbcd3d"
+  resolved "https://codeload.github.com/grabbou/bs-react-native-paper/tar.gz/07043b898ec7bb4b0fa683516b95f02eb6ce1030"
   dependencies:
     bs-react-native "^0.5.0"
-    react-native-paper "^1.0.1"
+    react-native-paper "^1.4.1"
     reason-react "^0.3.2"
 
 bs-react-native@^0.5.0, bs-react-native@reasonml-community/bs-react-native#f0795f6:
@@ -3067,9 +3067,19 @@ react-native-gesture-handler@^1.0.0-alpha.41:
     invariant "^2.2.2"
     prop-types "^15.5.10"
 
-react-native-paper@^1.0.1, react-native-paper@^1.4.0:
+react-native-paper@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/react-native-paper/-/react-native-paper-1.4.0.tgz#33bd477cde1468b63e60bdb0c9a500822d03cdca"
+  dependencies:
+    color "^2.0.1"
+    create-react-context "^0.2.2"
+    deepmerge "^2.1.0"
+    hoist-non-react-statics "^2.5.0"
+    react-lifecycles-compat "^3.0.2"
+
+react-native-paper@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/react-native-paper/-/react-native-paper-1.4.1.tgz#81df909c14d9ae78274662df97c3b35224aa39a9"
   dependencies:
     color "^2.0.1"
     create-react-context "^0.2.2"
