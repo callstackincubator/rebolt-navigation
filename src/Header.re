@@ -174,6 +174,15 @@ module IOS = {
           />
           <View style=Styles.iconMaskFillerRect />
         </View>;
+      let renderTitle = ({screens, activeScreen as i}) =>
+        <Text style=Styles.headerTitle numberOfLines=1>
+          (
+            ReasonReact.stringToElement(
+              Js.Option.getWithDefault("", screens[i].header.title),
+            )
+          )
+        </Text>;
+      let renderRight = _props => <View />;
       <SafeAreaView style=Styles.container>
         <View style=Styles.header>
           (
@@ -247,13 +256,15 @@ module IOS = {
                          anim |> screen.animation.forHeaderCenter({idx: idx}),
                        ])
                      )>
-                     <Text style=Styles.headerTitle numberOfLines=1>
+                     (
                        (
-                         ReasonReact.stringToElement(
-                           Js.Option.getWithDefault("", screen.header.title),
-                         )
-                       )
-                     </Text>
+                         screen.header.renderTitle
+                         |> Js.Option.getWithDefault(renderTitle)
+                       )({
+                         ...props,
+                         activeScreen: idx,
+                       })
+                     )
                    </Animated.View>
                    <Animated.View
                      style=(
@@ -261,8 +272,17 @@ module IOS = {
                          Styles.right,
                          anim |> screen.animation.forHeaderRight({idx: idx}),
                        ])
+                     )>
+                     (
+                       (
+                         screen.header.renderRight
+                         |> Js.Option.getWithDefault(renderRight)
+                       )({
+                         ...props,
+                         activeScreen: idx,
+                       })
                      )
-                   />
+                   </Animated.View>
                  </MaskedView>
                )
             |> ReasonReact.arrayToElement
