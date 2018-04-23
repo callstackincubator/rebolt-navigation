@@ -1,21 +1,26 @@
-/**
- * Header config
- */
-type config = {title: option(string)};
-
-/**
- * Screen config that is used by this Header
- */
-type screenConfig = {
+/** Header configuration object */
+type config = {
+  title: option(string),
+  renderHeaderTitle: option(returnsComponent),
+  renderHeaderLeft: option(returnsComponent),
+  renderHeaderRight: option(returnsComponent),
+}
+/** Getter for parts of the header */
+and returnsComponent = props => ReasonReact.reactElement
+/** Screen object  */
+and screen = {
   header: config,
   animation: Animation.t,
   key: string,
+}
+/** Header props */
+and props = {
+  screens: array(screen),
+  activeScreen: int,
+  animatedValue: BsReactNative.Animated.Value.t,
+  pop: string => unit,
 };
 
-/**
- * Default configuration used on Screen that is mounting or has
- * no Screen component inside
- */
 let default: config;
 
 /**
@@ -23,13 +28,7 @@ let default: config;
  */
 module IOS: {
   let make:
-    (
-      ~screens: array(screenConfig),
-      ~activeScreen: int,
-      ~animatedValue: BsReactNative.Animated.Value.t,
-      ~pop: string => unit,
-      'a
-    ) =>
+    (~headerProps: props, 'a) =>
     ReasonReact.componentSpec(
       ReasonReact.stateless,
       ReasonReact.stateless,
@@ -41,13 +40,7 @@ module IOS: {
 
 module Android: {
   let make:
-    (
-      ~screens: array(screenConfig),
-      ~activeScreen: int,
-      ~animatedValue: BsReactNative.Animated.Value.t,
-      ~pop: string => unit,
-      'a
-    ) =>
+    (~headerProps: props, 'a) =>
     ReasonReact.componentSpec(
       ReasonReact.stateless,
       ReasonReact.stateless,

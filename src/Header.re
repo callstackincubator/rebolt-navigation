@@ -1,14 +1,30 @@
 open BsReactNative;
 
-type config = {title: option(string)};
-
-type screenConfig = {
+type config = {
+  title: option(string),
+  renderHeaderTitle: option(returnsComponent),
+  renderHeaderLeft: option(returnsComponent),
+  renderHeaderRight: option(returnsComponent),
+}
+and returnsComponent = props => ReasonReact.reactElement
+and screen = {
   header: config,
   animation: Animation.t,
   key: string,
+}
+and props = {
+  screens: array(screen),
+  activeScreen: int,
+  animatedValue: Animated.Value.t,
+  pop: string => unit,
 };
 
-let default = {title: None};
+let default = {
+  title: None,
+  renderHeaderTitle: None,
+  renderHeaderLeft: None,
+  renderHeaderRight: None,
+};
 
 /**
  * Bare minimum wrapper around MaskedViewIOS. Consider open sourcing to
@@ -125,16 +141,10 @@ module IOS = {
     let label = style([fontSize(Float(15.0)), color(String("red"))]);
   };
   let component = ReasonReact.statelessComponent("FloatingHeader");
-  let make =
-      (
-        ~screens: array(screenConfig),
-        ~activeScreen: int,
-        ~animatedValue as anim: Animated.Value.t,
-        ~pop: string => unit,
-        _children,
-      ) => {
+  let make = (~headerProps as props: props, _children) => {
     ...component,
     render: _self => {
+      let {screens, activeScreen, animatedValue as anim, pop} = props;
       /**
        * The animated value passed to Header is screen index -
        * gesture progress. When user starts moving its finger
@@ -264,18 +274,40 @@ module IOS = {
 module Android = {
   open Paper;
   let component = ReasonReact.statelessComponent("AndroidHeader");
-  let make =
-      (
-        ~screens: array(screenConfig),
-        ~activeScreen: int,
-        ~animatedValue as anim: Animated.Value.t,
-        ~pop: string => unit,
-        _children,
-      ) => {
+  let renderHeaderTitle = props =>
+    <ToolbarContent title=props.screens[props.activeScreen].header.title />;
+  let renderHeaderLeft = props => <TollbarBackAction />;
+  let renderHeaderRight = _props => <View />;
+  let make = (~headerProps as props: props, _children) => {
     ...component,
     render: _self => {
-      let screen = screens[activeScreen];
-      <Toolbar> <ToolbarContent title=screen.header.title /> </Toolbar>;
+      let {screens, activeScreen} = props;
+      <Toolbar>
+        (
+          (
+            screens[activeScreen].header.renderHeaderLeft
+            |> Js.Option.getWithDefault(renderHeaderLeft)
+          )(
+            props,
+          )
+        )
+        (
+          (
+            screens[activeScreen].header.renderHeaderTitle
+            |> Js.Option.getWithDefault(renderHeaderTitle)
+          )(
+            props,
+          )
+        )
+        (
+          (
+            screens[activeScreen].header.renderHeaderRight
+            |> Js.Option.getWithDefault(renderHeaderRight)
+          )(
+            props,
+          )
+        )
+      </Toolbar>;
     },
   };
 };

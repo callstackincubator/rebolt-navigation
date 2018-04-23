@@ -14,13 +14,7 @@ module CreateStackNavigator:
       let make:
         (
           ~initialRoute: Config.route,
-          ~headerComponent: (
-                              ~screens: array(Header.screenConfig),
-                              ~activeScreen: int,
-                              ~animatedValue: BsReactNative.Animated.Value.t,
-                              ~pop: string => unit,
-                              array('a)
-                            ) =>
+          ~headerComponent: (~headerProps: Header.props, array('a)) =>
                             ReasonReact.component(
                               ReasonReact.stateless,
                               ReasonReact.noRetainedProps,
@@ -45,6 +39,9 @@ module CreateStackNavigator:
             ~navigation: navigation,
             ~style: BsReactNative.Style.t=?,
             ~headerTitle: string=?,
+            ~renderHeaderTitle: Header.returnsComponent=?,
+            ~renderHeaderLeft: Header.returnsComponent=?,
+            ~renderHeaderRight: Header.returnsComponent=?,
             ~animation: Animation.t=?,
             unit => ReasonReact.reactElement
           ) =>
