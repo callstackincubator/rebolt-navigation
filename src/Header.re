@@ -262,23 +262,7 @@ module IOS = {
 };
 
 module Android = {
-  module Styles = {
-    open Style;
-    module Constants = {
-      let titleOffset = 56.0;
-      let appBarHeight = 56.0;
-    };
-    let container =
-      style([
-        backgroundColor(String("#FFF")),
-        shadowColor(String("black")),
-        shadowOpacity(0.1),
-        shadowRadius(StyleSheet.hairlineWidth),
-        elevation(4.0),
-        shadowOffset(~height=StyleSheet.hairlineWidth, ~width=0.0),
-        height(Pt(Constants.appBarHeight))
-      ]);
-  };
+  open Paper;
   let component = ReasonReact.statelessComponent("AndroidHeader");
   let make =
       (
@@ -289,6 +273,9 @@ module Android = {
         _children,
       ) => {
     ...component,
-    render: _self => <View style=Styles.container />,
+    render: _self => {
+      let screen = screens[activeScreen];
+      <Toolbar> <ToolbarContent title=screen.header.title /> </Toolbar>;
+    },
   };
 };

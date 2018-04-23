@@ -1,8 +1,15 @@
 {
   "name": "reason-reroute",
-  "bsc-flags": ["-bs-no-version-header", "-bs-super-errors"],
+  "bsc-flags": [
+    "-bs-no-version-header",
+    "-bs-super-errors"
+  ],
   "refmt": 3,
-  "bs-dependencies": ["reason-react", "bs-react-native"],
+  "bs-dependencies": [
+    "reason-react",
+    "bs-react-native",
+    "bs-react-native-paper"
+  ],
   "reason": {
     "react-jsx": 2
   },
