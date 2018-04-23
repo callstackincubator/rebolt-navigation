@@ -22,7 +22,10 @@ let renderButtons = (nav: StackNavigator.navigation) =>
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen headerTitle="Admin" navigation headerStyle=Style.(style([backgroundColor(String("#FFF"))]))>
+    <StackNavigator.Screen
+      headerTitle="Admin"
+      navigation
+      headerStyle=Style.(style([backgroundColor(String("#FFF"))]))>
       ...(
            () =>
              <View>

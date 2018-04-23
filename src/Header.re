@@ -286,11 +286,13 @@ module Android = {
     ...component,
     render: _self => {
       let header = p.screens[p.activeScreen].header;
-      <Toolbar style=(header.style |> Js.Option.getWithDefault(Style.style([])))>
-        ((header.renderLeft |> Js.Option.getWithDefault(renderLeft))(p))
-        ((header.renderTitle |> Js.Option.getWithDefault(renderTitle))(p))
-        ((header.renderRight |> Js.Option.getWithDefault(renderRight))(p))
-      </Toolbar>;
+      Js.Option.(
+        <Toolbar style=(header.style |> getWithDefault(Style.style([])))>
+          ((header.renderLeft |> getWithDefault(renderLeft))(p))
+          ((header.renderTitle |> getWithDefault(renderTitle))(p))
+          ((header.renderRight |> getWithDefault(renderRight))(p))
+        </Toolbar>
+      );
     },
   };
 };
