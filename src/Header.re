@@ -274,9 +274,11 @@ module IOS = {
 module Android = {
   open Paper;
   let component = ReasonReact.statelessComponent("AndroidHeader");
-  let renderHeaderTitle = props =>
-    <ToolbarContent title=props.screens[props.activeScreen].header.title />;
-  let renderHeaderLeft = props => <TollbarBackAction />;
+  let renderHeaderTitle = ({screens, activeScreen as i}) =>
+    <ToolbarContent title=screens[i].header.title />;
+  let renderHeaderLeft = ({screens, activeScreen as i, pop}) =>
+    i > 0 ?
+      <TollbarBackAction onPress=(_e => pop(screens[i].key)) /> : <View />;
   let renderHeaderRight = _props => <View />;
   let make = (~headerProps as props: props, _children) => {
     ...component,
