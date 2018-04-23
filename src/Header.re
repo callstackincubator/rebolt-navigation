@@ -173,117 +173,122 @@ module IOS = {
           />
           <View style=Styles.iconMaskFillerRect />
         </View>;
-      let renderTitle = ({screens, activeScreen as i}) =>
-        <Text style=Styles.headerTitle numberOfLines=1>
+      let renderLeft = ({screens, animatedValue, activeScreen as idx}) =>
+        <Animated.View
+          style=(
+            Style.concat([
+              Styles.left,
+              animatedValue
+              |> screens[idx].animation.forHeaderLeft({idx: idx}),
+            ])
+          )>
           (
-            ReasonReact.stringToElement(
-              Js.Option.getWithDefault("", screens[i].header.title),
-            )
+            idx === 0 ?
+              <View /> :
+              <TouchableOpacity onPress=(_e => pop(screens[idx].key))>
+                <View style=Styles.leftContainer>
+                  <Animated.View
+                    style=(
+                      animatedValue
+                      |> screens[idx].animation.forHeaderLeftButton({
+                           idx: idx,
+                         })
+                    )>
+                    <Image
+                      style=(
+                        Styles.leftIcon(
+                          Js.Option.isSome(screens[idx].header.title),
+                        )
+                      )
+                      source=(
+                        Required(
+                          Packager.require(
+                            "../../../src/assets/back-icon.png",
+                          ),
+                        )
+                      )
+                    />
+                  </Animated.View>
+                  (
+                    switch (screens[idx - 1].header.title) {
+                    | None => <View />
+                    | Some(title) =>
+                      <Animated.View
+                        style=(
+                          animatedValue
+                          |> screens[idx].animation.forHeaderLeftLabel({
+                               idx: idx,
+                             })
+                        )>
+                        <Text style=Styles.leftTitle numberOfLines=1>
+                          (ReasonReact.stringToElement(title))
+                        </Text>
+                      </Animated.View>
+                    }
+                  )
+                </View>
+              </TouchableOpacity>
           )
-        </Text>;
-      let renderRight = _props => <View />;
+        </Animated.View>;
+      let renderTitle = ({screens, animatedValue, activeScreen as idx}) =>
+        <Animated.View
+          style=(
+            Style.concat([
+              Styles.center,
+              animatedValue
+              |> screens[idx].animation.forHeaderCenter({idx: idx}),
+            ])
+          )>
+          <Text style=Styles.headerTitle numberOfLines=1>
+            (
+              ReasonReact.stringToElement(
+                Js.Option.getWithDefault("", screens[idx].header.title),
+              )
+            )
+          </Text>
+        </Animated.View>;
+      let renderRight = ({screens, animatedValue, activeScreen as idx}) =>
+        <Animated.View
+          style=(
+            Style.concat([
+              Styles.right,
+              animatedValue
+              |> screens[idx].animation.forHeaderRight({idx: idx}),
+            ])
+          )
+        />;
       <SafeAreaView style=Styles.container>
         <View style=Styles.header>
-          (
+          Js.Option.(
             screens
-            |> Array.mapi((idx: int, screen) =>
+            |> Array.mapi((idx: int, screen) => {
+                 let props = {
+                   ...props,
+                   animatedValue: anim,
+                   activeScreen: idx,
+                 };
                  <MaskedView
                    key=(string_of_int(idx))
                    maskElement=mask
                    style=Styles.fill
                    pointerEvents=(activeScreen == idx ? "box-none" : "none")>
-                   <Animated.View
-                     style=(
-                       Style.concat([
-                         Styles.left,
-                         anim |> screen.animation.forHeaderLeft({idx: idx}),
-                       ])
-                     )>
-                     (
-                       idx === 0 ?
-                         <View /> :
-                         <TouchableOpacity onPress=(_e => pop(screen.key))>
-                           <View style=Styles.leftContainer>
-                             <Animated.View
-                               style=(
-                                 anim
-                                 |> screen.animation.forHeaderLeftButton({
-                                      idx: idx,
-                                    })
-                               )>
-                               <Image
-                                 style=(
-                                   Styles.leftIcon(
-                                     Js.Option.isSome(screen.header.title),
-                                   )
-                                 )
-                                 source=(
-                                   Required(
-                                     Packager.require(
-                                       "../../../src/assets/back-icon.png",
-                                     ),
-                                   )
-                                 )
-                               />
-                             </Animated.View>
-                             (
-                               switch (screens[idx - 1].header.title) {
-                               | None => <View />
-                               | Some(title) =>
-                                 <Animated.View
-                                   style=(
-                                     anim
-                                     |> screen.animation.forHeaderLeftLabel({
-                                          idx: idx,
-                                        })
-                                   )>
-                                   <Text
-                                     style=Styles.leftTitle numberOfLines=1>
-                                     (ReasonReact.stringToElement(title))
-                                   </Text>
-                                 </Animated.View>
-                               }
-                             )
-                           </View>
-                         </TouchableOpacity>
+                   (
+                     (screen.header.renderLeft |> getWithDefault(renderLeft))(
+                       props,
                      )
-                   </Animated.View>
-                   <Animated.View
-                     style=(
-                       Style.concat([
-                         Styles.center,
-                         anim |> screen.animation.forHeaderCenter({idx: idx}),
-                       ])
-                     )>
-                     (
-                       (
-                         screen.header.renderTitle
-                         |> Js.Option.getWithDefault(renderTitle)
-                       )({
-                         ...props,
-                         activeScreen: idx,
-                       })
+                   )
+                   (
+                     (screen.header.renderTitle |> getWithDefault(renderTitle))(
+                       props,
                      )
-                   </Animated.View>
-                   <Animated.View
-                     style=(
-                       Style.concat([
-                         Styles.right,
-                         anim |> screen.animation.forHeaderRight({idx: idx}),
-                       ])
-                     )>
-                     (
-                       (
-                         screen.header.renderRight
-                         |> Js.Option.getWithDefault(renderRight)
-                       )({
-                         ...props,
-                         activeScreen: idx,
-                       })
+                   )
+                   (
+                     (screen.header.renderRight |> getWithDefault(renderRight))(
+                       props,
                      )
-                   </Animated.View>
-                 </MaskedView>
-               )
+                   )
+                 </MaskedView>;
+               })
             |> ReasonReact.arrayToElement
           )
         </View>
