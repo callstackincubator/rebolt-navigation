@@ -36,7 +36,8 @@ type t = {
 /**
  * Slide in/out animation modelled after iOS platform interactions
  */
-let slideInOut: t;
+let slideHorizontal: t;
+let fadeVertical: t;
 
 /**
  * Platform-specific default animation that is picked by navigators when

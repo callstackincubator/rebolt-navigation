@@ -35,7 +35,7 @@ let crossFadeInterpolation = ([start, mid, end_], value) =>
     (),
   );
 
-let slideInOut = {
+let slideHorizontal = {
   func:
     Animated.Spring.animate(
       ~stiffness=1000.0,
@@ -196,9 +196,58 @@ let slideInOut = {
   },
 };
 
-let default = slideInOut;
+let fadeVertical = {
+  func:
+    Animated.Timing.animate(
+      ~duration=350.0,
+      ~easing=t => Js.Math.pow_float(t, 5.0),
+      ~useNativeDriver=Js.Boolean.to_js_boolean(true),
+      (),
+    ),
+  forCard: (_, value) =>
+    Style.(
+      style([
+        opacity(
+          Interpolated(
+            Animated.Value.interpolate(
+              value,
+              ~inputRange=[(-1.0), (-0.99), 0.0, 1.0],
+              ~outputRange=`float([0.0, 1.0, 1.0, 0.0]),
+              (),
+            ),
+          ),
+        ),
+        Transform.makeInterpolated(
+          ~translateY=
+            Animated.Value.interpolate(
+              value,
+              ~inputRange=[(-1.0), (-0.99), 0.0, 1.0],
+              ~outputRange=`float([0.0, 0.0, 0.0, 50.0]),
+              (),
+            ),
+          (),
+        ),
+      ])
+    ),
+  forHeaderCenter: (_, _) => Style.style([]),
+  forHeaderLeft: (_, _) => Style.style([]),
+  forHeaderLeftLabel: (_, _) => Style.style([]),
+  forHeaderLeftButton: (_, _) => Style.style([]),
+  forHeaderRight: (_, _) => Style.style([]),
+};
+
+let default =
+  switch (Platform.os()) {
+  | Platform.Android => fadeVertical
+  | _ => slideHorizontal
+  };
 
 let none = {
-  ...slideInOut,
-  func: Animated.Timing.animate(~duration=0.0, ~useNativeDriver=Js.Boolean.to_js_boolean(true), ()),
+  ...default,
+  func:
+    Animated.Timing.animate(
+      ~duration=0.0,
+      ~useNativeDriver=Js.Boolean.to_js_boolean(true),
+      (),
+    ),
 };
