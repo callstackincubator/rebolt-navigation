@@ -1,7 +1,11 @@
 module Config = {
   type route =
+    | Feed
     | Admin
-    | Home;
+    | Likes
+    | Home
+    | About
+    | TabExample;
 };
 
 include ReRoute.CreateNavigation(Config);

@@ -122,7 +122,6 @@ module IOS = {
         flexDirection(Row),
         alignItems(Center),
       ]);
-    let label = style([fontSize(Float(15.0)), color(String("red"))]);
   };
   let component = ReasonReact.statelessComponent("FloatingHeader");
   let make =

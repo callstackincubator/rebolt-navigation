@@ -527,7 +527,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
         },
         render: _self => {
           let body = children();
-          <View> body </View>;
+          <View style=Styles.flex> body </View>;
         },
       };
     };
