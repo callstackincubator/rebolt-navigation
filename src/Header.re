@@ -2,9 +2,10 @@ open BsReactNative;
 
 type config = {
   title: option(string),
-  renderHeaderTitle: option(returnsComponent),
-  renderHeaderLeft: option(returnsComponent),
-  renderHeaderRight: option(returnsComponent),
+  style: option(BsReactNative.Style.t),
+  renderTitle: option(returnsComponent),
+  renderLeft: option(returnsComponent),
+  renderRight: option(returnsComponent),
 }
 and returnsComponent = props => ReasonReact.reactElement
 and screen = {
@@ -21,9 +22,10 @@ and props = {
 
 let default = {
   title: None,
-  renderHeaderTitle: None,
-  renderHeaderLeft: None,
-  renderHeaderRight: None,
+  style: None,
+  renderTitle: None,
+  renderLeft: None,
+  renderRight: None,
 };
 
 /**
@@ -274,41 +276,20 @@ module IOS = {
 module Android = {
   open Paper;
   let component = ReasonReact.statelessComponent("AndroidHeader");
-  let renderHeaderTitle = ({screens, activeScreen as i}) =>
+  let renderTitle = ({screens, activeScreen as i}) =>
     <ToolbarContent title=screens[i].header.title />;
-  let renderHeaderLeft = ({screens, activeScreen as i, pop}) =>
+  let renderLeft = ({screens, activeScreen as i, pop}) =>
     i > 0 ?
       <TollbarBackAction onPress=(_e => pop(screens[i].key)) /> : <View />;
-  let renderHeaderRight = _props => <View />;
-  let make = (~headerProps as props: props, _children) => {
+  let renderRight = _props => <View />;
+  let make = (~headerProps as p: props, _children) => {
     ...component,
     render: _self => {
-      let {screens, activeScreen} = props;
-      <Toolbar>
-        (
-          (
-            screens[activeScreen].header.renderHeaderLeft
-            |> Js.Option.getWithDefault(renderHeaderLeft)
-          )(
-            props,
-          )
-        )
-        (
-          (
-            screens[activeScreen].header.renderHeaderTitle
-            |> Js.Option.getWithDefault(renderHeaderTitle)
-          )(
-            props,
-          )
-        )
-        (
-          (
-            screens[activeScreen].header.renderHeaderRight
-            |> Js.Option.getWithDefault(renderHeaderRight)
-          )(
-            props,
-          )
-        )
+      let header = p.screens[p.activeScreen].header;
+      <Toolbar style=(header.style |> Js.Option.getWithDefault(Style.style([])))>
+        ((header.renderLeft |> Js.Option.getWithDefault(renderLeft))(p))
+        ((header.renderTitle |> Js.Option.getWithDefault(renderTitle))(p))
+        ((header.renderRight |> Js.Option.getWithDefault(renderRight))(p))
       </Toolbar>;
     },
   };

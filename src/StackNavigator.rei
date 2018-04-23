@@ -39,6 +39,7 @@ module CreateStackNavigator:
             ~navigation: navigation,
             ~style: BsReactNative.Style.t=?,
             ~headerTitle: string=?,
+            ~headerStyle: BsReactNative.Style.t=?,
             ~renderHeaderTitle: Header.returnsComponent=?,
             ~renderHeaderLeft: Header.returnsComponent=?,
             ~renderHeaderRight: Header.returnsComponent=?,

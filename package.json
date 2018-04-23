@@ -32,7 +32,7 @@
   "devDependencies": {
     "bs-platform": "^2.1.0",
     "bs-react-native": "reasonml-community/bs-react-native#f0795f6",
-    "bs-react-native-paper": "grabbou/bs-react-native-paper#07043b8",
+    "bs-react-native-paper": "grabbou/bs-react-native-paper#b10ba83",
     "react": "^16.3.0-alpha.1",
     "react-native": "0.54.0",
     "react-native-gesture-handler": "^1.0.0-alpha.41",

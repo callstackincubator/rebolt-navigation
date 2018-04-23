@@ -1168,9 +1168,9 @@ bs-platform@^2.1.0:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-2.2.2.tgz#95ff37719771bbf310e8376fedd1148865c0da19"
 
-bs-react-native-paper@grabbou/bs-react-native-paper#07043b8:
+bs-react-native-paper@grabbou/bs-react-native-paper#b10ba83:
   version "2.1.1"
-  resolved "https://codeload.github.com/grabbou/bs-react-native-paper/tar.gz/07043b898ec7bb4b0fa683516b95f02eb6ce1030"
+  resolved "https://codeload.github.com/grabbou/bs-react-native-paper/tar.gz/b10ba83915339abe2222938c1bcedf1e256813b4"
   dependencies:
     bs-react-native "^0.5.0"
     react-native-paper "^1.4.1"

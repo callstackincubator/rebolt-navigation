@@ -520,6 +520,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
             ~navigation: navigation,
             ~style=?,
             ~headerTitle=?,
+            ~headerStyle=?,
             ~renderHeaderTitle=?,
             ~renderHeaderLeft=?,
             ~renderHeaderRight=?,
@@ -531,9 +532,10 @@ module CreateStackNavigator = (Config: {type route;}) => {
           navigation.setOptions({
             header: {
               title: headerTitle,
-              renderHeaderTitle,
-              renderHeaderLeft,
-              renderHeaderRight,
+              style: headerStyle,
+              renderTitle: renderHeaderTitle,
+              renderLeft: renderHeaderLeft,
+              renderRight: renderHeaderRight,
             },
             animation,
             style,
