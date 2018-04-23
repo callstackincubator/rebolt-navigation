@@ -475,30 +475,28 @@ module CreateStackNavigator = (Config: {type route;}) => {
                        style=Style.(
                                concat([Styles.fill, screen.style, animation])
                              )>
-                       <View>
-                         (
-                           headerMode == Screen ?
-                             ReasonReact.element(
-                               headerComponent(
-                                 {...headerProps, activeScreen: idx},
-                                 [||],
-                               ),
-                             ) :
-                             <View />
+                       (
+                         headerMode == Screen ?
+                           ReasonReact.element(
+                             headerComponent(
+                               {...headerProps, activeScreen: idx},
+                               [||],
+                             ),
+                           ) :
+                           <View />
+                       )
+                       (
+                         children(
+                           ~currentRoute=screen.route,
+                           ~navigation={
+                             push: route =>
+                               self.send(PushScreen(route, screen.key)),
+                             pop: () => self.send(PopScreen(screen.key)),
+                             setOptions: opts =>
+                               self.send(SetOptions(opts, screen.key)),
+                           },
                          )
-                         (
-                           children(
-                             ~currentRoute=screen.route,
-                             ~navigation={
-                               push: route =>
-                                 self.send(PushScreen(route, screen.key)),
-                               pop: () => self.send(PopScreen(screen.key)),
-                               setOptions: opts =>
-                                 self.send(SetOptions(opts, screen.key)),
-                             },
-                           )
-                         )
-                       </View>
+                       )
                      </Animated.View>;
                    })
                 |> ReasonReact.arrayToElement
@@ -544,7 +542,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
         },
         render: _self => {
           let body = children();
-          <View style=Styles.flex> body </View>;
+          <View style=Style.(style([flex(1.0)]))> body </View>;
         },
       };
     };
