@@ -1,18 +1,5 @@
 open BsReactNative;
 
-type a = {
-  b,
-  c,
-}
-and b = {
-  a,
-  c,
-}
-and c = {
-  a,
-  b,
-};
-
 type config = {
   title: option(string),
   style: option(BsReactNative.Style.t),
