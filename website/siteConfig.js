@@ -18,12 +18,12 @@ const users = [
 ];
 
 const siteConfig = {
-  title: 'ReRoute',
+  title: 'ReRoute Native',
   tagline:
     'A fast and declarative navigation library for React Native written in Reason',
-  url: 'https://reroute.now.sh',
+  url: 'https://callstack.github.io/reroute-native',
   baseUrl: '/',
-  projectName: 'reroute',
+  projectName: 'reroute-native',
   organizationName: 'callstack',
   headerLinks: [
     { doc: 'intro', label: 'Docs' },
@@ -169,7 +169,7 @@ const siteConfig = {
   onPageNav: 'separate',
   ogImage: 'img/logopng',
   twitterImage: 'img/logopng',
-  repoUrl: 'https://github.com/callstack/react-navigation'
+  repoUrl: 'https://github.com/callstack/reroute-native'
 };
 
 module.exports = siteConfig;
