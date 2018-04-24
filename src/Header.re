@@ -1,5 +1,18 @@
 open BsReactNative;
 
+type a = {
+  b,
+  c,
+}
+and b = {
+  a,
+  c,
+}
+and c = {
+  a,
+  b,
+};
+
 type config = {
   title: option(string),
   style: option(BsReactNative.Style.t),
@@ -44,6 +57,19 @@ module MaskedView = {
         "style": style,
       },
       children,
+    );
+};
+
+module TouchableNativeFeedback = {
+  [@bs.module "react-native"]
+  external view : ReasonReact.reactClass = "TouchableNativeFeedback";
+  let make = (~onPress=?, ~style=?, ~useForeground=?, children) =>
+    Js.Undefined.(
+      ReasonReact.wrapJsForReason(
+        ~reactClass=view,
+        ~props={"onPress": fromOption(onPress), "style": fromOption(style)},
+        children,
+      )
     );
 };
 
@@ -299,23 +325,60 @@ module IOS = {
 
 module Android = {
   open Paper;
+  module Styles = {
+    open Style;
+    let header =
+      style([
+        backgroundColor(String("#FFF")),
+        shadowColor(String("black")),
+        shadowOpacity(0.1),
+        shadowRadius(StyleSheet.hairlineWidth),
+        shadowOffset(~width=0.0, ~height=StyleSheet.hairlineWidth),
+        elevation(4.0),
+        height(Pt(56.0)),
+        alignItems(Center),
+        flexDirection(Row),
+      ]);
+    let title =
+      style([
+        justifyContent(FlexStart),
+        fontSize(Float(20.0)),
+        fontWeight(`_500),
+        color(String("rgba(0, 0, 0, 0.9)")),
+        marginHorizontal(Pt(16.0)),
+      ]);
+  };
   let component = ReasonReact.statelessComponent("AndroidHeader");
   let renderTitle = ({screens, activeScreen as i}) =>
-    <ToolbarContent title=screens[i].header.title />;
+    <Text style=Styles.title> screens[i].header.title </Text>;
   let renderLeft = ({screens, activeScreen as i, pop}) =>
     i > 0 ?
-      <TollbarBackAction onPress=(_e => pop(screens[i].key)) /> : <View />;
+      <TouchableNativeFeedback
+        onPress=(_e => pop(screens[i].key)) useForeground=true>
+        <Image
+          source=(
+            Required(Packager.require("../../../src/assets/back-icon.png"))
+          )
+        />
+      </TouchableNativeFeedback> :
+      <View />;
   let renderRight = _props => <View />;
   let make = (~headerProps as p: props, _children) => {
     ...component,
     render: _self => {
       let header = p.screens[p.activeScreen].header;
       Js.Option.(
-        <Toolbar style=(header.style |> getWithDefault(Style.style([])))>
+        <View
+          style=Style.(
+                  concat([
+                    Styles.header,
+                    header.style |> getWithDefault(style([])),
+                  ])
+                )>
           ((header.renderLeft |> getWithDefault(renderLeft))(p))
           ((header.renderTitle |> getWithDefault(renderTitle))(p))
           ((header.renderRight |> getWithDefault(renderRight))(p))
-        </Toolbar>
+        </View>
       );
     },
   };
