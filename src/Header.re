@@ -50,7 +50,7 @@ module MaskedView = {
 module TouchableNativeFeedback = {
   [@bs.module "react-native"]
   external view : ReasonReact.reactClass = "TouchableNativeFeedback";
-  let make = (~onPress=?, ~style=?, ~useForeground=?, children) =>
+  let make = (~onPress=?, ~style=?, children) =>
     Js.Undefined.(
       ReasonReact.wrapJsForReason(
         ~reactClass=view,
@@ -333,6 +333,14 @@ module Android = {
         color(String("rgba(0, 0, 0, 0.9)")),
         marginHorizontal(Pt(16.0)),
       ]);
+    let icon =
+      style([
+        height(Pt(24.0)),
+        width(Pt(24.0)),
+        margin(Pt(16.0)),
+        marginRight(Pt(0.0)),
+        resizeMode(Contain),
+      ]);
   };
   let component = ReasonReact.statelessComponent("AndroidHeader");
   let renderTitle = ({screens, activeScreen as i}) =>
@@ -345,9 +353,9 @@ module Android = {
     </Text>;
   let renderLeft = ({screens, activeScreen as i, pop}) =>
     i > 0 ?
-      <TouchableNativeFeedback
-        onPress=(_e => pop(screens[i].key)) useForeground=true>
+      <TouchableNativeFeedback onPress=(_e => pop(screens[i].key))>
         <Image
+          style=Styles.icon
           source=(
             Required(Packager.require("../../../src/assets/back-icon.png"))
           )
