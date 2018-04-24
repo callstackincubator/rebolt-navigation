@@ -7,8 +7,7 @@
   "refmt": 3,
   "bs-dependencies": [
     "reason-react",
-    "bs-react-native",
-    "bs-react-native-paper"
+    "bs-react-native"
   ],
   "reason": {
     "react-jsx": 2

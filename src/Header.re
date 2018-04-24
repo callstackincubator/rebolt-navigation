@@ -311,7 +311,6 @@ module IOS = {
 };
 
 module Android = {
-  open Paper;
   module Styles = {
     open Style;
     let header =
@@ -337,7 +336,13 @@ module Android = {
   };
   let component = ReasonReact.statelessComponent("AndroidHeader");
   let renderTitle = ({screens, activeScreen as i}) =>
-    <Text style=Styles.title> screens[i].header.title </Text>;
+    <Text style=Styles.title>
+      (
+        ReasonReact.stringToElement(
+          Js.Option.getWithDefault("", screens[i].header.title),
+        )
+      )
+    </Text>;
   let renderLeft = ({screens, activeScreen as i, pop}) =>
     i > 0 ?
       <TouchableNativeFeedback
