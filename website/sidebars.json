@@ -1,0 +1,7 @@
+{
+  "docs": {
+    "Intro": ["intro"],
+    "Get Started": ["get-started", "contributing"],
+    "Navigators": ["stack-navigator", "tab-navigator"]
+  }
+}
