@@ -48,14 +48,27 @@ module MaskedView = {
 };
 
 module TouchableNativeFeedback = {
+  type inst;
+  [@bs.module "react-native"] external inst : inst = "TouchableNativeFeedback";
+  module Background = {
+    type t;
+    [@bs.send] external ripple_ : (inst, string, Js.boolean) => t = "Ripple";
+    let ripple = (color, borderless) =>
+      ripple_(inst, color, Js.Boolean.to_js_boolean(borderless));
+  };
   [@bs.module "react-native"]
   external view : ReasonReact.reactClass = "TouchableNativeFeedback";
-  let make = (~onPress=?, ~style=?, children) =>
+  let make =
+      (~onPress=?, ~style=?, ~background: option(Background.t)=?, children) =>
     Js.Undefined.(
       ReasonReact.wrapJsForReason(
         ~reactClass=view,
-        ~props={"onPress": fromOption(onPress), "style": fromOption(style)},
-        children,
+        ~props={
+          "onPress": fromOption(onPress),
+          "background": fromOption(background),
+          "style": fromOption(style),
+        },
+        <View> ...children </View>,
       )
     );
 };
@@ -353,7 +366,14 @@ module Android = {
     </Text>;
   let renderLeft = ({screens, activeScreen as i, pop}) =>
     i > 0 ?
-      <TouchableNativeFeedback onPress=(_e => pop(screens[i].key))>
+      <TouchableNativeFeedback
+        onPress=(_e => pop(screens[i].key))
+        background=(
+          TouchableNativeFeedback.Background.ripple(
+            "rgba(0, 0, 0, .32)",
+            true,
+          )
+        )>
         <Image
           style=Styles.icon
           source=(
