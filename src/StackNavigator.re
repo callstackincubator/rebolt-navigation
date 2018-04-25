@@ -44,6 +44,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
     type state = {
       screens: array(screenConfig),
       pendingTransition: option(pendingTransition),
+      headerAnimatedValue: Animated.Value.t,
       activeScreen: int,
     };
     type persistedState = array(Config.route);
@@ -65,7 +66,6 @@ module CreateStackNavigator = (Config: {type route;}) => {
       setOptions: options => unit,
       pop: unit => unit,
     };
-    let headerAnimatedValue = Animated.Value.create(0.0);
     include
       Persistence.CreatePersistence(
         {
@@ -104,7 +104,6 @@ module CreateStackNavigator = (Config: {type route;}) => {
           );
       };
       let screenWidth = Dimensions.get(`window)##width;
-      /** Raw value as updated via `handler` from PanGestureHandler */
       let animatedValue = Animated.Value.create(0.0);
       let handler =
         Animated.event(
@@ -159,7 +158,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                     1.0,
                   );
                   Animated.Value.setValue(
-                    headerAnimatedValue,
+                    self.state.headerAnimatedValue,
                     float_of_int(activeScreen - 1),
                   );
                   Animated.Value.setValue(animatedValue, 0.0);
@@ -217,7 +216,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                 ~toValue=`raw(0.0),
               ),
               second.animation.func(
-                ~value=headerAnimatedValue,
+                ~value=self.state.headerAnimatedValue,
                 ~toValue=`raw(float_of_int(toIdx)),
               ),
               second.animation.func(
@@ -261,21 +260,29 @@ module CreateStackNavigator = (Config: {type route;}) => {
         ) => {
       ...component,
       initialState: () => {
-        pendingTransition: None,
-        screens:
-          initialState
-          |> Array.map(route =>
-               {
-                 route,
-                 header: Header.default,
-                 animation: Animation.default,
-                 key: UUID.generate(),
-                 animatedValue: Animated.Value.create(0.0),
-                 style: Styles.card,
-                 didMount: false,
-               }
-             ),
-        activeScreen: Array.length(initialState) - 1,
+        let activeScreen = Array.length(initialState) - 1;
+        {
+          pendingTransition: None,
+          headerAnimatedValue:
+            Animated.Value.create(float_of_int(activeScreen)),
+          screens:
+            initialState
+            |> Array.mapi((idx, route) =>
+                 {
+                   route,
+                   header: Header.default,
+                   animation: Animation.default,
+                   key: UUID.generate(),
+                   animatedValue:
+                     Animated.Value.create(
+                       idx == activeScreen ? 0.0 : (-1.0),
+                     ),
+                   style: Styles.card,
+                   didMount: false,
+                 }
+               ),
+          activeScreen,
+        };
       },
       /***
        * Begin animating two states as soon as the index changes.
@@ -345,6 +352,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
           if (Helpers.isActiveScreen(state, key)) {
             let index = state.activeScreen + 1;
             ReasonReact.Update({
+              ...state,
               pendingTransition: None,
               activeScreen: index,
               screens:
@@ -394,6 +402,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
           });
         | RemoveLastScreen =>
           ReasonReact.Update({
+            ...state,
             pendingTransition: None,
             activeScreen: state.activeScreen - 1,
             screens: state.screens |> ReArray.remove(state.activeScreen),
@@ -442,7 +451,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
           activeScreen: self.state.activeScreen,
           animatedValue:
             Animated.Value.add(
-              headerAnimatedValue,
+              self.state.headerAnimatedValue,
               Animated.Value.multiply(
                 Gestures.animatedProgress,
                 Animated.Value.create(-1.0),
