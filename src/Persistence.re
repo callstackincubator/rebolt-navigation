@@ -1,5 +1,5 @@
-module CreatePersistor = (Config: {type route;}) => {
-  module Persistor = {
+module CreatePersistence = (Config: {type route;}) => {
+  module Persistence = {
     let encode: array(Config.route) => Js.Json.t = [%bs.raw
       {|
       (function(obj) {

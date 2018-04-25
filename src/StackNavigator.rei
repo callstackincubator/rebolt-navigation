@@ -2,6 +2,10 @@ module CreateStackNavigator:
   (Config: {type route;}) =>
   {
     module StackNavigator: {
+      module Persistence: {
+        let encode: array(Config.route) => Js.Json.t;
+        let decode: Js.Json.t => array(Config.route);
+      };
       type state;
       type options;
       type action;

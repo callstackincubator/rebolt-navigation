@@ -27,6 +27,7 @@ module Styles = {
 
 module CreateStackNavigator = (Config: {type route;}) => {
   module StackNavigator = {
+    include Persistence.CreatePersistence(Config);
     module Animation = Animation;
     type screenConfig = {
       route: Config.route,
