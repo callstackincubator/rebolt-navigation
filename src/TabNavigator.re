@@ -23,6 +23,23 @@ module Styles = {
         left(Pt(0.)),
         opacity(Float(0.)),
       ]);
+  let tabBarContainer =
+      (safeAreaViewBackgroundColor: option(string), renderTabBar) =>
+    style([
+      flex(1.),
+      backgroundColor(
+        switch (
+          safeAreaViewBackgroundColor,
+          renderTabBar:
+            option((~tabBarProps: 'a) => ReasonReact.reactElement),
+        ) {
+        | (None, None) => String("#f7f7f7")
+        | (None, Some(_r)) => String("transparent")
+        | (Some(safeAreaViewBackgroundColor), _) =>
+          String(safeAreaViewBackgroundColor)
+        },
+      ),
+    ]);
   let tabBar =
     style([
       flexDirection(Row),
@@ -48,7 +65,13 @@ module Styles = {
     ]);
   let tabBarItem = style([alignItems(Center)]);
   let tabBarItemIcon = style([height(Pt(20.)), width(Pt(20.))]);
-  let tabBarItemText = (~isActive, ~textSize) =>
+  let tabBarItemText =
+      (
+        ~isActive,
+        ~textSize,
+        ~labelColor: option(string),
+        ~activeLabelColor: option(string),
+      ) =>
     style([
       bottom(
         Pt(
@@ -58,7 +81,17 @@ module Styles = {
           },
         ),
       ),
-      color(String(isActive ? "#2180f7" : "#8c8c8c")),
+      color(
+        switch (labelColor, activeLabelColor) {
+        | (Some(labelColor), Some(activeLabelColor)) =>
+          String(isActive ? activeLabelColor : labelColor)
+        | (None, None) => String(isActive ? "#2180f7" : "#8c8c8c")
+        | (None, Some(activeLabelColor)) =>
+          String(isActive ? activeLabelColor : "#8c8c8c")
+        | (Some(labelColor), None) =>
+          String(isActive ? "#2180f7" : labelColor)
+        },
+      ),
       fontSize(
         Float(
           switch (textSize) {
@@ -76,12 +109,16 @@ module CreateTabNavigator = (Config: {type route;}) => {
     type jumpTo = Config.route => unit;
     type options = {
       label: string,
+      labelColor: option(string),
+      activeLabelColor: option(string),
       iconSource: option(Image.imageSource),
       activeIconSource: option(Image.imageSource),
     };
     type screenConfig = {
       route: Config.route,
       label: string,
+      labelColor: option(string),
+      activeLabelColor: option(string),
       iconSource: option(Image.imageSource),
       activeIconSource: option(Image.imageSource),
     };
@@ -110,6 +147,8 @@ module CreateTabNavigator = (Config: {type route;}) => {
       let make =
           (
             ~label,
+            ~labelColor: option(string),
+            ~activeLabelColor: option(string),
             ~iconSource: option(Image.imageSource),
             ~activeIconSource: option(Image.imageSource),
             ~isActive,
@@ -128,26 +167,58 @@ module CreateTabNavigator = (Config: {type route;}) => {
                   /> :
                   <Image source=iconSource style=Styles.tabBarItemIcon />
               )
-              <Text style=(Styles.tabBarItemText(~isActive, ~textSize=Small))>
+              <Text
+                style=(
+                  Styles.tabBarItemText(
+                    ~isActive,
+                    ~textSize=Small,
+                    ~labelColor,
+                    ~activeLabelColor,
+                  )
+                )>
                 (ReasonReact.stringToElement(label))
               </Text>
             </View>
           | (label, Some(iconSource), None) =>
             <View style=Styles.tabBarItem>
               <Image source=iconSource style=Styles.tabBarItemIcon />
-              <Text style=(Styles.tabBarItemText(~isActive, ~textSize=Small))>
+              <Text
+                style=(
+                  Styles.tabBarItemText(
+                    ~isActive,
+                    ~textSize=Small,
+                    ~labelColor,
+                    ~activeLabelColor,
+                  )
+                )>
                 (ReasonReact.stringToElement(label))
               </Text>
             </View>
           | (label, None, Some(activeIconSource)) =>
             <View style=Styles.tabBarItem>
               <Image source=activeIconSource style=Styles.tabBarItemIcon />
-              <Text style=(Styles.tabBarItemText(~isActive, ~textSize=Small))>
+              <Text
+                style=(
+                  Styles.tabBarItemText(
+                    ~isActive,
+                    ~textSize=Small,
+                    ~labelColor,
+                    ~activeLabelColor,
+                  )
+                )>
                 (ReasonReact.stringToElement(label))
               </Text>
             </View>
           | (label, None, None) =>
-            <Text style=(Styles.tabBarItemText(~isActive, ~textSize=Regular))>
+            <Text
+              style=(
+                Styles.tabBarItemText(
+                  ~isActive,
+                  ~textSize=Regular,
+                  ~labelColor,
+                  ~activeLabelColor,
+                )
+              )>
               (ReasonReact.stringToElement(label))
             </Text>
           },
@@ -169,6 +240,8 @@ module CreateTabNavigator = (Config: {type route;}) => {
                      <View style=Styles.tabBarItemContainer>
                        <TabBarItem
                          label=screen.label
+                         labelColor=screen.labelColor
+                         activeLabelColor=screen.activeLabelColor
                          isActive
                          iconSource=screen.iconSource
                          activeIconSource=screen.activeIconSource
@@ -182,13 +255,27 @@ module CreateTabNavigator = (Config: {type route;}) => {
       };
     };
     let component = ReasonReact.reducerComponent("TabNavigator");
-    let make = (~initialRoute, ~routes, ~renderTabBar=?, children) => {
+    let make =
+        (
+          ~initialRoute,
+          ~routes,
+          ~renderTabBar=?,
+          ~safeAreaViewBackgroundColor: option(string)=?,
+          children,
+        ) => {
       ...component,
       initialState: () => {
         screens:
           routes
           |> Array.map(route =>
-               {route, label: "", iconSource: None, activeIconSource: None}
+               {
+                 route,
+                 label: "",
+                 labelColor: None,
+                 activeLabelColor: None,
+                 iconSource: None,
+                 activeIconSource: None,
+               }
              ),
         currentRoute: initialRoute,
       },
@@ -200,63 +287,79 @@ module CreateTabNavigator = (Config: {type route;}) => {
           } else {
             ReasonReact.NoUpdate;
           }
-        | SetOptions({label, iconSource, activeIconSource}, index) =>
+        | SetOptions(
+            {
+              label,
+              labelColor,
+              activeLabelColor,
+              iconSource,
+              activeIconSource,
+            },
+            index,
+          ) =>
           let screens = Js.Array.copy(state.screens);
           screens[index] = {
             ...screens[index],
             label,
+            labelColor,
+            activeLabelColor,
             iconSource,
             activeIconSource,
           };
           ReasonReact.Update({...state, screens});
         },
       render: self =>
-        <View style=Styles.tabContainer>
-          (
-            self.state.screens
-            |> Array.mapi((index, screen) => {
-                 let isActive = self.state.currentRoute === screen.route;
-                 <View
-                   key=(string_of_int(index))
-                   style=(Styles.screenContainer(isActive))
-                   pointerEvents=(isActive ? `auto : `none)>
-                   (
-                     children(
-                       ~navigation={
-                         jumpTo: route => self.send(JumpTo(route)),
-                         currentRoute: screen.route,
-                         screens: self.state.screens,
-                         setOptions: options =>
-                           self.send(SetOptions(options, index)),
-                         isActive,
-                       },
+        <SafeAreaView
+          style=(
+            Styles.tabBarContainer(safeAreaViewBackgroundColor, renderTabBar)
+          )>
+          <View style=Styles.tabContainer>
+            (
+              self.state.screens
+              |> Array.mapi((index, screen) => {
+                   let isActive = self.state.currentRoute === screen.route;
+                   <View
+                     key=(string_of_int(index))
+                     style=(Styles.screenContainer(isActive))
+                     pointerEvents=(isActive ? `auto : `none)>
+                     (
+                       children(
+                         ~navigation={
+                           jumpTo: route => self.send(JumpTo(route)),
+                           currentRoute: screen.route,
+                           screens: self.state.screens,
+                           setOptions: options =>
+                             self.send(SetOptions(options, index)),
+                           isActive,
+                         },
+                       )
                      )
-                   )
-                 </View>;
-               })
-            |> ReasonReact.arrayToElement
-          )
-          (
-            switch (renderTabBar) {
-            | Some(renderTabBar) =>
-              renderTabBar(
-                ~tabBarProps={
-                  screens: self.state.screens,
-                  currentRoute: self.state.currentRoute,
-                  jumpTo: route => self.send(JumpTo(route)),
-                },
-              )
-            | None =>
-              <TabBar
-                tabBarProps={
-                  screens: self.state.screens,
-                  currentRoute: self.state.currentRoute,
-                  jumpTo: route => self.send(JumpTo(route)),
-                }
-              />
-            }
-          )
-        </View>,
+                   </View>;
+                 })
+              |> ReasonReact.arrayToElement
+            )
+            (
+              switch (renderTabBar) {
+              | Some(renderTabBar) =>
+                renderTabBar(
+                  ~tabBarProps={
+                    screens: self.state.screens,
+                    currentRoute: self.state.currentRoute,
+                    jumpTo: route => self.send(JumpTo(route)),
+                  },
+                )
+              | None =>
+                <TabBar
+                  tabBarProps={
+                    screens: self.state.screens,
+                    currentRoute: self.state.currentRoute,
+                    jumpTo: route => self.send(JumpTo(route)),
+                  }
+                />
+              }
+            )
+          </View>
+        </SafeAreaView>,
     };
     module Screen = {
       let component = ReasonReact.statelessComponent("Screen");
@@ -264,13 +367,21 @@ module CreateTabNavigator = (Config: {type route;}) => {
           (
             ~navigation,
             ~label,
+            ~labelColor: option(string)=?,
+            ~activeLabelColor: option(string)=?,
             ~iconSource: option(Image.imageSource)=?,
             ~activeIconSource: option(Image.imageSource)=?,
             children,
           ) => {
         ...component,
         didMount: _self => {
-          navigation.setOptions({label, iconSource, activeIconSource});
+          navigation.setOptions({
+            label,
+            labelColor,
+            activeLabelColor,
+            iconSource,
+            activeIconSource,
+          });
           ReasonReact.NoUpdate;
         },
         render: _self =>

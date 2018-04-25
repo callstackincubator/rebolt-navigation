@@ -6,12 +6,16 @@ module CreateTabNavigator:
       type jumpTo = Config.route => unit;
       type options = {
         label: string,
+        labelColor: option(string),
+        activeLabelColor: option(string),
         iconSource: option(BsReactNative.Image.imageSource),
         activeIconSource: option(BsReactNative.Image.imageSource),
       };
       type screenConfig = {
         route: Config.route,
         label: string,
+        labelColor: option(string),
+        activeLabelColor: option(string),
         iconSource: option(BsReactNative.Image.imageSource),
         activeIconSource: option(BsReactNative.Image.imageSource),
       };
@@ -42,6 +46,7 @@ module CreateTabNavigator:
           ~renderTabBar: (~tabBarProps: tabBarProps) =>
                          ReasonReact.reactElement
                            =?,
+          ~safeAreaViewBackgroundColor: string=?,
           (~navigation: navigation) => ReasonReact.reactElement
         ) =>
         ReasonReact.componentSpec(
@@ -56,6 +61,8 @@ module CreateTabNavigator:
           (
             ~navigation: navigation,
             ~label: string,
+            ~labelColor: string=?,
+            ~activeLabelColor: string=?,
             ~iconSource: BsReactNative.Image.imageSource=?,
             ~activeIconSource: BsReactNative.Image.imageSource=?,
             unit => ReasonReact.reactElement
@@ -83,8 +90,10 @@ module CreateTabNavigator:
         let make:
           (
             ~label: string,
-            ~iconSource: BsReactNative.Image.imageSource,
-            ~activeIconSource: BsReactNative.Image.imageSource,
+            ~labelColor: option(string),
+            ~activeLabelColor: option(string),
+            ~iconSource: option(BsReactNative.Image.imageSource),
+            ~activeIconSource: option(BsReactNative.Image.imageSource),
             ~isActive: bool,
             'a
           ) =>

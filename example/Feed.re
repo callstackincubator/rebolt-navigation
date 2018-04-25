@@ -30,6 +30,8 @@ let make =
   render: _self =>
     <TabNavigator.Screen
       label="Today"
+      labelColor="#ff9999"
+      activeLabelColor="#da4453"
       iconSource=(
         URI(
           Image.(
