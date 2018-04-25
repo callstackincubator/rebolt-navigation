@@ -2,6 +2,9 @@ open BsReactNative;
 
 module Styles = {
   open Style;
+  type textSize =
+    | Small
+    | Regular;
   let tabContainer = style([flex(1.)]);
   let screenContainer = isActive =>
     isActive ?
@@ -32,7 +35,7 @@ module Styles = {
       borderTopWidth(StyleSheet.hairlineWidth),
       borderTopColor(String("rgba(0, 0, 0, 0.3)")),
     ]);
-  let tabBarItem =
+  let tabBarItemContainer =
     style([
       flex(1.),
       justifyContent(Center),
@@ -43,10 +46,27 @@ module Styles = {
         },
       ),
     ]);
-  let tabBarItemText = isActive =>
+  let tabBarItem = style([alignItems(Center)]);
+  let tabBarItemIcon = style([height(Pt(20.)), width(Pt(20.))]);
+  let tabBarItemText = (~isActive, ~textSize) =>
     style([
+      bottom(
+        Pt(
+          switch (textSize) {
+          | Small => (-6.)
+          | Regular => 0.
+          },
+        ),
+      ),
       color(String(isActive ? "#2180f7" : "#8c8c8c")),
-      fontSize(Float(13.)),
+      fontSize(
+        Float(
+          switch (textSize) {
+          | Small => 10.0
+          | Regular => 13.0
+          },
+        ),
+      ),
     ]);
 };
 
@@ -56,12 +76,14 @@ module CreateTabNavigator = (Config: {type route;}) => {
     type jumpTo = Config.route => unit;
     type options = {
       label: string,
-      iconSource: option(Image.imageSource)=?,
-      activeIconSource: option(Image.imageSource)=?,
+      iconSource: option(Image.imageSource),
+      activeIconSource: option(Image.imageSource),
     };
     type screenConfig = {
       route: Config.route,
       label: string,
+      iconSource: option(Image.imageSource),
+      activeIconSource: option(Image.imageSource),
     };
     type screens = array(screenConfig);
     type navigation = {
@@ -88,8 +110,8 @@ module CreateTabNavigator = (Config: {type route;}) => {
       let make =
           (
             ~label,
-            ~iconSource: option(Image.imageSource)=?,
-            ~activeIconSource: option(Image.imageSource)=?,
+            ~iconSource: option(Image.imageSource),
+            ~activeIconSource: option(Image.imageSource),
             ~isActive,
             _children,
           ) => {
@@ -97,25 +119,35 @@ module CreateTabNavigator = (Config: {type route;}) => {
         render: _self =>
           switch (label, iconSource, activeIconSource) {
           | (label, Some(iconSource), Some(activeIconSource)) =>
-            <View>
-              <Text style=(Styles.tabBarItemText(isActive))>
+            <View style=Styles.tabBarItem>
+              (
+                isActive ?
+                  <Image
+                    source=activeIconSource
+                    style=Styles.tabBarItemIcon
+                  /> :
+                  <Image source=iconSource style=Styles.tabBarItemIcon />
+              )
+              <Text style=(Styles.tabBarItemText(~isActive, ~textSize=Small))>
                 (ReasonReact.stringToElement(label))
               </Text>
             </View>
           | (label, Some(iconSource), None) =>
-            <View>
-              <Text style=(Styles.tabBarItemText(isActive))>
+            <View style=Styles.tabBarItem>
+              <Image source=iconSource style=Styles.tabBarItemIcon />
+              <Text style=(Styles.tabBarItemText(~isActive, ~textSize=Small))>
                 (ReasonReact.stringToElement(label))
               </Text>
             </View>
           | (label, None, Some(activeIconSource)) =>
-            <View>
-              <Text style=(Styles.tabBarItemText(isActive))>
+            <View style=Styles.tabBarItem>
+              <Image source=activeIconSource style=Styles.tabBarItemIcon />
+              <Text style=(Styles.tabBarItemText(~isActive, ~textSize=Small))>
                 (ReasonReact.stringToElement(label))
               </Text>
             </View>
           | (label, None, None) =>
-            <Text style=(Styles.tabBarItemText(isActive))>
+            <Text style=(Styles.tabBarItemText(~isActive, ~textSize=Regular))>
               (ReasonReact.stringToElement(label))
             </Text>
           },
@@ -131,12 +163,18 @@ module CreateTabNavigator = (Config: {type route;}) => {
               tabBarProps.screens
               |> Array.mapi((index, screen) => {
                    let isActive = tabBarProps.currentRoute === screen.route;
-                   <TouchableOpacity
+                   <TouchableWithoutFeedback
                      key=(string_of_int(index))
-                     style=Styles.tabBarItem
                      onPress=(_e => tabBarProps.jumpTo(screen.route))>
-                     <TabBarItem label=screen.label isActive />
-                   </TouchableOpacity>;
+                     <View style=Styles.tabBarItemContainer>
+                       <TabBarItem
+                         label=screen.label
+                         isActive
+                         iconSource=screen.iconSource
+                         activeIconSource=screen.activeIconSource
+                       />
+                     </View>
+                   </TouchableWithoutFeedback>;
                  })
               |> ReasonReact.arrayToElement
             )
@@ -147,7 +185,11 @@ module CreateTabNavigator = (Config: {type route;}) => {
     let make = (~initialRoute, ~routes, ~renderTabBar=?, children) => {
       ...component,
       initialState: () => {
-        screens: routes |> Array.map(route => {route, label: ""}),
+        screens:
+          routes
+          |> Array.map(route =>
+               {route, label: "", iconSource: None, activeIconSource: None}
+             ),
         currentRoute: initialRoute,
       },
       reducer: (action, state) =>
@@ -158,9 +200,14 @@ module CreateTabNavigator = (Config: {type route;}) => {
           } else {
             ReasonReact.NoUpdate;
           }
-        | SetOptions({label}, index) =>
+        | SetOptions({label, iconSource, activeIconSource}, index) =>
           let screens = Js.Array.copy(state.screens);
-          screens[index] = {...screens[index], label};
+          screens[index] = {
+            ...screens[index],
+            label,
+            iconSource,
+            activeIconSource,
+          };
           ReasonReact.Update({...state, screens});
         },
       render: self =>

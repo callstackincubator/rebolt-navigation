@@ -28,7 +28,19 @@ let make =
     (~navigation, ~stackNavigation: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <TabNavigator.Screen label="My Feed" navigation>
+    <TabNavigator.Screen
+      label="Today"
+      iconSource=(
+        URI(
+          Image.(
+            imageURISource(
+              ~uri="https://png.icons8.com/metro/1600/home.png",
+              (),
+            )
+          ),
+        )
+      )
+      navigation>
       ...(
            () =>
              <View style=Styles.container>

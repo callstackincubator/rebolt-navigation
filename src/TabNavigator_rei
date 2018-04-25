@@ -4,10 +4,16 @@ module CreateTabNavigator:
     module TabNavigator: {
       type currentRoute = Config.route;
       type jumpTo = Config.route => unit;
-      type options = {label: string};
+      type options = {
+        label: string,
+        iconSource: option(BsReactNative.Image.imageSource),
+        activeIconSource: option(BsReactNative.Image.imageSource),
+      };
       type screenConfig = {
         route: Config.route,
         label: string,
+        iconSource: option(BsReactNative.Image.imageSource),
+        activeIconSource: option(BsReactNative.Image.imageSource),
       };
       type screens = array(screenConfig);
       type navigation = {
@@ -50,6 +56,8 @@ module CreateTabNavigator:
           (
             ~navigation: navigation,
             ~label: string,
+            ~iconSource: BsReactNative.Image.imageSource=?,
+            ~activeIconSource: BsReactNative.Image.imageSource=?,
             unit => ReasonReact.reactElement
           ) =>
           ReasonReact.componentSpec(
@@ -75,8 +83,8 @@ module CreateTabNavigator:
         let make:
           (
             ~label: string,
-            ~iconSource: BsReactNative.Image.imageSource=?,
-            ~activeIconSource: BsReactNative.Image.imageSource=?,
+            ~iconSource: BsReactNative.Image.imageSource,
+            ~activeIconSource: BsReactNative.Image.imageSource,
             ~isActive: bool,
             'a
           ) =>
