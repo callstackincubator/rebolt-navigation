@@ -35,28 +35,32 @@ module Main = {
       | Rehydrate(state) =>
         ReasonReact.Update({persistedState: Some(state)})
       },
-    render: _self =>
-      <StackNavigator
-        initialState=[|Config.TabExample|]
-        onStateChange=(
-          state =>
-            AsyncStorage.setItem(
-              "$state",
-              state |> StackNavigator.Persistence.encode |> Js.Json.stringify,
-              (),
-            )
-            |> ignore
-        )>
-        ...(
-             (~currentRoute, ~navigation) =>
-               switch (currentRoute) {
-               | Config.TabExample => <TabExample navigation />
-               | Config.Home => <Home navigation />
-               | Config.Admin => <Admin navigation />
-               | _ => <TabExample navigation />
-               }
-           )
-      </StackNavigator>,
+    render: self =>
+      switch (self.state.persistedState) {
+      | Some(state) =>
+        <StackNavigator
+          initialState=state
+          onStateChange=(
+            state =>
+              AsyncStorage.setItem(
+                "$state",
+                state |> StackNavigator.Persistence.encode |> Js.Json.stringify,
+                (),
+              )
+              |> ignore
+          )>
+          ...(
+               (~currentRoute, ~navigation) =>
+                 switch (currentRoute) {
+                 | Config.TabExample => <TabExample navigation />
+                 | Config.Home => <Home navigation />
+                 | Config.Admin => <Admin navigation />
+                 | _ => <TabExample navigation />
+                 }
+             )
+        </StackNavigator>
+      | None => <View />
+      },
   };
 };
 
