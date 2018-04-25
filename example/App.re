@@ -1,21 +1,66 @@
 open Navigation;
 
+open BsReactNative;
+
 module Main = {
-  let component = ReasonReact.statelessComponent("App");
+  type state = {persistedState: option(StackNavigator.persistedState)};
+  type action =
+    | Rehydrate(StackNavigator.persistedState);
+  let component = ReasonReact.reducerComponent("Main");
   let make = _children => {
     ...component,
-    render: _self =>
-      <StackNavigator initialRoute=Config.TabExample>
-        ...(
-             (~currentRoute, ~navigation) =>
-               switch (currentRoute) {
-               | Config.TabExample => <TabExample navigation />
-               | Config.Home => <Home navigation />
-               | Config.Admin => <Admin navigation />
-               | _ => <TabExample navigation />
-               }
-           )
-      </StackNavigator>,
+    initialState: () => {persistedState: None},
+    didMount: self => {
+      AsyncStorage.getItem(
+        "$state",
+        ~callback=
+          (_, value) =>
+            self.send(
+              Rehydrate(
+                switch (value) {
+                | Some(state) =>
+                  state
+                  |> Js.Json.parseExn
+                  |> StackNavigator.Persistence.decode
+                | None => [|Config.TabExample|]
+                },
+              ),
+            ),
+        (),
+      );
+      ReasonReact.NoUpdate;
+    },
+    reducer: (action, state) =>
+      switch (action) {
+      | Rehydrate(state) =>
+        ReasonReact.Update({persistedState: Some(state)})
+      },
+    render: self =>
+      switch (self.state.persistedState) {
+      | Some(state) =>
+        <StackNavigator
+          initialState=state
+          onStateChange=(
+            state =>
+              AsyncStorage.setItem(
+                "$state",
+                state |> StackNavigator.Persistence.encode |> Js.Json.stringify,
+                (),
+              )
+              |> ignore
+          )>
+          ...(
+               (~currentRoute, ~navigation) =>
+                 switch (currentRoute) {
+                 | Config.TabExample => <TabExample navigation />
+                 | Config.Home => <Home navigation />
+                 | Config.Admin => <Admin navigation />
+                 | _ => <TabExample navigation />
+                 }
+             )
+        </StackNavigator>
+      | None => <View />
+      },
   };
 };
 

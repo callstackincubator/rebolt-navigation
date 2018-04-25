@@ -2,9 +2,14 @@ module CreateStackNavigator:
   (Config: {type route;}) =>
   {
     module StackNavigator: {
+      module Persistence: {
+        let encode: array(Config.route) => Js.Json.t;
+        let decode: Js.Json.t => array(Config.route);
+      };
       type state;
       type options;
       type action;
+      type persistedState = array(Config.route);
       type headerMode;
       type navigation = {
         push: Config.route => unit,
@@ -13,7 +18,8 @@ module CreateStackNavigator:
       };
       let make:
         (
-          ~initialRoute: Config.route,
+          ~initialState: persistedState,
+          ~onStateChange: persistedState => unit=?,
           ~headerComponent: (~headerProps: Header.props, array('a)) =>
                             ReasonReact.component(
                               ReasonReact.stateless,
