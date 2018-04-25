@@ -78,17 +78,20 @@ module TouchableNativeFeedback = {
  */
 module TouchableItem = {
   let component = ReasonReact.statelessComponent("TouchableItem");
-  let make = (~pressColor=?, ~onPress=() => (), ~borderless=?, children) => {
+  let make =
+      (
+        ~pressColor="rgba(0, 0, 0, .32)",
+        ~onPress=() => (),
+        ~borderless=true,
+        children,
+      ) => {
     ...component,
     render: _self =>
       Platform.version() >= 21 && Platform.os() == Platform.Android ?
         <TouchableNativeFeedback
           onPress
           background=(
-            TouchableNativeFeedback.Background.ripple(
-              pressColor |> Js.Option.getWithDefault("rgba(0, 0, 0, .32)"),
-              borderless |> Js.Option.getWithDefault(true),
-            )
+            TouchableNativeFeedback.Background.ripple(pressColor, borderless)
           )>
           ...children
         </TouchableNativeFeedback> :
