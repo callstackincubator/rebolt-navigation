@@ -29,20 +29,36 @@ module Styles = {
       left(Pt(0.0)),
       right(Pt(0.0)),
       bottom(Pt(0.0)),
-      borderTopWidth(1.),
-      borderTopColor(String("#d7d7d7")),
+      borderTopWidth(StyleSheet.hairlineWidth),
+      borderTopColor(String("rgba(0, 0, 0, 0.3)")),
     ]);
   let tabBarItem =
-    style([flex(1.), justifyContent(Center), alignItems(Center)]);
+    style([
+      flex(1.),
+      justifyContent(Center),
+      alignItems(
+        switch (Platform.os()) {
+        | Platform.Android => Stretch
+        | _ => Center
+        },
+      ),
+    ]);
   let tabBarItemText = isActive =>
-    style([color(String(isActive ? "#2180f7" : "#8c8c8c"))]);
+    style([
+      color(String(isActive ? "#2180f7" : "#8c8c8c")),
+      fontSize(Float(13.)),
+    ]);
 };
 
 module CreateTabNavigator = (Config: {type route;}) => {
   module TabNavigator = {
     type currentRoute = Config.route;
     type jumpTo = Config.route => unit;
-    type options = {label: string};
+    type options = {
+      label: string,
+      iconSource: option(Image.imageSource)=?,
+      activeIconSource: option(Image.imageSource)=?,
+    };
     type screenConfig = {
       route: Config.route,
       label: string,
@@ -69,12 +85,40 @@ module CreateTabNavigator = (Config: {type route;}) => {
     };
     module TabBarItem = {
       let component = ReasonReact.statelessComponent("TabBarItem");
-      let make = (~label, ~isActive, _children) => {
+      let make =
+          (
+            ~label,
+            ~iconSource: option(Image.imageSource)=?,
+            ~activeIconSource: option(Image.imageSource)=?,
+            ~isActive,
+            _children,
+          ) => {
         ...component,
         render: _self =>
-          <Text style=(Styles.tabBarItemText(isActive))>
-            (ReasonReact.stringToElement(label))
-          </Text>,
+          switch (label, iconSource, activeIconSource) {
+          | (label, Some(iconSource), Some(activeIconSource)) =>
+            <View>
+              <Text style=(Styles.tabBarItemText(isActive))>
+                (ReasonReact.stringToElement(label))
+              </Text>
+            </View>
+          | (label, Some(iconSource), None) =>
+            <View>
+              <Text style=(Styles.tabBarItemText(isActive))>
+                (ReasonReact.stringToElement(label))
+              </Text>
+            </View>
+          | (label, None, Some(activeIconSource)) =>
+            <View>
+              <Text style=(Styles.tabBarItemText(isActive))>
+                (ReasonReact.stringToElement(label))
+              </Text>
+            </View>
+          | (label, None, None) =>
+            <Text style=(Styles.tabBarItemText(isActive))>
+              (ReasonReact.stringToElement(label))
+            </Text>
+          },
       };
     };
     module TabBar = {
@@ -169,10 +213,17 @@ module CreateTabNavigator = (Config: {type route;}) => {
     };
     module Screen = {
       let component = ReasonReact.statelessComponent("Screen");
-      let make = (~navigation, ~label, children) => {
+      let make =
+          (
+            ~navigation,
+            ~label,
+            ~iconSource: option(Image.imageSource)=?,
+            ~activeIconSource: option(Image.imageSource)=?,
+            children,
+          ) => {
         ...component,
         didMount: _self => {
-          navigation.setOptions({label: label});
+          navigation.setOptions({label, iconSource, activeIconSource});
           ReasonReact.NoUpdate;
         },
         render: _self =>

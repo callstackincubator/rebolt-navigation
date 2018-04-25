@@ -73,7 +73,13 @@ module CreateTabNavigator:
       };
       module TabBarItem: {
         let make:
-          (~label: string, ~isActive: bool, 'a) =>
+          (
+            ~label: string,
+            ~iconSource: BsReactNative.Image.imageSource=?,
+            ~activeIconSource: BsReactNative.Image.imageSource=?,
+            ~isActive: bool,
+            'a
+          ) =>
           ReasonReact.componentSpec(
             ReasonReact.stateless,
             ReasonReact.stateless,

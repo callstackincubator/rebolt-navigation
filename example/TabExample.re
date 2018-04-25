@@ -10,8 +10,7 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
            () =>
              <TabNavigator
                initialRoute=Config.Feed
-               routes=[|Config.Feed, Config.Likes, Config.About|]
-               renderTabBar=((~tabBarProps) => <CustomTabBar tabBarProps />)>
+               routes=[|Config.Feed, Config.Likes, Config.About|]>
                ...(
                     (~navigation) =>
                       switch (navigation.currentRoute) {
