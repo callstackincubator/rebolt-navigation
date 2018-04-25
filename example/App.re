@@ -1,5 +1,7 @@
 open Navigation;
 
+open BsReactNative;
+
 module Main = {
   let component = ReasonReact.statelessComponent("App");
   let make = _children => {
@@ -8,10 +10,13 @@ module Main = {
       <StackNavigator
         initialState=[|Config.TabExample|]
         onStateChange=(
-          state => {
-            Js.log(state);
-            ();
-          }
+          state =>
+            AsyncStorage.setItem(
+              "$state",
+              state |> StackNavigator.Persistence.encode |> Js.Json.stringify,
+              (),
+            )
+            |> ignore
         )>
         ...(
              (~currentRoute, ~navigation) =>
