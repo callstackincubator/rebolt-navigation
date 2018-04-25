@@ -27,7 +27,6 @@ module Styles = {
 
 module CreateStackNavigator = (Config: {type route;}) => {
   module StackNavigator = {
-    include Persistence.CreatePersistence(Config);
     module Animation = Animation;
     type screenConfig = {
       route: Config.route,
@@ -47,6 +46,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
       pendingTransition: option(pendingTransition),
       activeScreen: int,
     };
+    type persistedState = array(Config.route);
     type options = {
       header: Header.config,
       animation: option(Animation.t),
@@ -66,6 +66,12 @@ module CreateStackNavigator = (Config: {type route;}) => {
       pop: unit => unit,
     };
     let headerAnimatedValue = Animated.Value.create(0.0);
+    include
+      Persistence.CreatePersistence(
+        {
+          type state = persistedState;
+        },
+      );
     /**
      * Gestures
      */
@@ -241,7 +247,8 @@ module CreateStackNavigator = (Config: {type route;}) => {
     let component = ReasonReact.reducerComponent("StackNavigator");
     let make =
         (
-          ~initialRoute,
+          ~initialState,
+          ~onStateChange=_state => (),
           ~headerComponent=switch (Platform.os()) {
                            | Platform.Android => Header.Android.make
                            | _ => Header.IOS.make
@@ -255,18 +262,20 @@ module CreateStackNavigator = (Config: {type route;}) => {
       ...component,
       initialState: () => {
         pendingTransition: None,
-        screens: [|
-          {
-            route: initialRoute,
-            header: Header.default,
-            animation: Animation.default,
-            key: UUID.generate(),
-            animatedValue: Animated.Value.create(0.0),
-            style: Styles.card,
-            didMount: false,
-          },
-        |],
-        activeScreen: 0,
+        screens:
+          initialState
+          |> Array.map(route =>
+               {
+                 route,
+                 header: Header.default,
+                 animation: Animation.default,
+                 key: UUID.generate(),
+                 animatedValue: Animated.Value.create(0.0),
+                 style: Styles.card,
+                 didMount: false,
+               }
+             ),
+        activeScreen: Array.length(initialState) - 1,
       },
       /***
        * Begin animating two states as soon as the index changes.
@@ -275,6 +284,9 @@ module CreateStackNavigator = (Config: {type route;}) => {
        * until that happens.
        */
       didUpdate: ({oldSelf, newSelf: self}) => {
+        onStateChange(
+          self.state.screens |> Array.map(screen => screen.route),
+        );
         /**
          * If there is pending transition and the active screen did mount, execute the animation.
          */

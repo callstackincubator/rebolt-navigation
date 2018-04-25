@@ -1,6 +1,6 @@
-module CreatePersistence = (Config: {type route;}) => {
+module CreatePersistence = (Config: {type state;}) => {
   module Persistence = {
-    let encode: array(Config.route) => Js.Json.t = [%bs.raw
+    let encode: Config.state => Js.Json.t = [%bs.raw
       {|
       (function(obj) {
         var data = JSON.stringify(obj, function (key, value) {
@@ -18,7 +18,7 @@ module CreatePersistence = (Config: {type route;}) => {
       })
     |}
     ];
-    let decode: Js.Json.t => array(Config.route) = [%bs.raw
+    let decode: Js.Json.t => Config.state = [%bs.raw
       {|
       (function(result) {
         if(result && typeof(result) === 'object' && result.type === 'wevent') {

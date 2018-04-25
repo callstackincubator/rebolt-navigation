@@ -5,7 +5,14 @@ module Main = {
   let make = _children => {
     ...component,
     render: _self =>
-      <StackNavigator initialRoute=Config.TabExample>
+      <StackNavigator
+        initialState=[|Config.TabExample|]
+        onStateChange=(
+          state => {
+            Js.log(state);
+            ();
+          }
+        )>
         ...(
              (~currentRoute, ~navigation) =>
                switch (currentRoute) {
