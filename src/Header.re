@@ -259,23 +259,27 @@ module IOSImpl = {
           />
           <View style=Styles.iconMaskFillerRect />
         </View>;
-      let renderLeft = ({screens, animatedValue, activeScreen as idx}) =>
+      let renderLeft = ({screens, animatedValue, activeScreen as idx}) => {
+        let scr = screens[idx];
         <Animated.View
           style=Style.(
                   concat([
                     Styles.left,
-                    animatedValue
-                    |> screens[idx].animation.forHeaderLeft({idx: idx}),
+                    animatedValue |> scr.animation.forHeaderLeft({idx: idx}),
                   ])
                 )>
           (
             idx === 0 ?
               <View /> :
-              <TouchableOpacity onPress=(_e => pop(screens[idx].key))>
+              <TouchableOpacity onPress=(_e => pop(scr.key))>
                 <View
                   onLayout=(
+                    /**
+                     * We are interested in measuring the left container
+                     * only once to prevent infinite loops.
+                     */
                     StringMap.exists(
-                      (key, _val: float) => screens[idx].key == key,
+                      (key, _val: float) => scr.key == key,
                       self.state.leftWidths,
                     ) ?
                       e_ => () :
@@ -283,7 +287,7 @@ module IOSImpl = {
                         e =>
                           self.send(
                             SetLeftWidth(
-                              screens[idx].key,
+                              scr.key,
                               RNEvent.NativeLayoutEvent.layout(e).width,
                             ),
                           )
@@ -293,15 +297,11 @@ module IOSImpl = {
                   <Animated.View
                     style=(
                       animatedValue
-                      |> screens[idx].animation.forHeaderLeftButton({
-                           idx: idx,
-                         })
+                      |> scr.animation.forHeaderLeftButton({idx: idx})
                     )>
                     <Image
                       style=(
-                        Styles.leftIcon(
-                          Js.Option.isSome(screens[idx].header.title),
-                        )
+                        Styles.leftIcon(Js.Option.isSome(scr.header.title))
                       )
                       source=(
                         Required(
@@ -313,46 +313,43 @@ module IOSImpl = {
                     />
                   </Animated.View>
                   (
-                    switch (screens[idx - 1].header.title) {
+                    switch (scr.header.title) {
                     | None => <View />
                     | Some(title) =>
                       <Animated.View
                         style=(
                           animatedValue
-                          |> screens[idx].animation.forHeaderLeftLabel({
-                               idx: idx,
-                             })
+                          |> scr.animation.forHeaderLeftLabel({idx: idx})
                         )>
                         <Text style=Styles.leftTitle numberOfLines=1>
                           {
-                            let title =
-                              Js.Option.getWithDefault(
-                                "",
-                                screens[idx].header.title,
-                              );
+                            let defaultTitle =
+                              Js.Option.getWithDefault("", scr.header.title);
                             ReasonReact.stringToElement(
-                              try (
-                                {
-                                  let lw =
-                                    StringMap.find(
-                                      screens[idx].key,
-                                      self.state.leftWidths,
-                                    );
-                                  let tw =
-                                    StringMap.find(
-                                      screens[idx].key,
-                                      self.state.titleWidths,
-                                    );
-                                  let ww =
-                                    float_of_int(
-                                      Dimensions.get(`window)##width,
-                                    );
-                                  lw +. 20.0 >= (ww -. tw) /. 2.0 ?
-                                    "Back" : title;
+                              /**
+                               * Measure the space left for the back button and decide
+                               * whether to print "Back" or the original back button,
+                               * which is title of the previous scene.
+                               */
+                              (
+                                try (
+                                  {
+                                    let lw =
+                                      self.state.leftWidths
+                                      |> StringMap.find(scr.key);
+                                    let tw =
+                                      self.state.titleWidths
+                                      |> StringMap.find(scr.key);
+                                    let ww =
+                                      Dimensions.get(`window)##width
+                                      |> float_of_int;
+                                    lw +. 20.0 >= (ww -. tw) /. 2.0 ?
+                                      "Back" : defaultTitle;
+                                  }
+                                ) {
+                                | Not_found => defaultTitle
                                 }
-                              ) {
-                              | Not_found => title
-                              },
+                              ),
                             );
                           }
                         </Text>
@@ -363,6 +360,7 @@ module IOSImpl = {
               </TouchableOpacity>
           )
         </Animated.View>;
+      };
       let renderTitle = ({screens, animatedValue, activeScreen as idx}) =>
         <Animated.View
           style=(
