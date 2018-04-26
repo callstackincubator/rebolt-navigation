@@ -237,8 +237,8 @@ module IOSImpl = {
        * gesture progress. When user starts moving its finger
        * on initial screen, this value can get negative. We do the
        * following interpolation to guard against such invalid state.
-       * 
-       * Note: Animated seems to be not working properly when inputRange 
+       *
+       * Note: Animated seems to be not working properly when inputRange
        * starts and ends with the same number (0, 0). This can happen
        * when there's only a single route on the stack. To prevent that,
        * we make it lastIndex + 1.
@@ -426,8 +426,9 @@ module IOSImpl = {
                      ),
                    activeScreen: idx,
                  };
-                 if (lastIdx - idx > 2) {
-                   <View />;
+                 /* Render a header for two last routes to improve performance */
+                 if (lastIdx - idx > 1) {
+                   <View key=(string_of_int(idx)) />;
                  } else {
                    <MaskedView
                      key=(string_of_int(idx))
