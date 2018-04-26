@@ -238,7 +238,7 @@ module IOSImpl = {
        * on initial screen, this value can get negative. We do the
        * following interpolation to guard against such invalid state.
        */
-      let upperBound = float_of_int(Array.length(screens));
+      let upperBound = float_of_int(Array.length(screens) - 1);
       let anim =
         AnimatedUtils.interpolate(
           anim,
@@ -420,27 +420,37 @@ module IOSImpl = {
                      ),
                    activeScreen: idx,
                  };
-                 <MaskedView
-                   key=(string_of_int(idx))
-                   maskElement=mask
-                   style=Styles.fill
-                   pointerEvents=(activeScreen == idx ? "box-none" : "none")>
-                   (
-                     (screen.header.renderLeft |> getWithDefault(renderLeft))(
-                       props,
+                 if (upperBound - idx > 2) {
+                   <View />;
+                 } else {
+                   <MaskedView
+                     key=(string_of_int(idx))
+                     maskElement=mask
+                     style=Styles.fill
+                     pointerEvents=(activeScreen == idx ? "box-none" : "none")>
+                     (
+                       (screen.header.renderLeft |> getWithDefault(renderLeft))(
+                         props,
+                       )
                      )
-                   )
-                   (
-                     (screen.header.renderTitle |> getWithDefault(renderTitle))(
-                       props,
+                     (
+                       (
+                         screen.header.renderTitle
+                         |> getWithDefault(renderTitle)
+                       )(
+                         props,
+                       )
                      )
-                   )
-                   (
-                     (screen.header.renderRight |> getWithDefault(renderRight))(
-                       props,
+                     (
+                       (
+                         screen.header.renderRight
+                         |> getWithDefault(renderRight)
+                       )(
+                         props,
+                       )
                      )
-                   )
-                 </MaskedView>;
+                   </MaskedView>;
+                 };
                })
             |> ReasonReact.arrayToElement
           )
