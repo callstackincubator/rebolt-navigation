@@ -1,3 +1,7 @@
+type mode =
+  | Big
+  | Normal;
+
 /** Header configuration object */
 type config = {
   title: option(string),
@@ -5,6 +9,7 @@ type config = {
   renderTitle: option(returnsComponent),
   renderLeft: option(returnsComponent),
   renderRight: option(returnsComponent),
+  mode,
 }
 /** Getter for parts of the header */
 and returnsComponent = props => ReasonReact.reactElement

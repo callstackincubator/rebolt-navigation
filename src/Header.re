@@ -1,11 +1,16 @@
 open BsReactNative;
 
+type mode =
+  | Big
+  | Normal;
+
 type config = {
   title: option(string),
   style: option(BsReactNative.Style.t),
   renderTitle: option(returnsComponent),
   renderLeft: option(returnsComponent),
   renderRight: option(returnsComponent),
+  mode,
 }
 and returnsComponent = props => ReasonReact.reactElement
 and screen = {
@@ -26,6 +31,7 @@ let default = {
   renderTitle: None,
   renderLeft: None,
   renderRight: None,
+  mode: Normal,
 };
 
 /**

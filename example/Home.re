@@ -8,7 +8,7 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
     <StackNavigator.Screen
-      headerTitle="Home" navigation=nav>
+      headerTitle="Home" headerMode=Header.Big navigation=nav>
       ...(
            () =>
              <View>
