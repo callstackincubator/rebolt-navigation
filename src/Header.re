@@ -265,7 +265,7 @@ module IOSImpl = {
           style=Style.(
                   concat([
                     Styles.left,
-                    animatedValue |> scr.animation.forHeaderLeft({idx: idx}),
+                    animatedValue |> scr.animation.forHeaderLeft,
                   ])
                 )>
           (
@@ -293,10 +293,7 @@ module IOSImpl = {
                   )
                   style=Styles.leftContainer>
                   <Animated.View
-                    style=(
-                      animatedValue
-                      |> scr.animation.forHeaderLeftButton({idx: idx})
-                    )>
+                    style=(animatedValue |> scr.animation.forHeaderLeftButton)>
                     <Image
                       style=(
                         Styles.leftIcon(Js.Option.isSome(scr.header.title))
@@ -316,8 +313,7 @@ module IOSImpl = {
                     | Some(backTitle) =>
                       <Animated.View
                         style=(
-                          animatedValue
-                          |> scr.animation.forHeaderLeftLabel({idx: idx})
+                          animatedValue |> scr.animation.forHeaderLeftLabel
                         )>
                         <Text
                           style=Style.(
@@ -379,8 +375,7 @@ module IOSImpl = {
           style=(
             Style.concat([
               Styles.center,
-              animatedValue
-              |> screens[idx].animation.forHeaderCenter({idx: idx}),
+              animatedValue |> screens[idx].animation.forHeaderCenter,
             ])
           )>
           <Text
@@ -407,8 +402,7 @@ module IOSImpl = {
           style=(
             Style.concat([
               Styles.right,
-              animatedValue
-              |> screens[idx].animation.forHeaderRight({idx: idx}),
+              animatedValue |> screens[idx].animation.forHeaderRight,
             ])
           )
         />;
@@ -419,7 +413,11 @@ module IOSImpl = {
             |> Array.mapi((idx: int, screen) => {
                  let props = {
                    ...props,
-                   animatedValue: anim,
+                   animatedValue:
+                     Animated.Value.add(
+                       anim,
+                       Animated.Value.create(-. float_of_int(idx)),
+                     ),
                    activeScreen: idx,
                  };
                  <MaskedView

@@ -488,9 +488,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                            Gestures.animatedProgress,
                            screen.animatedValue,
                          )
-                         |> getAnimation(idx, self.state.screens).forCard({
-                              idx: idx,
-                            });
+                         |> getAnimation(idx, self.state.screens).forCard;
                        };
                      <Animated.View
                        key=screen.key

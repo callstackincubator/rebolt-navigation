@@ -1,8 +1,6 @@
 open BsReactNative;
 
-type options = {idx: int};
-
-type interpolator = (options, Animated.Value.t) => Style.t;
+type interpolator = Animated.Value.t => Style.t;
 
 type t = {
   func:
@@ -44,7 +42,7 @@ let slideHorizontal = {
       ~useNativeDriver=Js.Boolean.to_js_boolean(true),
       (),
     ),
-  forCard: (_options, value) => {
+  forCard: value => {
     let screenWidth = float(Dimensions.get(`window)##width);
     Style.(
       style([
@@ -71,25 +69,15 @@ let slideHorizontal = {
       ])
     );
   },
-  forHeaderCenter: ({idx}, value) => {
+  forHeaderCenter: value => {
     let offset = float_of_int(Dimensions.get(`window)##width / 2 - 70 + 25);
-    let index = float_of_int(idx);
-    let (first, last) = (index -. 1.0, index +. 1.0);
     Style.(
       style([
         opacity(
           Interpolated(
             Animated.Value.interpolate(
               value,
-              ~inputRange=[
-                first,
-                first +. 0.001,
-                index -. 0.5,
-                index,
-                index +. 0.7,
-                last -. 0.001,
-                last,
-              ],
+              ~inputRange=[(-1.0), (-0.999), (-0.5), 0.0, 0.7, 0.999, 1.0],
               ~outputRange=`float([0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
               (),
             ),
@@ -99,7 +87,7 @@ let slideHorizontal = {
           ~translateX=
             Animated.Value.interpolate(
               value,
-              ~inputRange=[first, first +. 0.001, index, last -. 0.001, last],
+              ~inputRange=[(-1.0), (-0.99), 0.0, 0.99, 1.0],
               ~outputRange=
                 `float([offset, offset, 0.0, -. offset, -. offset]),
               (),
@@ -110,52 +98,31 @@ let slideHorizontal = {
     );
   },
   /*** Not used on iOS */
-  forHeaderLeft: (_opts, _value) => Style.style([]),
-  forHeaderLeftButton: ({idx}, value) => {
-    let index = float_of_int(idx);
-    let (first, last) = (index -. 1.0, index +. 1.0);
+  forHeaderLeft: _value => Style.style([]),
+  forHeaderLeftButton: value =>
     Style.(
       style([
         opacity(
           Interpolated(
             Animated.Value.interpolate(
               value,
-              ~inputRange=[
-                first,
-                first +. 0.001,
-                first +. 0.5,
-                index,
-                last -. 0.5,
-                last -. 0.001,
-                last,
-              ],
+              ~inputRange=[(-1.0), (-0.999), (-0.5), 0.0, 0.5, 0.999, 1.0],
               ~outputRange=`float([0.0, 0.0, 0.7, 1.0, 0.7, 0.0, 0.0]),
               (),
             ),
           ),
         ),
       ])
-    );
-  },
-  forHeaderLeftLabel: ({idx}, value) => {
+    ),
+  forHeaderLeftLabel: value => {
     let offset = float_of_int(Dimensions.get(`window)##width / 2 - 70 + 25);
-    let index = float_of_int(idx);
-    let (first, last) = (index -. 1.0, index +. 1.0);
     Style.(
       style([
         opacity(
           Interpolated(
             Animated.Value.interpolate(
               value,
-              ~inputRange=[
-                first,
-                first +. 0.001,
-                index -. 0.35,
-                index,
-                index +. 0.5,
-                last -. 0.001,
-                last,
-              ],
+              ~inputRange=[(-1.0), (-0.999), (-0.35), 0.0, 0.5, 0.999, 1.0],
               ~outputRange=`float([0.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.0]),
               (),
             ),
@@ -165,7 +132,7 @@ let slideHorizontal = {
           ~translateX=
             Animated.Value.interpolate(
               value,
-              ~inputRange=[first, first +. 0.001, index, last -. 0.001, last],
+              ~inputRange=[(-1.0), (-0.999), 0.0, 0.999, 1.0],
               ~outputRange=
                 `float([
                   offset,
@@ -181,19 +148,14 @@ let slideHorizontal = {
       ])
     );
   },
-  forHeaderRight: ({idx}, value) => {
-    let index = float_of_int(idx);
+  forHeaderRight: value =>
     Style.(
       style([
         opacity(
-          Interpolated(
-            value
-            |> crossFadeInterpolation([index -. 1.0, index, index +. 1.0]),
-          ),
+          Interpolated(value |> crossFadeInterpolation([(-1.0), 0.0, 1.0])),
         ),
       ])
-    );
-  },
+    ),
 };
 
 let fadeVertical = {
@@ -204,7 +166,7 @@ let fadeVertical = {
       ~useNativeDriver=Js.Boolean.to_js_boolean(true),
       (),
     ),
-  forCard: (_, value) =>
+  forCard: value =>
     Style.(
       style([
         opacity(
@@ -229,11 +191,11 @@ let fadeVertical = {
         ),
       ])
     ),
-  forHeaderCenter: (_, _) => Style.style([]),
-  forHeaderLeft: (_, _) => Style.style([]),
-  forHeaderLeftLabel: (_, _) => Style.style([]),
-  forHeaderLeftButton: (_, _) => Style.style([]),
-  forHeaderRight: (_, _) => Style.style([]),
+  forHeaderCenter: (_) => Style.style([]),
+  forHeaderLeft: (_) => Style.style([]),
+  forHeaderLeftLabel: (_) => Style.style([]),
+  forHeaderLeftButton: (_) => Style.style([]),
+  forHeaderRight: (_) => Style.style([]),
 };
 
 let default =
