@@ -427,8 +427,8 @@ module IOSImpl = {
                    activeScreen: idx,
                  };
                  /* Render a header for two last routes to improve performance */
-                 if (lastIdx - idx > 1) {
-                   <View key=(string_of_int(idx)) />;
+                 if (lastIdx - idx > 2) {
+                   ReasonReact.nullElement;
                  } else {
                    <MaskedView
                      key=(string_of_int(idx))
