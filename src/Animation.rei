@@ -1,10 +1,7 @@
-type options = {idx: int};
-
 /**
  * Interpolates style
  */
-type interpolator =
-  (options, BsReactNative.Animated.Value.t) => BsReactNative.Style.t;
+type interpolator = BsReactNative.Animated.Value.t => BsReactNative.Style.t;
 
 /**
  * Animation type
@@ -37,6 +34,7 @@ type t = {
  * Slide in/out animation modelled after iOS platform interactions
  */
 let slideHorizontal: t;
+
 let fadeVertical: t;
 
 /**
