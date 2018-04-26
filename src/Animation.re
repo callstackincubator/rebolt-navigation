@@ -71,6 +71,7 @@ let slideHorizontal = {
       ])
     );
   },
+  /*** Not used on Android */
   forHeaderCenter: ({idx}, value) => {
     let offset = float_of_int(Dimensions.get(`window)##width / 2 - 70 + 25);
     let index = float_of_int(idx);
@@ -109,7 +110,6 @@ let slideHorizontal = {
       ])
     );
   },
-  /*** Not used on iOS */
   forHeaderLeft: (_opts, _value) => Style.style([]),
   forHeaderLeftButton: ({idx}, value) => {
     let index = float_of_int(idx);

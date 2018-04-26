@@ -252,10 +252,6 @@ module CreateStackNavigator = (Config: {type route;}) => {
                            | Platform.Android => Header.Android.make
                            | _ => Header.IOS.make
                            },
-          ~headerMode=switch (Platform.os()) {
-                      | Platform.Android => Screen
-                      | _ => Floating
-                      },
           children,
         ) => {
       ...component,
@@ -432,6 +428,11 @@ module CreateStackNavigator = (Config: {type route;}) => {
       render: self => {
         let size = Array.length(self.state.screens);
         let screenWidth = Dimensions.get(`window)##width;
+        let headerMode =
+          switch (Platform.os()) {
+          | Platform.Android => Screen
+          | _ => Floating
+          };
         /**
          * Animation for a screen is always defined by the one that is after it.
          */
@@ -541,6 +542,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
             ~style=?,
             ~headerTitle=?,
             ~headerStyle=?,
+            ~headerMode=Header.Normal,
             ~renderHeaderTitle=?,
             ~renderHeaderLeft=?,
             ~renderHeaderRight=?,
@@ -553,6 +555,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
             header: {
               title: headerTitle,
               style: headerStyle,
+              mode: headerMode,
               renderTitle: renderHeaderTitle,
               renderLeft: renderHeaderLeft,
               renderRight: renderHeaderRight,

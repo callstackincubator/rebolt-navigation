@@ -10,7 +10,6 @@ module CreateStackNavigator:
       type options;
       type action;
       type persistedState = array(Config.route);
-      type headerMode;
       type navigation = {
         push: Config.route => unit,
         setOptions: options => unit,
@@ -27,7 +26,6 @@ module CreateStackNavigator:
                               ReasonReact.actionless,
                             )
                               =?,
-          ~headerMode: headerMode=?,
           (~currentRoute: Config.route, ~navigation: navigation) =>
           ReasonReact.reactElement
         ) =>
@@ -46,6 +44,7 @@ module CreateStackNavigator:
             ~style: BsReactNative.Style.t=?,
             ~headerTitle: string=?,
             ~headerStyle: BsReactNative.Style.t=?,
+            ~headerMode: Header.mode=?,
             ~renderHeaderTitle: Header.returnsComponent=?,
             ~renderHeaderLeft: Header.returnsComponent=?,
             ~renderHeaderRight: Header.returnsComponent=?,
