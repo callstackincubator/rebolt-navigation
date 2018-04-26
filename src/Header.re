@@ -99,7 +99,7 @@ module TouchableItem = {
   };
 };
 
-module IOS = {
+module IOSImpl = {
   module Styles = {
     open Style;
     module Constants = {
@@ -193,10 +193,21 @@ module IOS = {
         alignItems(Center),
       ]);
   };
-  let component = ReasonReact.statelessComponent("FloatingHeader");
+  type state = {widths: Utils.IntMap.t(float)};
+  type action =
+    | SetWidth(int, float);
+  let component = ReasonReact.reducerComponent("FloatingHeader");
   let make = (~headerProps as props: props, _children) => {
     ...component,
-    render: _self => {
+    initialState: () => {widths: Utils.IntMap.empty},
+    reducer: (action, state) =>
+      switch (action) {
+      | SetWidth(idx, width) =>
+        ReasonReact.Update({
+          widths: state.widths |> Utils.IntMap.add(idx, width)
+        })
+      },
+    render: self => {
       let {screens, activeScreen, animatedValue as anim, pop} = props;
       /**
        * The animated value passed to Header is screen index -
@@ -291,7 +302,15 @@ module IOS = {
               |> screens[idx].animation.forHeaderCenter({idx: idx}),
             ])
           )>
-          <Text style=Styles.headerTitle numberOfLines=1>
+          <Text
+            onLayout=(
+              e =>
+                self.send(
+                  SetWidth(idx, RNEvent.NativeLayoutEvent.layout(e).width),
+                )
+            )
+            style=Styles.headerTitle
+            numberOfLines=1>
             (
               ReasonReact.stringToElement(
                 Js.Option.getWithDefault("", screens[idx].header.title),
@@ -346,6 +365,14 @@ module IOS = {
         </View>
       </SafeAreaView>;
     },
+  };
+};
+
+module IOS = {
+  let component = ReasonReact.statelessComponent("IOSHeader");
+  let make = (~headerProps as p: props, _children) => {
+    ...component,
+    render: _self => <IOSImpl headerProps=p />,
   };
 };
 

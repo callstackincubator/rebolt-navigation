@@ -16,16 +16,23 @@ module UUID = {
  * Some common Array operations used within ReRoute extracted to one place
  */
 module ReArray = {
+  let set = (el, idx, arr) => {
+    let copied = Js.Array.copy(arr);
+    copied[idx] = el;
+    copied;
+  };
   let append = (el, idx, arr) => {
     let copied = Js.Array.copy(arr);
-    let _ignored =
-      copied |> Js.Array.spliceInPlace(~pos=idx, ~remove=0, ~add=[|el|]);
+    copied
+    |> Js.Array.spliceInPlace(~pos=idx, ~remove=0, ~add=[|el|])
+    |> ignore;
     copied;
   };
   let remove = (idx, arr) => {
     let copied = Js.Array.copy(arr);
-    let _ignored =
-      copied |> Js.Array.spliceInPlace(~pos=idx, ~remove=idx, ~add=[||]);
+    copied
+    |> Js.Array.spliceInPlace(~pos=idx, ~remove=idx, ~add=[||])
+    |> ignore;
     copied;
   };
 };
@@ -35,3 +42,8 @@ let option_map = (fn, opt_value) =>
   | None => None
   | Some(value) => Some(fn(value))
   };
+
+module IntMap = Map.Make({
+  type t = int;
+  let compare = compare;
+});
