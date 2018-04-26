@@ -238,7 +238,7 @@ module IOSImpl = {
        * on initial screen, this value can get negative. We do the
        * following interpolation to guard against such invalid state.
        */
-      let upperBound = float_of_int(Array.length(screens) - 1);
+      let upperBound = float_of_int(Array.length(screens));
       let anim =
         AnimatedUtils.interpolate(
           anim,
@@ -406,6 +406,7 @@ module IOSImpl = {
             ])
           )
         />;
+      let lastIdx = Array.length(screens) - 1;
       <SafeAreaView style=Styles.container>
         <View style=Styles.header>
           Js.Option.(
@@ -420,7 +421,7 @@ module IOSImpl = {
                      ),
                    activeScreen: idx,
                  };
-                 if (upperBound - idx > 2) {
+                 if (lastIdx - idx > 2) {
                    <View />;
                  } else {
                    <MaskedView
@@ -429,15 +430,15 @@ module IOSImpl = {
                      style=Styles.fill
                      pointerEvents=(activeScreen == idx ? "box-none" : "none")>
                      (
-                       (screen.header.renderLeft |> getWithDefault(renderLeft))(
-                         props,
-                       )
-                     )
-                     (
                        (
                          screen.header.renderTitle
                          |> getWithDefault(renderTitle)
                        )(
+                         props,
+                       )
+                     )
+                     (
+                       (screen.header.renderLeft |> getWithDefault(renderLeft))(
                          props,
                        )
                      )
