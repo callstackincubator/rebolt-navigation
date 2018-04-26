@@ -313,9 +313,9 @@ module IOSImpl = {
                     />
                   </Animated.View>
                   (
-                    switch (scr.header.title) {
+                    switch (screens[idx - 1].header.title) {
                     | None => <View />
-                    | Some(title) =>
+                    | Some(backTitle) =>
                       <Animated.View
                         style=(
                           animatedValue
@@ -342,10 +342,10 @@ module IOSImpl = {
                                       Dimensions.get(`window)##width
                                       |> float_of_int;
                                     lw +. 20.0 >= (ww -. tw) /. 2.0 ?
-                                      "Back" : title;
+                                      "Back" : backTitle;
                                   }
                                 ) {
-                                | Not_found => title
+                                | Not_found => backTitle
                                 }
                               ),
                             )
