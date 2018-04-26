@@ -43,10 +43,13 @@ let option_map = (fn, opt_value) =>
   | Some(value) => Some(fn(value))
   };
 
-module StringMap =
-  Map.Make(
-    {
-      type t = string;
-      let compare = compare;
-    },
-  );
+module StringMap = {
+  include
+    Map.Make(
+      {
+        type t = string;
+        let compare = compare;
+      },
+    );
+  let hasKey = (skey, map) => map |> exists((key, _val) => key == skey);
+};
