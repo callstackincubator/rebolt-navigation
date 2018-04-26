@@ -43,7 +43,10 @@ let option_map = (fn, opt_value) =>
   | Some(value) => Some(fn(value))
   };
 
-module IntMap = Map.Make({
-  type t = int;
-  let compare = compare;
-});
+module StringMap =
+  Map.Make(
+    {
+      type t = string;
+      let compare = compare;
+    },
+  );
