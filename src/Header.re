@@ -237,6 +237,11 @@ module IOSImpl = {
        * gesture progress. When user starts moving its finger
        * on initial screen, this value can get negative. We do the
        * following interpolation to guard against such invalid state.
+       * 
+       * Note: Animated seems to be not working properly when inputRange 
+       * starts and ends with the same number (0, 0). This can happen
+       * when there's only a single route on the stack. To prevent that,
+       * we make it lastIndex + 1.
        */
       let upperBound = float_of_int(Array.length(screens));
       let anim =
