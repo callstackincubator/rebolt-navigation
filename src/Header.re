@@ -278,10 +278,8 @@ module IOSImpl = {
                      * We are interested in measuring the left container
                      * only once to prevent infinite loops.
                      */
-                    StringMap.exists(
-                      (key, _val: float) => scr.key == key,
-                      self.state.leftWidths,
-                    ) ?
+                    self.state.leftWidths
+                    |> StringMap.hasKey(scr.key) ?
                       e_ => () :
                       (
                         e =>
@@ -321,7 +319,24 @@ module IOSImpl = {
                           animatedValue
                           |> scr.animation.forHeaderLeftLabel({idx: idx})
                         )>
-                        <Text style=Styles.leftTitle numberOfLines=1>
+                        <Text
+                          style=Style.(
+                                  concat([
+                                    Styles.leftTitle,
+                                    style([
+                                      opacity(
+                                        Float(
+                                          self.state.leftWidths
+                                          |> StringMap.hasKey(scr.key)
+                                          && self.state.titleWidths
+                                          |> StringMap.hasKey(scr.key) ?
+                                            1.0 : 0.0,
+                                        ),
+                                      ),
+                                    ]),
+                                  ])
+                                )
+                          numberOfLines=1>
                           (
                             ReasonReact.stringToElement(
                               /**
