@@ -1,5 +1,7 @@
 open BsReactNative;
 
+open Utils;
+
 type config = {
   title: option(string),
   style: option(BsReactNative.Style.t),
@@ -193,18 +195,39 @@ module IOSImpl = {
         alignItems(Center),
       ]);
   };
-  type state = {widths: Utils.IntMap.t(float)};
+  /**
+   * In order to be able to render `BackButton` correctly, we measure the
+   * title and left container areas on each render and store the widths
+   * in state.
+   *
+   * We use it to decide whether back button should be rendered at its full width
+   * vs `Back`.
+   */
+  type state = {
+    titleWidths: StringMap.t(float),
+    leftWidths: StringMap.t(float),
+  };
   type action =
-    | SetWidth(int, float);
+    | SetTitleWidth(string, float)
+    | SetLeftWidth(string, float);
   let component = ReasonReact.reducerComponent("FloatingHeader");
   let make = (~headerProps as props: props, _children) => {
     ...component,
-    initialState: () => {widths: Utils.IntMap.empty},
+    initialState: () => {
+      titleWidths: StringMap.empty,
+      leftWidths: StringMap.empty,
+    },
     reducer: (action, state) =>
       switch (action) {
-      | SetWidth(idx, width) =>
+      | SetTitleWidth(key, width) =>
         ReasonReact.Update({
-          widths: state.widths |> Utils.IntMap.add(idx, width)
+          ...state,
+          titleWidths: state.titleWidths |> StringMap.add(key, width),
+        })
+      | SetLeftWidth(key, width) =>
+        ReasonReact.Update({
+          ...state,
+          leftWidths: state.leftWidths |> StringMap.add(key, width),
         })
       },
     render: self => {
@@ -238,18 +261,35 @@ module IOSImpl = {
         </View>;
       let renderLeft = ({screens, animatedValue, activeScreen as idx}) =>
         <Animated.View
-          style=(
-            Style.concat([
-              Styles.left,
-              animatedValue
-              |> screens[idx].animation.forHeaderLeft({idx: idx}),
-            ])
-          )>
+          style=Style.(
+                  concat([
+                    Styles.left,
+                    animatedValue
+                    |> screens[idx].animation.forHeaderLeft({idx: idx}),
+                  ])
+                )>
           (
             idx === 0 ?
               <View /> :
               <TouchableOpacity onPress=(_e => pop(screens[idx].key))>
-                <View style=Styles.leftContainer>
+                <View
+                  onLayout=(
+                    StringMap.exists(
+                      (key, _val: float) => screens[idx].key == key,
+                      self.state.leftWidths,
+                    ) ?
+                      e_ => () :
+                      (
+                        e =>
+                          self.send(
+                            SetLeftWidth(
+                              screens[idx].key,
+                              RNEvent.NativeLayoutEvent.layout(e).width,
+                            ),
+                          )
+                      )
+                  )
+                  style=Styles.leftContainer>
                   <Animated.View
                     style=(
                       animatedValue
@@ -284,7 +324,37 @@ module IOSImpl = {
                              })
                         )>
                         <Text style=Styles.leftTitle numberOfLines=1>
-                          (ReasonReact.stringToElement(title))
+                          {
+                            let title =
+                              Js.Option.getWithDefault(
+                                "",
+                                screens[idx].header.title,
+                              );
+                            ReasonReact.stringToElement(
+                              try (
+                                {
+                                  let lw =
+                                    StringMap.find(
+                                      screens[idx].key,
+                                      self.state.leftWidths,
+                                    );
+                                  let tw =
+                                    StringMap.find(
+                                      screens[idx].key,
+                                      self.state.titleWidths,
+                                    );
+                                  let ww =
+                                    float_of_int(
+                                      Dimensions.get(`window)##width,
+                                    );
+                                  lw +. 20.0 >= (ww -. tw) /. 2.0 ?
+                                    "Back" : title;
+                                }
+                              ) {
+                              | Not_found => title
+                              },
+                            );
+                          }
                         </Text>
                       </Animated.View>
                     }
@@ -306,7 +376,10 @@ module IOSImpl = {
             onLayout=(
               e =>
                 self.send(
-                  SetWidth(idx, RNEvent.NativeLayoutEvent.layout(e).width),
+                  SetTitleWidth(
+                    screens[idx].key,
+                    RNEvent.NativeLayoutEvent.layout(e).width,
+                  ),
                 )
             )
             style=Styles.headerTitle
