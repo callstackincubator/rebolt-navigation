@@ -322,9 +322,7 @@ module IOSImpl = {
                           |> scr.animation.forHeaderLeftLabel({idx: idx})
                         )>
                         <Text style=Styles.leftTitle numberOfLines=1>
-                          {
-                            let defaultTitle =
-                              Js.Option.getWithDefault("", scr.header.title);
+                          (
                             ReasonReact.stringToElement(
                               /**
                                * Measure the space left for the back button and decide
@@ -344,14 +342,14 @@ module IOSImpl = {
                                       Dimensions.get(`window)##width
                                       |> float_of_int;
                                     lw +. 20.0 >= (ww -. tw) /. 2.0 ?
-                                      "Back" : defaultTitle;
+                                      "Back" : title;
                                   }
                                 ) {
-                                | Not_found => defaultTitle
+                                | Not_found => title
                                 }
                               ),
-                            );
-                          }
+                            )
+                          )
                         </Text>
                       </Animated.View>
                     }
