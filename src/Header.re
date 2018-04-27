@@ -320,24 +320,7 @@ module IOSImpl = {
                         style=(
                           animatedValue |> scr.animation.forHeaderLeftLabel
                         )>
-                        <Text
-                          style=Style.(
-                                  concat([
-                                    Styles.leftTitle,
-                                    style([
-                                      opacity(
-                                        Float(
-                                          self.state.leftWidths
-                                          |> StringMap.hasKey(scr.key)
-                                          && self.state.titleWidths
-                                          |> StringMap.hasKey(scr.key) ?
-                                            1.0 : 0.0,
-                                        ),
-                                      ),
-                                    ]),
-                                  ])
-                                )
-                          numberOfLines=1>
+                        <Text style=Styles.leftTitle numberOfLines=1>
                           (
                             ReasonReact.stringToElement(
                               /**
@@ -377,30 +360,11 @@ module IOSImpl = {
       };
       let renderTitle = ({screens, animatedValue, activeScreen as idx}) => {
         let {key, animation, header} = screens[idx];
-        /**
-         * Animated has this bug with `nativeDriver` that when you setState
-         * from onLayout, it doesn't apply interpolated styles which results
-         * in an awkward glitch as all layers appear on top of each other.
-         *
-         * We hide the opacity of the entire "middle" section until its
-         * dimensions have been resolved.
-         */
-        let initialOpacity =
-          Style.(
-            style(
-              self.state.leftWidths
-              |> StringMap.hasKey(key)
-              && self.state.titleWidths
-              |> StringMap.hasKey(key) ?
-                [] : [opacity(Float(0.0))],
-            )
-          );
         <Animated.View
           style=Style.(
                   concat([
                     Styles.center,
                     animatedValue |> animation.forHeaderCenter,
-                    initialOpacity,
                   ])
                 )>
           <Text
@@ -447,6 +411,24 @@ module IOSImpl = {
                      ),
                    activeScreen: idx,
                  };
+                 /**
+                  * Animated has this bug with `nativeDriver` that when you setState
+                  * from onLayout, it doesn't apply interpolated styles which results
+                  * in an awkward glitch as all layers appear on top of each other.
+                  *
+                  * We hide the opacity of the entire "middle" section until its
+                  * dimensions have been resolved.
+                  */
+                 let initialOpacity =
+                   Style.(
+                     style(
+                       self.state.leftWidths
+                       |> StringMap.hasKey(screen.key)
+                       && self.state.titleWidths
+                       |> StringMap.hasKey(screen.key) ?
+                         [] : [opacity(Float(0.0))],
+                     )
+                   );
                  /* Render a header for two last routes to improve performance */
                  if (lastIdx - idx > 2) {
                    ReasonReact.nullElement;
@@ -454,7 +436,7 @@ module IOSImpl = {
                    <MaskedView
                      key=(string_of_int(idx))
                      maskElement=mask
-                     style=Styles.fill
+                     style=(Style.concat([Styles.fill, initialOpacity]))
                      pointerEvents=(activeScreen == idx ? "box-none" : "none")>
                      (
                        (
