@@ -2,8 +2,12 @@ open BsReactNative;
 
 open Utils;
 
-type stringOrElement = [ | `string(string) | `render((unit) => ReasonReact.reactElement)];
-type element = [ | `render((unit) => ReasonReact.reactElement)];
+type stringOrElement = [
+  | `string(string)
+  | `render(unit => ReasonReact.reactElement)
+];
+
+type element = [ | `render(unit => ReasonReact.reactElement)];
 
 type config = {
   style: option(BsReactNative.Style.t),
@@ -23,19 +27,13 @@ and props = {
   pop: string => unit,
 };
 
-let default = {
-  title: None,
-  style: None,
-  left: None,
-  right: None,
-};
+let default = {title: None, style: None, left: None, right: None};
 
-let getProperty = (p: stringOrElement) => {
+let getProperty = (p: stringOrElement) =>
   switch (p) {
   | `string(str) => ReasonReact.stringToElement(str)
   | `render(func) => func()
-  }
-};
+  };
 
 /**
  * Bare minimum wrapper around MaskedViewIOS. Consider open sourcing to
@@ -322,41 +320,40 @@ module IOSImpl = {
                   (
                     switch (screens[idx - 1].header.title) {
                     | None => <View />
-                    | Some(backTitle) => {
-                      let backElement = getProperty(backTitle); 
+                    | Some(backTitle) =>
+                      let backElement = getProperty(backTitle);
                       <Animated.View
                         style=(
                           animatedValue |> scr.animation.forHeaderLeftLabel
                         )>
                         <Text style=Styles.leftTitle numberOfLines=1>
-                            
-                              /**
-                               * Measure the space left for the back button and decide
-                               * whether to print "Back" or the original back button,
-                               * which is title of the previous scene.
-                               */
-                              (
-                                try (
-                                  {
-                                    let lw =
-                                      self.state.leftWidths
-                                      |> StringMap.find(scr.key);
-                                    let tw =
-                                      self.state.titleWidths
-                                      |> StringMap.find(scr.key);
-                                    let ww =
-                                      Dimensions.get(`window)##width
-                                      |> float_of_int;
-                                    lw +. 20.0 >= (ww -. tw) /. 2.0 ?
-                                    ReasonReact.stringToElement("Back") : backElement;
-                                  }
-                                ) {
-                                | Not_found => backElement
-                                }
-                              )
-                        </Text>
-                      </Animated.View>
+                          (
+                            /***
+                             * Measure the space left for the back button and decide
+                             * whether to print "Back" or the original back button,
+                             * which is title of the previous scene.
+                             */
+                            try (
+                              {
+                                let lw =
+                                  self.state.leftWidths
+                                  |> StringMap.find(scr.key);
+                                let tw =
+                                  self.state.titleWidths
+                                  |> StringMap.find(scr.key);
+                                let ww =
+                                  Dimensions.get(`window)##width
+                                  |> float_of_int;
+                                lw +. 20.0 >= (ww -. tw) /. 2.0 ?
+                                  ReasonReact.stringToElement("Back") :
+                                  backElement;
                               }
+                            ) {
+                            | Not_found => backElement
+                            }
+                          )
+                        </Text>
+                      </Animated.View>;
                     }
                   )
                 </View>
@@ -386,7 +383,9 @@ module IOSImpl = {
             style=Styles.headerTitle
             numberOfLines=1>
             (
-                getProperty(Js.Option.getWithDefault(`string(""), header.title)),
+              getProperty(
+                Js.Option.getWithDefault(`string(""), header.title),
+              )
             )
           </Text>
         </Animated.View>;
@@ -500,7 +499,9 @@ module Android = {
   let renderTitle = ({screens, activeScreen as i}) =>
     <Text style=Styles.title>
       (
-        getProperty(Js.Option.getWithDefault(`string(""), screens[i].header.title))
+        getProperty(
+          Js.Option.getWithDefault(`string(""), screens[i].header.title),
+        )
       )
     </Text>;
   let renderLeft = ({screens, activeScreen as i, pop}) =>
