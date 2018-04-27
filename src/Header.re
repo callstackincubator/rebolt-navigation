@@ -48,16 +48,55 @@ module MaskedView = {
 };
 
 module TouchableNativeFeedback = {
+  module Background = {
+    type t;
+    [@bs.module "react-native"] [@bs.scope "TouchableNativeFeedback"]
+    external ripple_ : (string, Js.boolean) => t = "Ripple";
+    let ripple = (color, borderless) =>
+      ripple_(color, Js.Boolean.to_js_boolean(borderless));
+  };
   [@bs.module "react-native"]
   external view : ReasonReact.reactClass = "TouchableNativeFeedback";
-  let make = (~onPress=?, ~style=?, children) =>
+  let make =
+      (~onPress=?, ~style=?, ~background: option(Background.t)=?, children) =>
     Js.Undefined.(
       ReasonReact.wrapJsForReason(
         ~reactClass=view,
-        ~props={"onPress": fromOption(onPress), "style": fromOption(style)},
-        children,
+        ~props={
+          "onPress": fromOption(onPress),
+          "background": fromOption(background),
+          "style": fromOption(style),
+        },
+        <View> ...children </View>,
       )
     );
+};
+
+/**
+ * Wrapper around `TouchableNativeFeedback` that makes sure Ripple effect
+ * is used on Android devices that support this version.
+ */
+module TouchableItem = {
+  let component = ReasonReact.statelessComponent("TouchableItem");
+  let make =
+      (
+        ~pressColor="rgba(0, 0, 0, .32)",
+        ~onPress=() => (),
+        ~borderless=true,
+        children,
+      ) => {
+    ...component,
+    render: _self =>
+      Platform.version() >= 21 && Platform.os() == Platform.Android ?
+        <TouchableNativeFeedback
+          onPress
+          background=(
+            TouchableNativeFeedback.Background.ripple(pressColor, borderless)
+          )>
+          ...children
+        </TouchableNativeFeedback> :
+        <TouchableOpacity onPress> ...children </TouchableOpacity>,
+  };
 };
 
 module IOS = {
@@ -353,14 +392,14 @@ module Android = {
     </Text>;
   let renderLeft = ({screens, activeScreen as i, pop}) =>
     i > 0 ?
-      <TouchableNativeFeedback onPress=(_e => pop(screens[i].key))>
+      <TouchableItem onPress=(_e => pop(screens[i].key))>
         <Image
           style=Styles.icon
           source=(
             Required(Packager.require("../../../src/assets/back-icon.png"))
           )
         />
-      </TouchableNativeFeedback> :
+      </TouchableItem> :
       <View />;
   let renderRight = _props => <View />;
   let make = (~headerProps as p: props, _children) => {
