@@ -1,23 +1,27 @@
 open NavigationConfig;
 
-let component = ReasonReact.statelessComponent("TabExample");
+let component = ReasonReact.statelessComponent("Profile");
 
 let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen headerTitle="TabExample" navigation=nav>
+    <StackNavigator.Screen headerTitle="Profile" navigation=nav>
       ...(
            () =>
              <TabNavigator
-               initialRoute=Config.Feed
-               routes=[|Config.Feed, Config.Likes, Config.About|]>
+               initialRoute=Config.ContactList
+               routes=[|Config.ContactList, Config.Messages, Config.About|]>
                ...(
                     (~navigation) =>
                       switch (navigation.currentRoute) {
-                      | Config.Feed => <Feed navigation stackNavigation=nav />
-                      | Config.Likes => <Likes navigation />
-                      | Config.About => <About navigation />
-                      | _ => <Feed navigation stackNavigation=nav />
+                      | Config.ContactList =>
+                        <ContactList
+                          navigation
+                          stackNavigation=nav
+                          custom=false
+                        />
+                      | Config.Messages => <Messages navigation custom=false />
+                      | _ => <Settings navigation stackNavigation=nav />
                       }
                   )
              </TabNavigator>

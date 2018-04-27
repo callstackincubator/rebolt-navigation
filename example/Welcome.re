@@ -1,7 +1,5 @@
 open NavigationConfig;
 
-open TabExample;
-
 open BsReactNative;
 
 let screenWidth = Dimensions.get(`screen)##width;
@@ -10,17 +8,15 @@ module Style = {
   open Style;
   let container =
     style([flex(1.), alignItems(Center), justifyContent(Center)]);
-  let element =
+  let button = color =>
     style([
       marginVertical(Pt(5.)),
       justifyContent(Center),
       alignItems(Center),
-      backgroundColor(String("#af2141")),
-      height(Pt(80.)),
-      width(Pt(float_of_int(screenWidth - 20))),
-      borderColor(String("#474747")),
-      borderWidth(2.),
-      borderRadius(5.),
+      backgroundColor(String(color)),
+      width(Pt(float_of_int(screenWidth / 2))),
+      borderRadius(25.),
+      paddingVertical(Pt(10.)),
     ]);
   let text =
     style([
@@ -30,8 +26,6 @@ module Style = {
     ]);
 };
 
-type state = {routes: array(string)};
-
 let component = ReasonReact.statelessComponent("Welcome");
 
 type examples =
@@ -39,7 +33,7 @@ type examples =
   | TabCustom
   | Stack;
 
-let examplesList = [|TabCustom, Tab, Stack|];
+let examplesList = [|Tab, TabCustom, Stack|];
 
 let make = (~navigation: StackNavigator.navigation, _children) => {
   ...component,
@@ -53,13 +47,13 @@ let make = (~navigation: StackNavigator.navigation, _children) => {
                  |> Array.map(example => {
                       let route =
                         switch (example) {
-                        | Tab => "Tab"
+                        | Tab => "Tab navigation"
                         | Stack => "Stack"
                         | TabCustom => "Custom TabBar"
                         };
                       <TouchableOpacity
                         key=route
-                        style=Style.element
+                        style=(Style.button("#5ac8fa"))
                         onPress=(
                           () =>
                             switch (example) {

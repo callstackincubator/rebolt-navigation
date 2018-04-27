@@ -18,10 +18,10 @@ module Main = {
             self.send(
               Rehydrate(
                 switch (value) {
-                | Some(state) => [|Config.Welcome|]
-                /* state
-                   |> Js.Json.parseExn
-                   |> StackNavigator.Persistence.decode */
+                | Some(state) =>
+                  state
+                  |> Js.Json.parseExn
+                  |> StackNavigator.Persistence.decode
                 | None => [|Config.Welcome|]
                 },
               ),
@@ -56,6 +56,7 @@ module Main = {
                  | Config.Home => <Home navigation />
                  | Config.Admin => <Admin navigation />
                  | Config.Welcome => <Welcome navigation />
+                 | Config.UserProfile => <UserProfile navigation />
                  | Config.CustomTabBarExample =>
                    <CustomTabBarExample navigation />
                  | _ => <TabExample navigation />

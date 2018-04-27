@@ -5,8 +5,11 @@ module Config = {
     | Admin
     | Likes
     | Home
+    | UserProfile
     | About
     | TabExample
+    | ContactList
+    | Messages
     | CustomTabBarExample;
 };
 
