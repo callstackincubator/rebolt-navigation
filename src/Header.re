@@ -319,41 +319,43 @@ module IOSImpl = {
                   </Animated.View>
                   (
                     switch (screens[idx - 1].header.title) {
-                    | None => <View />
-                    | Some(backTitle) =>
-                      let backElement = getProperty(backTitle);
+                    | Some(`string(backTitle)) =>
                       <Animated.View
                         style=(
                           animatedValue |> scr.animation.forHeaderLeftLabel
                         )>
                         <Text style=Styles.leftTitle numberOfLines=1>
                           (
-                            /***
-                             * Measure the space left for the back button and decide
-                             * whether to print "Back" or the original back button,
-                             * which is title of the previous scene.
-                             */
-                            try (
-                              {
-                                let lw =
-                                  self.state.leftWidths
-                                  |> StringMap.find(scr.key);
-                                let tw =
-                                  self.state.titleWidths
-                                  |> StringMap.find(scr.key);
-                                let ww =
-                                  Dimensions.get(`window)##width
-                                  |> float_of_int;
-                                lw +. 20.0 >= (ww -. tw) /. 2.0 ?
-                                  ReasonReact.stringToElement("Back") :
-                                  backElement;
-                              }
-                            ) {
-                            | Not_found => backElement
-                            }
+                            ReasonReact.stringToElement(
+                              /***
+                               * Measure the space left for the back button and decide
+                               * whether to print "Back" or the original back button,
+                               * which is title of the previous scene.
+                               */
+                              try (
+                                {
+                                  let lw =
+                                    self.state.leftWidths
+                                    |> StringMap.find(scr.key);
+                                  let tw =
+                                    self.state.titleWidths
+                                    |> StringMap.find(scr.key);
+                                  let ww =
+                                    Dimensions.get(`window)##width
+                                    |> float_of_int;
+                                  lw +. 20.0 >= (ww -. tw) /. 2.0 ?
+                                    "Back" : backTitle;
+                                }
+                              ) {
+                              | Not_found => backTitle
+                              },
+                            )
                           )
                         </Text>
-                      </Animated.View>;
+                      </Animated.View>
+                    /* If title is a custom component, we do not render it at all */
+                    | Some(`render(_))
+                    | None => ReasonReact.nullElement
                     }
                   )
                 </View>
