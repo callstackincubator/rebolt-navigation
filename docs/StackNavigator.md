@@ -58,7 +58,7 @@ Render props:
 
 ## Screen
 
-Evry component rendered in StackNavigator needs to be wrapped in `StackNavigator.Screen` component. This allows you pass an extra info to Stack Navigator like a label that will be showed in the Header. `StackNavigator.Screen` component requires you to pass the navigation prop that you receive from the `StackNavigator`. This is way in the example above we passed the `navigation` prop to every single component that is rendered by `StackNavigator`.
+Every component rendered in StackNavigator needs to be wrapped in `StackNavigator.Screen` component. This allows you pass an extra info to Stack Navigator like a label that will be showed in the Header. `StackNavigator.Screen` component requires you to pass the navigation prop that you receive from the `StackNavigator`. This is way in the example above we passed the `navigation` prop to every single component that is rendered by `StackNavigator`.
 
 ```reason
 <StackNavigator.Screen
