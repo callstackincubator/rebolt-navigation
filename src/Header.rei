@@ -1,13 +1,13 @@
+type stringOrElement;
+type element;
+
 /** Header configuration object */
 type config = {
-  title: option(string),
   style: option(BsReactNative.Style.t),
-  renderTitle: option(returnsComponent),
-  renderLeft: option(returnsComponent),
-  renderRight: option(returnsComponent),
+  title: option(stringOrElement),
+  left: option(stringOrElement),
+  right: option(element),
 }
-/** Getter for parts of the header */
-and returnsComponent = props => ReasonReact.reactElement
 /** Screen object  */
 and screen = {
   header: config,

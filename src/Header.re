@@ -2,14 +2,15 @@ open BsReactNative;
 
 open Utils;
 
+type stringOrElement = [ | `string(string) | `render((unit) => ReasonReact.reactElement)];
+type element = [ | `render((unit) => ReasonReact.reactElement)];
+
 type config = {
-  title: option(string),
   style: option(BsReactNative.Style.t),
-  renderTitle: option(returnsComponent),
-  renderLeft: option(returnsComponent),
-  renderRight: option(returnsComponent),
+  title: option(stringOrElement),
+  left: option(stringOrElement),
+  right: option(element),
 }
-and returnsComponent = props => ReasonReact.reactElement
 and screen = {
   header: config,
   animation: Animation.t,
@@ -25,9 +26,15 @@ and props = {
 let default = {
   title: None,
   style: None,
-  renderTitle: None,
-  renderLeft: None,
-  renderRight: None,
+  left: None,
+  right: None,
+};
+
+let getProperty = (p: stringOrElement) => {
+  switch (p) {
+  | `string(str) => ReasonReact.stringToElement(str)
+  | `render(func) => func()
+  }
 };
 
 /**
@@ -315,14 +322,14 @@ module IOSImpl = {
                   (
                     switch (screens[idx - 1].header.title) {
                     | None => <View />
-                    | Some(backTitle) =>
+                    | Some(backTitle) => {
+                      let backElement = getProperty(backTitle); 
                       <Animated.View
                         style=(
                           animatedValue |> scr.animation.forHeaderLeftLabel
                         )>
                         <Text style=Styles.leftTitle numberOfLines=1>
-                          (
-                            ReasonReact.stringToElement(
+                            
                               /**
                                * Measure the space left for the back button and decide
                                * whether to print "Back" or the original back button,
@@ -341,16 +348,15 @@ module IOSImpl = {
                                       Dimensions.get(`window)##width
                                       |> float_of_int;
                                     lw +. 20.0 >= (ww -. tw) /. 2.0 ?
-                                      "Back" : backTitle;
+                                    ReasonReact.stringToElement("Back") : backElement;
                                   }
                                 ) {
-                                | Not_found => backTitle
+                                | Not_found => backElement
                                 }
-                              ),
-                            )
-                          )
+                              )
                         </Text>
                       </Animated.View>
+                              }
                     }
                   )
                 </View>
@@ -380,9 +386,7 @@ module IOSImpl = {
             style=Styles.headerTitle
             numberOfLines=1>
             (
-              ReasonReact.stringToElement(
-                Js.Option.getWithDefault("", header.title),
-              )
+                getProperty(Js.Option.getWithDefault(`string(""), header.title)),
             )
           </Text>
         </Animated.View>;
@@ -438,27 +442,9 @@ module IOSImpl = {
                      maskElement=mask
                      style=(Style.concat([Styles.fill, initialOpacity]))
                      pointerEvents=(activeScreen == idx ? "box-none" : "none")>
-                     (
-                       (
-                         screen.header.renderTitle
-                         |> getWithDefault(renderTitle)
-                       )(
-                         props,
-                       )
-                     )
-                     (
-                       (screen.header.renderLeft |> getWithDefault(renderLeft))(
-                         props,
-                       )
-                     )
-                     (
-                       (
-                         screen.header.renderRight
-                         |> getWithDefault(renderRight)
-                       )(
-                         props,
-                       )
-                     )
+                     (renderTitle(props))
+                     (renderLeft(props))
+                     (renderRight(props))
                    </MaskedView>;
                  };
                })
@@ -514,9 +500,7 @@ module Android = {
   let renderTitle = ({screens, activeScreen as i}) =>
     <Text style=Styles.title>
       (
-        ReasonReact.stringToElement(
-          Js.Option.getWithDefault("", screens[i].header.title),
-        )
+        getProperty(Js.Option.getWithDefault(`string(""), screens[i].header.title))
       )
     </Text>;
   let renderLeft = ({screens, activeScreen as i, pop}) =>
@@ -543,9 +527,9 @@ module Android = {
                     header.style |> getWithDefault(style([])),
                   ])
                 )>
-          ((header.renderLeft |> getWithDefault(renderLeft))(p))
-          ((header.renderTitle |> getWithDefault(renderTitle))(p))
-          ((header.renderRight |> getWithDefault(renderRight))(p))
+          (renderLeft(p))
+          (renderTitle(p))
+          (renderRight(p))
         </View>
       );
     },
