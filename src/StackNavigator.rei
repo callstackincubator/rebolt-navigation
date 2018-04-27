@@ -46,9 +46,9 @@ module CreateStackNavigator:
             ~style: BsReactNative.Style.t=?,
             ~headerTitle: string=?,
             ~headerStyle: BsReactNative.Style.t=?,
-            ~renderHeaderTitle: Header.returnsComponent=?,
-            ~renderHeaderLeft: Header.returnsComponent=?,
-            ~renderHeaderRight: Header.returnsComponent=?,
+            ~headerLeft: Header.returnsComponent=?,
+            ~headerCenter: Header.returnsComponent=?,
+            ~headerRight: Header.returnsComponent=?,
             ~animation: Animation.t=?,
             unit => ReasonReact.reactElement
           ) =>

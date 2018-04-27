@@ -3,11 +3,11 @@ open BsReactNative;
 open Utils;
 
 type config = {
-  title: option(string),
   style: option(BsReactNative.Style.t),
-  renderTitle: option(returnsComponent),
-  renderLeft: option(returnsComponent),
-  renderRight: option(returnsComponent),
+  title: option(string),
+  center: option(returnsComponent),
+  left: option(returnsComponent),
+  right: option(returnsComponent),
 }
 and returnsComponent = props => ReasonReact.reactElement
 and screen = {
@@ -25,10 +25,12 @@ and props = {
 let default = {
   title: None,
   style: None,
-  renderTitle: None,
-  renderLeft: None,
-  renderRight: None,
+  center: None,
+  left: None,
+  right: None,
 };
+
+let scr = p => p.screens[p.activeScreen];
 
 /**
  * Bare minimum wrapper around MaskedViewIOS. Consider open sourcing to
@@ -264,79 +266,79 @@ module IOSImpl = {
           />
           <View style=Styles.iconMaskFillerRect />
         </View>;
-      let renderLeft = ({screens, animatedValue, activeScreen as idx}) => {
-        let scr = screens[idx];
+      let renderLeft = p => {
+        let {animation, header, key} = scr(p);
         <Animated.View
+          onLayout=(
+            /**
+             * We are interested in measuring the left container
+             * only once to prevent infinite loops.
+             */
+            self.state.leftWidths
+            |> StringMap.hasKey(key) ?
+              e_ => () :
+              (
+                e =>
+                  self.send(
+                    SetLeftWidth(
+                      key,
+                      RNEvent.NativeLayoutEvent.layout(e).width,
+                    ),
+                  )
+              )
+          )
           style=Style.(
                   concat([
                     Styles.left,
-                    animatedValue |> scr.animation.forHeaderLeft,
+                    p.animatedValue |> animation.forHeaderLeft,
                   ])
                 )>
           (
-            idx === 0 ?
-              <View /> :
-              <TouchableOpacity onPress=(_e => pop(scr.key))>
-                <View
-                  onLayout=(
-                    /**
-                     * We are interested in measuring the left container
-                     * only once to prevent infinite loops.
-                     */
-                    self.state.leftWidths
-                    |> StringMap.hasKey(scr.key) ?
-                      e_ => () :
-                      (
-                        e =>
-                          self.send(
-                            SetLeftWidth(
-                              scr.key,
-                              RNEvent.NativeLayoutEvent.layout(e).width,
+            switch (header.left) {
+            | Some(func) => func(p)
+            | None =>
+              p.activeScreen === 0 ?
+                <View /> :
+                <TouchableOpacity onPress=(_e => p.pop(key))>
+                  <View style=Styles.leftContainer>
+                    <Animated.View
+                      style=(p.animatedValue |> animation.forHeaderLeftButton)>
+                      <Image
+                        style=(
+                          Styles.leftIcon(Js.Option.isSome(header.title))
+                        )
+                        source=(
+                          Required(
+                            Packager.require(
+                              "../../../src/assets/back-icon.png",
                             ),
                           )
-                      )
-                  )
-                  style=Styles.leftContainer>
-                  <Animated.View
-                    style=(animatedValue |> scr.animation.forHeaderLeftButton)>
-                    <Image
-                      style=(
-                        Styles.leftIcon(Js.Option.isSome(scr.header.title))
-                      )
-                      source=(
-                        Required(
-                          Packager.require(
-                            "../../../src/assets/back-icon.png",
-                          ),
                         )
-                      )
-                    />
-                  </Animated.View>
-                  (
-                    switch (screens[idx - 1].header.title) {
-                    | None => <View />
-                    | Some(backTitle) =>
-                      <Animated.View
-                        style=(
-                          animatedValue |> scr.animation.forHeaderLeftLabel
-                        )>
-                        <Text style=Styles.leftTitle numberOfLines=1>
-                          (
-                            ReasonReact.stringToElement(
-                              /**
-                               * Measure the space left for the back button and decide
-                               * whether to print "Back" or the original back button,
-                               * which is title of the previous scene.
-                               */
-                              (
+                      />
+                    </Animated.View>
+                    (
+                      switch (p.screens[p.activeScreen - 1].header.title) {
+                      | Some(backTitle) =>
+                        <Animated.View
+                          style=(
+                            p.animatedValue |> animation.forHeaderLeftLabel
+                          )>
+                          <Text style=Styles.leftTitle numberOfLines=1>
+                            (
+                              ReasonReact.stringToElement(
+                                /***
+                                 * Measure the space left for the back button and decide
+                                 * whether to print "Back" or the original back button,
+                                 * which is title of the previous scene.
+                                 */
                                 try (
                                   {
                                     let lw =
                                       self.state.leftWidths
-                                      |> StringMap.find(scr.key);
+                                      |> StringMap.find(key);
                                     let tw =
                                       self.state.titleWidths
-                                      |> StringMap.find(scr.key);
+                                      |> StringMap.find(key);
                                     let ww =
                                       Dimensions.get(`window)##width
                                       |> float_of_int;
@@ -345,72 +347,87 @@ module IOSImpl = {
                                   }
                                 ) {
                                 | Not_found => backTitle
-                                }
-                              ),
+                                },
+                              )
                             )
-                          )
-                        </Text>
-                      </Animated.View>
-                    }
-                  )
-                </View>
-              </TouchableOpacity>
+                          </Text>
+                        </Animated.View>
+                      | None => ReasonReact.nullElement
+                      }
+                    )
+                  </View>
+                </TouchableOpacity>
+            }
           )
         </Animated.View>;
       };
-      let renderTitle = ({screens, animatedValue, activeScreen as idx}) => {
-        let {key, animation, header} = screens[idx];
+      let renderCenter = p => {
+        let {key, animation, header} = scr(p);
+        let containerStyle =
+          Style.(
+            concat([
+              Styles.center,
+              p.animatedValue |> animation.forHeaderCenter,
+            ])
+          );
         <Animated.View
-          style=Style.(
-                  concat([
-                    Styles.center,
-                    animatedValue |> animation.forHeaderCenter,
-                  ])
-                )>
-          <Text
-            onLayout=(
-              e =>
-                self.send(
-                  SetTitleWidth(
-                    key,
-                    RNEvent.NativeLayoutEvent.layout(e).width,
-                  ),
-                )
-            )
-            style=Styles.headerTitle
-            numberOfLines=1>
-            (
-              ReasonReact.stringToElement(
-                Js.Option.getWithDefault("", header.title),
+          style=containerStyle
+          onLayout=(
+            e =>
+              self.send(
+                SetTitleWidth(
+                  key,
+                  RNEvent.NativeLayoutEvent.layout(e).width,
+                ),
               )
-            )
-          </Text>
+          )>
+          (
+            switch (header.center) {
+            | Some(func) => func(p)
+            | None =>
+              <Text style=Styles.headerTitle numberOfLines=1>
+                (
+                  ReasonReact.stringToElement(
+                    header.title |> Js.Option.getWithDefault(""),
+                  )
+                )
+              </Text>
+            }
+          )
         </Animated.View>;
       };
-      let renderRight = ({screens, animatedValue, activeScreen as idx}) =>
+      let renderRight = p =>
         <Animated.View
           style=(
             Style.concat([
               Styles.right,
-              animatedValue |> screens[idx].animation.forHeaderRight,
+              p.animatedValue |> scr(p).animation.forHeaderRight,
             ])
+          )>
+          (
+            switch (scr(p).header.right) {
+            | Some(func) => func(p)
+            | None => ReasonReact.nullElement
+            }
           )
-        />;
+        </Animated.View>;
       let lastIdx = Array.length(screens) - 1;
       <SafeAreaView style=Styles.container>
         <View style=Styles.header>
           Js.Option.(
             screens
             |> Array.mapi((idx: int, screen) => {
-                 let props = {
-                   ...props,
-                   animatedValue:
-                     Animated.Value.add(
-                       anim,
-                       Animated.Value.create(-. float_of_int(idx)),
-                     ),
-                   activeScreen: idx,
-                 };
+                 /**
+                  * Animated value in the header is screen index - since `interpolators`
+                  * are generic, we subtract the index of the screen to make the animation
+                  * a relation between -1, 0, 1 - just like in StackNavigator
+                  */
+                 let animatedValue =
+                   Animated.Value.add(
+                     anim,
+                     Animated.Value.create(-. float_of_int(idx)),
+                   );
+                 let props = {...props, animatedValue, activeScreen: idx};
                  /**
                   * Animated has this bug with `nativeDriver` that when you setState
                   * from onLayout, it doesn't apply interpolated styles which results
@@ -438,27 +455,9 @@ module IOSImpl = {
                      maskElement=mask
                      style=(Style.concat([Styles.fill, initialOpacity]))
                      pointerEvents=(activeScreen == idx ? "box-none" : "none")>
-                     (
-                       (
-                         screen.header.renderTitle
-                         |> getWithDefault(renderTitle)
-                       )(
-                         props,
-                       )
-                     )
-                     (
-                       (screen.header.renderLeft |> getWithDefault(renderLeft))(
-                         props,
-                       )
-                     )
-                     (
-                       (
-                         screen.header.renderRight
-                         |> getWithDefault(renderRight)
-                       )(
-                         props,
-                       )
-                     )
+                     (renderCenter(props))
+                     (renderLeft(props))
+                     (renderRight(props))
                    </MaskedView>;
                  };
                })
@@ -511,43 +510,51 @@ module Android = {
       ]);
   };
   let component = ReasonReact.statelessComponent("AndroidHeader");
-  let renderTitle = ({screens, activeScreen as i}) =>
-    <Text style=Styles.title>
-      (
-        ReasonReact.stringToElement(
-          Js.Option.getWithDefault("", screens[i].header.title),
-        )
-      )
-    </Text>;
-  let renderLeft = ({screens, activeScreen as i, pop}) =>
-    i > 0 ?
-      <TouchableItem onPress=(_e => pop(screens[i].key))>
-        <Image
-          style=Styles.icon
-          source=(
-            Required(Packager.require("../../../src/assets/back-icon.png"))
+  let renderTitle = p =>
+    switch (scr(p).header.center) {
+    | Some(func) => func(p)
+    | None =>
+      <Text style=Styles.title>
+        (
+          ReasonReact.stringToElement(
+            scr(p).header.title |> Js.Option.getWithDefault(""),
           )
-        />
-      </TouchableItem> :
-      <View />;
-  let renderRight = _props => <View />;
+        )
+      </Text>
+    };
+  let renderLeft = p =>
+    switch (scr(p).header.left) {
+    | Some(func) => func(p)
+    | None =>
+      p.activeScreen > 0 ?
+        <TouchableItem onPress=(_e => p.pop(scr(p).key))>
+          <Image
+            style=Styles.icon
+            source=(
+              Required(Packager.require("../../../src/assets/back-icon.png"))
+            )
+          />
+        </TouchableItem> :
+        <View />
+    };
+  let renderRight = p =>
+    switch (scr(p).header.right) {
+    | Some(func) => func(p)
+    | None => ReasonReact.nullElement
+    };
   let make = (~headerProps as p: props, _children) => {
     ...component,
-    render: _self => {
-      let header = p.screens[p.activeScreen].header;
-      Js.Option.(
-        <View
-          style=Style.(
-                  concat([
-                    Styles.header,
-                    header.style |> getWithDefault(style([])),
-                  ])
-                )>
-          ((header.renderLeft |> getWithDefault(renderLeft))(p))
-          ((header.renderTitle |> getWithDefault(renderTitle))(p))
-          ((header.renderRight |> getWithDefault(renderRight))(p))
-        </View>
-      );
-    },
+    render: _self =>
+      <View
+        style=Style.(
+                concat([
+                  Styles.header,
+                  scr(p).header.style |> Js.Option.getWithDefault(style([])),
+                ])
+              )>
+        (renderLeft(p))
+        (renderTitle(p))
+        (renderRight(p))
+      </View>,
   };
 };
