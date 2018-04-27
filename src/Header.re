@@ -516,7 +516,9 @@ module Android = {
   let renderLeft = ({screens, activeScreen as i, pop}) =>
     switch (screens[i].header.left) {
     | Some(`render(func)) => func(() => pop(screens[i].key))
-    | Some(`string(_))
+    | Some(`string(_)) =>
+      Js.Console.warn("Strings in left header are not supported on Android");
+      ReasonReact.nullElement;
     | None =>
       i > 0 ?
         <TouchableItem onPress=(_e => pop(screens[i].key))>
@@ -538,19 +540,18 @@ module Android = {
     ...component,
     render: _self => {
       let header = p.screens[p.activeScreen].header;
-      Js.Option.(
-        <View
-          style=Style.(
-                  concat([
-                    Styles.header,
-                    header.style |> getWithDefault(style([])),
-                  ])
-                )>
-          (renderLeft(p))
-          (renderTitle(p))
-          (renderRight(p))
-        </View>
-      );
+      let style =
+        Style.(
+          concat([
+            Styles.header,
+            header.style |> Js.Option.getWithDefault(style([])),
+          ])
+        );
+      <View style>
+        (renderLeft(p))
+        (renderTitle(p))
+        (renderRight(p))
+      </View>;
     },
   };
 };
