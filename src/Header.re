@@ -268,12 +268,7 @@ module IOSImpl = {
         </View>;
       let renderLeft = p => {
         let {animation, header, key} = scr(p);
-        let containerStyle =
-          Style.(
-            concat([Styles.left, animatedValue |> animation.forHeaderLeft])
-          );
         <Animated.View
-          style=containerStyle
           onLayout=(
             /**
              * We are interested in measuring the left container
@@ -291,17 +286,23 @@ module IOSImpl = {
                     ),
                   )
               )
-          )>
+          )
+          style=Style.(
+                  concat([
+                    Styles.left,
+                    p.animatedValue |> animation.forHeaderLeft,
+                  ])
+                )>
           (
             switch (header.left) {
-            | Some(func) => func(props)
+            | Some(func) => func(p)
             | None =>
               p.activeScreen === 0 ?
                 <View /> :
-                <TouchableOpacity onPress=(_e => pop(key))>
+                <TouchableOpacity onPress=(_e => p.pop(key))>
                   <View style=Styles.leftContainer>
                     <Animated.View
-                      style=(animatedValue |> animation.forHeaderLeftButton)>
+                      style=(p.animatedValue |> animation.forHeaderLeftButton)>
                       <Image
                         style=(
                           Styles.leftIcon(Js.Option.isSome(header.title))
@@ -316,10 +317,12 @@ module IOSImpl = {
                       />
                     </Animated.View>
                     (
-                      switch (screens[activeScreen - 1].header.title) {
+                      switch (p.screens[p.activeScreen - 1].header.title) {
                       | Some(backTitle) =>
                         <Animated.View
-                          style=(animatedValue |> animation.forHeaderLeftLabel)>
+                          style=(
+                            p.animatedValue |> animation.forHeaderLeftLabel
+                          )>
                           <Text style=Styles.leftTitle numberOfLines=1>
                             (
                               ReasonReact.stringToElement(
@@ -364,7 +367,7 @@ module IOSImpl = {
           Style.(
             concat([
               Styles.center,
-              animatedValue |> animation.forHeaderCenter,
+              p.animatedValue |> animation.forHeaderCenter,
             ])
           );
         <Animated.View
@@ -380,7 +383,7 @@ module IOSImpl = {
           )>
           (
             switch (header.center) {
-            | Some(func) => func(props)
+            | Some(func) => func(p)
             | None =>
               <Text style=Styles.headerTitle numberOfLines=1>
                 (
@@ -398,12 +401,12 @@ module IOSImpl = {
           style=(
             Style.concat([
               Styles.right,
-              animatedValue |> scr(p).animation.forHeaderRight,
+              p.animatedValue |> scr(p).animation.forHeaderRight,
             ])
           )>
           (
             switch (scr(p).header.right) {
-            | Some(func) => func(props)
+            | Some(func) => func(p)
             | None => ReasonReact.nullElement
             }
           )
