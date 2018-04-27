@@ -44,10 +44,20 @@ module CreateStackNavigator:
           (
             ~navigation: navigation,
             ~style: BsReactNative.Style.t=?,
-            ~headerTitle: Header.stringOrElement=?,
+            ~headerTitle: [
+                            | `render(unit => ReasonReact.reactElement)
+                            | `string(string)
+                          ]
+                            =?,
             ~headerStyle: BsReactNative.Style.t=?,
-            ~headerLeft: Header.stringOrElement=?,
-            ~headerRight: Header.element=?,
+            ~headerLeft: [
+                           | `render(
+                               (unit => unit) => ReasonReact.reactElement,
+                             )
+                           | `string(string)
+                         ]
+                           =?,
+            ~headerRight: [ | `render(unit => ReasonReact.reactElement)]=?,
             ~animation: Animation.t=?,
             unit => ReasonReact.reactElement
           ) =>

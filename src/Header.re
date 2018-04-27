@@ -2,18 +2,20 @@ open BsReactNative;
 
 open Utils;
 
-type stringOrElement = [
-  | `string(string)
-  | `render(unit => ReasonReact.reactElement)
-];
-
-type element = [ | `render(unit => ReasonReact.reactElement)];
-
 type config = {
   style: option(BsReactNative.Style.t),
-  title: option(stringOrElement),
-  left: option(stringOrElement),
-  right: option(element),
+  title:
+    option(
+      [ | `string(string) | `render(unit => ReasonReact.reactElement)],
+    ),
+  left:
+    option(
+      [
+        | `string(string)
+        | `render((unit => unit) => ReasonReact.reactElement)
+      ],
+    ),
+  right: option([ | `render(unit => ReasonReact.reactElement)]),
 }
 and screen = {
   header: config,
@@ -28,12 +30,6 @@ and props = {
 };
 
 let default = {title: None, style: None, left: None, right: None};
-
-let getProperty = (p: stringOrElement) =>
-  switch (p) {
-  | `string(str) => ReasonReact.stringToElement(str)
-  | `render(func) => func()
-  };
 
 /**
  * Bare minimum wrapper around MaskedViewIOS. Consider open sourcing to
@@ -511,25 +507,33 @@ module Android = {
   };
   let component = ReasonReact.statelessComponent("AndroidHeader");
   let renderTitle = ({screens, activeScreen as i}) =>
-    <Text style=Styles.title>
-      (
-        getProperty(
-          Js.Option.getWithDefault(`string(""), screens[i].header.title),
-        )
-      )
-    </Text>;
+    switch (screens[i].header.title) {
+    | Some(`string(title)) =>
+      <Text style=Styles.title> (ReasonReact.stringToElement(title)) </Text>
+    | Some(`render(func)) => func()
+    | None => ReasonReact.nullElement
+    };
   let renderLeft = ({screens, activeScreen as i, pop}) =>
-    i > 0 ?
-      <TouchableItem onPress=(_e => pop(screens[i].key))>
-        <Image
-          style=Styles.icon
-          source=(
-            Required(Packager.require("../../../src/assets/back-icon.png"))
-          )
-        />
-      </TouchableItem> :
-      <View />;
-  let renderRight = _props => <View />;
+    switch (screens[i].header.left) {
+    | Some(`render(func)) => func(() => pop(screens[i].key))
+    | Some(`string(_))
+    | None =>
+      i > 0 ?
+        <TouchableItem onPress=(_e => pop(screens[i].key))>
+          <Image
+            style=Styles.icon
+            source=(
+              Required(Packager.require("../../../src/assets/back-icon.png"))
+            )
+          />
+        </TouchableItem> :
+        <View />
+    };
+  let renderRight = ({screens, activeScreen as i}) =>
+    switch (screens[i].header.right) {
+    | Some(`render(func)) => func()
+    | None => ReasonReact.nullElement
+    };
   let make = (~headerProps as p: props, _children) => {
     ...component,
     render: _self => {

@@ -1,12 +1,18 @@
-type stringOrElement = [ | `string(string) | `render((unit) => ReasonReact.reactElement)];
-type element = [ | `render((unit) => ReasonReact.reactElement)];
-
 /** Header configuration object */
 type config = {
   style: option(BsReactNative.Style.t),
-  title: option(stringOrElement),
-  left: option(stringOrElement),
-  right: option(element),
+  title:
+    option(
+      [ | `string(string) | `render(unit => ReasonReact.reactElement)],
+    ),
+  left:
+    option(
+      [
+        | `string(string)
+        | `render((unit => unit) => ReasonReact.reactElement)
+      ],
+    ),
+  right: option([ | `render(unit => ReasonReact.reactElement)]),
 }
 /** Screen object  */
 and screen = {
