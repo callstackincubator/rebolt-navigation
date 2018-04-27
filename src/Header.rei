@@ -1,5 +1,5 @@
-type stringOrElement;
-type element;
+type stringOrElement = [ | `string(string) | `render((unit) => ReasonReact.reactElement)];
+type element = [ | `render((unit) => ReasonReact.reactElement)];
 
 /** Header configuration object */
 type config = {

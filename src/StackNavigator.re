@@ -539,9 +539,8 @@ module CreateStackNavigator = (Config: {type route;}) => {
             ~style=?,
             ~headerTitle=?,
             ~headerStyle=?,
-            ~renderHeaderTitle=?,
-            ~renderHeaderLeft=?,
-            ~renderHeaderRight=?,
+            ~headerLeft=?,
+            ~headerRight=?,
             ~animation=?,
             children,
           ) => {
@@ -551,9 +550,8 @@ module CreateStackNavigator = (Config: {type route;}) => {
             header: {
               title: headerTitle,
               style: headerStyle,
-              renderTitle: renderHeaderTitle,
-              renderLeft: renderHeaderLeft,
-              renderRight: renderHeaderRight,
+              left: headerLeft,
+              right: headerRight,
             },
             animation,
             style,
