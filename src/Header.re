@@ -137,6 +137,7 @@ module IOSImpl = {
         position(Absolute),
         flexDirection(Row),
         justifyContent(Center),
+        /* backgroundColor(String("#fff")), */
         alignItems(Center),
       ]);
     let headerTitle =
@@ -375,20 +376,40 @@ module IOSImpl = {
           )
         </Animated.View>;
       };
-      let renderTitle = ({screens, animatedValue, activeScreen as idx}) =>
+      let renderTitle = ({screens, animatedValue, activeScreen as idx}) => {
+        let {key, animation, header} = screens[idx];
+        /**
+         * Animated has this bug with `nativeDriver` that when you setState
+         * from onLayout, it doesn't apply interpolated styles which results
+         * in an awkward glitch as all layers appear on top of each other.
+         *
+         * We hide the opacity of the entire "middle" section until its
+         * dimensions have been resolved.
+         */
+        let initialOpacity =
+          Style.(
+            style(
+              self.state.leftWidths
+              |> StringMap.hasKey(key)
+              && self.state.titleWidths
+              |> StringMap.hasKey(key) ?
+                [] : [opacity(Float(0.0))],
+            )
+          );
         <Animated.View
-          style=(
-            Style.concat([
-              Styles.center,
-              animatedValue |> screens[idx].animation.forHeaderCenter,
-            ])
-          )>
+          style=Style.(
+                  concat([
+                    Styles.center,
+                    animatedValue |> animation.forHeaderCenter,
+                    initialOpacity,
+                  ])
+                )>
           <Text
             onLayout=(
               e =>
                 self.send(
                   SetTitleWidth(
-                    screens[idx].key,
+                    key,
                     RNEvent.NativeLayoutEvent.layout(e).width,
                   ),
                 )
@@ -397,11 +418,12 @@ module IOSImpl = {
             numberOfLines=1>
             (
               ReasonReact.stringToElement(
-                Js.Option.getWithDefault("", screens[idx].header.title),
+                Js.Option.getWithDefault("", header.title),
               )
             )
           </Text>
         </Animated.View>;
+      };
       let renderRight = ({screens, animatedValue, activeScreen as idx}) =>
         <Animated.View
           style=(
