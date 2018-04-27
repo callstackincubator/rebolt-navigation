@@ -31,6 +31,7 @@ module CreateTabNavigator:
         screens,
         currentRoute,
         jumpTo,
+        indicatorColor: option(string),
       };
       type action =
         | JumpTo(Config.route)
@@ -47,6 +48,7 @@ module CreateTabNavigator:
                          ReasonReact.reactElement
                            =?,
           ~safeAreaViewBackgroundColor: string=?,
+          ~indicatorColor: string=?,
           (~navigation: navigation) => ReasonReact.reactElement
         ) =>
         ReasonReact.componentSpec(

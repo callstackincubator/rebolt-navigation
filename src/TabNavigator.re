@@ -40,31 +40,71 @@ module Styles = {
         },
       ),
     ]);
-  let tabBar =
+  let tabBar = hasIcon =>
+    switch (Platform.os()) {
+    | Platform.Android =>
+      style([
+        flexDirection(Row),
+        backgroundColor(String("#fff")),
+        height(Pt(hasIcon ? 72. : 48.)),
+        position(Absolute),
+        left(Pt(0.0)),
+        right(Pt(0.0)),
+        top(Pt(0.0)),
+        elevation(4.),
+        shadowOpacity(0.1),
+        zIndex(0),
+      ])
+    | _ =>
+      style([
+        flexDirection(Row),
+        backgroundColor(String("#f7f7f7")),
+        height(Pt(49.)),
+        position(Absolute),
+        left(Pt(0.0)),
+        right(Pt(0.0)),
+        bottom(Pt(0.0)),
+        borderTopWidth(StyleSheet.hairlineWidth),
+        borderTopColor(String("rgba(0, 0, 0, 0.3)")),
+      ])
+    };
+  let tabBarIndicator = (denominator, itemIndex, indicatorColor) => {
+    let itemWidth =
+      float_of_int(Dimensions.get(`window)##width) /. denominator;
     style([
-      flexDirection(Row),
-      backgroundColor(String("#f7f7f7")),
-      height(Pt(49.)),
       position(Absolute),
-      left(Pt(0.0)),
-      right(Pt(0.0)),
-      bottom(Pt(0.0)),
-      borderTopWidth(StyleSheet.hairlineWidth),
-      borderTopColor(String("rgba(0, 0, 0, 0.3)")),
-    ]);
-  let tabBarItemContainer =
-    style([
-      flex(1.),
-      justifyContent(Center),
-      alignItems(
-        switch (Platform.os()) {
-        | Platform.Android => Stretch
-        | _ => Center
-        },
+      bottom(Pt(0.)),
+      height(Pt(2.)),
+      left(Pt(itemWidth *. float_of_int(itemIndex))),
+      backgroundColor(
+        String(
+          switch (indicatorColor) {
+          | Some(indicatorColor) => indicatorColor
+          | None => "blue"
+          },
+        ),
       ),
+      width(Pt(itemWidth)),
     ]);
+  };
+  let tabBarItemContainer =
+    switch (Platform.os()) {
+    | Platform.Android =>
+      style([flex(1.), justifyContent(Center), alignItems(Center)])
+    | _ => style([flex(1.), justifyContent(Center), alignItems(Center)])
+    };
   let tabBarItem = style([alignItems(Center)]);
-  let tabBarItemIcon = style([height(Pt(20.)), width(Pt(20.))]);
+  let tabBarItemIcon =
+    switch (Platform.os()) {
+    | Platform.Android =>
+      style([
+        height(Pt(24.)),
+        width(Pt(24.)),
+        padding(Pt(0.0)),
+        margin(Pt(0.0)),
+      ])
+    | _ => style([height(Pt(20.)), width(Pt(20.))])
+    };
   let tabBarItemText =
       (
         ~isActive,
@@ -72,35 +112,66 @@ module Styles = {
         ~labelColor: option(string),
         ~activeLabelColor: option(string),
       ) =>
-    style([
-      bottom(
-        Pt(
+    switch (Platform.os()) {
+    | Platform.Android =>
+      style([
+        paddingTop(
           switch (textSize) {
-          | Small => (-6.)
-          | Regular => 0.
+          | Small => Pt(10.)
+          | Regular => Pt(0.)
           },
         ),
-      ),
-      color(
-        switch (labelColor, activeLabelColor) {
-        | (Some(labelColor), Some(activeLabelColor)) =>
-          String(isActive ? activeLabelColor : labelColor)
-        | (None, None) => String(isActive ? "#2180f7" : "#8c8c8c")
-        | (None, Some(activeLabelColor)) =>
-          String(isActive ? activeLabelColor : "#8c8c8c")
-        | (Some(labelColor), None) =>
-          String(isActive ? "#2180f7" : labelColor)
-        },
-      ),
-      fontSize(
-        Float(
+        bottom(
           switch (textSize) {
-          | Small => 10.0
-          | Regular => 13.0
+          | Small => Pt(4.)
+          | Regular => Pt(0.)
           },
         ),
-      ),
-    ]);
+        margin(Pt(0.)),
+        color(
+          switch (labelColor, activeLabelColor) {
+          | (Some(labelColor), Some(activeLabelColor)) =>
+            String(isActive ? activeLabelColor : labelColor)
+          | (None, None) => String(isActive ? "#2180f7" : "#8c8c8c")
+          | (None, Some(activeLabelColor)) =>
+            String(isActive ? activeLabelColor : "#8c8c8c")
+          | (Some(labelColor), None) =>
+            String(isActive ? "#2180f7" : labelColor)
+          },
+        ),
+        fontSize(Float(14.0)),
+      ])
+    | _ =>
+      style([
+        bottom(
+          Pt(
+            switch (textSize) {
+            | Small => (-6.)
+            | Regular => 0.
+            },
+          ),
+        ),
+        color(
+          switch (labelColor, activeLabelColor) {
+          | (Some(labelColor), Some(activeLabelColor)) =>
+            String(isActive ? activeLabelColor : labelColor)
+          | (None, None) => String(isActive ? "#2180f7" : "#8c8c8c")
+          | (None, Some(activeLabelColor)) =>
+            String(isActive ? activeLabelColor : "#8c8c8c")
+          | (Some(labelColor), None) =>
+            String(isActive ? "#2180f7" : labelColor)
+          },
+        ),
+        fontSize(
+          Float(
+            switch (textSize) {
+            | Small => 10.0
+            | Regular => 13.0
+            },
+          ),
+        ),
+      ])
+    };
 };
 
 module CreateTabNavigator = (Config: {type route;}) => {
@@ -134,6 +205,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
       screens,
       currentRoute,
       jumpTo,
+      indicatorColor: option(string),
     };
     type action =
       | JumpTo(Config.route)
@@ -155,9 +227,14 @@ module CreateTabNavigator = (Config: {type route;}) => {
             _children,
           ) => {
         ...component,
-        render: _self =>
-          switch (label, iconSource, activeIconSource) {
-          | (label, Some(iconSource), Some(activeIconSource)) =>
+        render: _self => {
+          let itemText =
+            switch (Platform.os()) {
+            | Platform.Android => String.uppercase(label)
+            | _ => label
+            };
+          switch (itemText, iconSource, activeIconSource) {
+          | (itemText, Some(iconSource), Some(activeIconSource)) =>
             <View style=Styles.tabBarItem>
               (
                 isActive ?
@@ -176,10 +253,10 @@ module CreateTabNavigator = (Config: {type route;}) => {
                     ~activeLabelColor,
                   )
                 )>
-                (ReasonReact.stringToElement(label))
+                (ReasonReact.stringToElement(itemText))
               </Text>
             </View>
-          | (label, Some(iconSource), None) =>
+          | (itemText, Some(iconSource), None) =>
             <View style=Styles.tabBarItem>
               <Image source=iconSource style=Styles.tabBarItemIcon />
               <Text
@@ -191,10 +268,10 @@ module CreateTabNavigator = (Config: {type route;}) => {
                     ~activeLabelColor,
                   )
                 )>
-                (ReasonReact.stringToElement(label))
+                (ReasonReact.stringToElement(itemText))
               </Text>
             </View>
-          | (label, None, Some(activeIconSource)) =>
+          | (itemText, None, Some(activeIconSource)) =>
             <View style=Styles.tabBarItem>
               <Image source=activeIconSource style=Styles.tabBarItemIcon />
               <Text
@@ -206,10 +283,10 @@ module CreateTabNavigator = (Config: {type route;}) => {
                     ~activeLabelColor,
                   )
                 )>
-                (ReasonReact.stringToElement(label))
+                (ReasonReact.stringToElement(itemText))
               </Text>
             </View>
-          | (label, None, None) =>
+          | (itemText, None, None) =>
             <Text
               style=(
                 Styles.tabBarItemText(
@@ -219,17 +296,50 @@ module CreateTabNavigator = (Config: {type route;}) => {
                   ~activeLabelColor,
                 )
               )>
-              (ReasonReact.stringToElement(label))
+              (ReasonReact.stringToElement(itemText))
             </Text>
-          },
+          };
+        },
       };
     };
     module TabBar = {
       let component = ReasonReact.statelessComponent("TabBar");
       let make = (~tabBarProps: tabBarProps, _children) => {
         ...component,
-        render: _self =>
-          <View style=Styles.tabBar>
+        render: _self => {
+          let hasIcon =
+            ListLabels.exists(
+              screen =>
+                switch (screen.iconSource, screen.activeIconSource) {
+                | (None, None) => false
+                | _ => true
+                },
+              ArrayLabels.to_list(tabBarProps.screens),
+            );
+          <View style=(Styles.tabBar(hasIcon))>
+            (
+              switch (Platform.os()) {
+              | Platform.Android =>
+                tabBarProps.screens
+                |> Array.mapi((index, screen) => {
+                     let isActive = tabBarProps.currentRoute === screen.route;
+                     isActive ?
+                       <View
+                         key=(string_of_int(index))
+                         style=(
+                           Styles.tabBarIndicator(
+                             float_of_int(Array.length(tabBarProps.screens)),
+                             index,
+                             tabBarProps.indicatorColor,
+                           )
+                         )
+                       /> :
+                       ReasonReact.nullElement;
+                   })
+                |> ReasonReact.arrayToElement
+              | _ => ReasonReact.nullElement
+              }
+            )
             (
               tabBarProps.screens
               |> Array.mapi((index, screen) => {
@@ -251,7 +361,8 @@ module CreateTabNavigator = (Config: {type route;}) => {
                  })
               |> ReasonReact.arrayToElement
             )
-          </View>,
+          </View>;
+        },
       };
     };
     let component = ReasonReact.reducerComponent("TabNavigator");
@@ -261,6 +372,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
           ~routes,
           ~renderTabBar=?,
           ~safeAreaViewBackgroundColor: option(string)=?,
+          ~indicatorColor: option(string)=?,
           children,
         ) => {
       ...component,
@@ -346,6 +458,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
                     screens: self.state.screens,
                     currentRoute: self.state.currentRoute,
                     jumpTo: route => self.send(JumpTo(route)),
+                    indicatorColor,
                   },
                 )
               | None =>
@@ -354,6 +467,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
                     screens: self.state.screens,
                     currentRoute: self.state.currentRoute,
                     jumpTo: route => self.send(JumpTo(route)),
+                    indicatorColor,
                   }
                 />
               }
