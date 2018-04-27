@@ -4,19 +4,12 @@ open Utils;
 
 type config = {
   style: option(BsReactNative.Style.t),
-  title:
-    option(
-      [ | `string(string) | `render(unit => ReasonReact.reactElement)],
-    ),
-  left:
-    option(
-      [
-        | `string(string)
-        | `render((unit => unit) => ReasonReact.reactElement)
-      ],
-    ),
-  right: option([ | `render(unit => ReasonReact.reactElement)]),
+  title: option(string),
+  center: option(returnsComponent),
+  left: option(returnsComponent),
+  right: option(returnsComponent),
 }
+and returnsComponent = props => ReasonReact.reactElement
 and screen = {
   header: config,
   animation: Animation.t,
@@ -29,7 +22,15 @@ and props = {
   pop: string => unit,
 };
 
-let default = {title: None, style: None, left: None, right: None};
+let default = {
+  title: None,
+  style: None,
+  center: None,
+  left: None,
+  right: None,
+};
+
+let scr = p => p.screens[p.activeScreen];
 
 /**
  * Bare minimum wrapper around MaskedViewIOS. Consider open sourcing to
@@ -265,102 +266,100 @@ module IOSImpl = {
           />
           <View style=Styles.iconMaskFillerRect />
         </View>;
-      let renderLeft = ({screens, animatedValue, activeScreen as idx}) => {
-        let scr = screens[idx];
+      let renderLeft = p => {
+        let {animation, header, key} = scr(p);
+        let containerStyle =
+          Style.(
+            concat([Styles.left, animatedValue |> animation.forHeaderLeft])
+          );
         <Animated.View
-          style=Style.(
-                  concat([
-                    Styles.left,
-                    animatedValue |> scr.animation.forHeaderLeft,
-                  ])
-                )>
+          style=containerStyle
+          onLayout=(
+            /**
+             * We are interested in measuring the left container
+             * only once to prevent infinite loops.
+             */
+            self.state.leftWidths
+            |> StringMap.hasKey(key) ?
+              e_ => () :
+              (
+                e =>
+                  self.send(
+                    SetLeftWidth(
+                      key,
+                      RNEvent.NativeLayoutEvent.layout(e).width,
+                    ),
+                  )
+              )
+          )>
           (
-            idx === 0 ?
-              <View /> :
-              <TouchableOpacity onPress=(_e => pop(scr.key))>
-                <View
-                  onLayout=(
-                    /**
-                     * We are interested in measuring the left container
-                     * only once to prevent infinite loops.
-                     */
-                    self.state.leftWidths
-                    |> StringMap.hasKey(scr.key) ?
-                      e_ => () :
-                      (
-                        e =>
-                          self.send(
-                            SetLeftWidth(
-                              scr.key,
-                              RNEvent.NativeLayoutEvent.layout(e).width,
+            switch (header.left) {
+            | Some(func) => func(props)
+            | None =>
+              p.activeScreen === 0 ?
+                <View /> :
+                <TouchableOpacity onPress=(_e => pop(key))>
+                  <View style=Styles.leftContainer>
+                    <Animated.View
+                      style=(animatedValue |> animation.forHeaderLeftButton)>
+                      <Image
+                        style=(
+                          Styles.leftIcon(Js.Option.isSome(header.title))
+                        )
+                        source=(
+                          Required(
+                            Packager.require(
+                              "../../../src/assets/back-icon.png",
                             ),
                           )
-                      )
-                  )
-                  style=Styles.leftContainer>
-                  <Animated.View
-                    style=(animatedValue |> scr.animation.forHeaderLeftButton)>
-                    <Image
-                      style=(
-                        Styles.leftIcon(Js.Option.isSome(scr.header.title))
-                      )
-                      source=(
-                        Required(
-                          Packager.require(
-                            "../../../src/assets/back-icon.png",
-                          ),
                         )
-                      )
-                    />
-                  </Animated.View>
-                  (
-                    switch (screens[idx - 1].header.title) {
-                    | Some(`string(backTitle)) =>
-                      <Animated.View
-                        style=(
-                          animatedValue |> scr.animation.forHeaderLeftLabel
-                        )>
-                        <Text style=Styles.leftTitle numberOfLines=1>
-                          (
-                            ReasonReact.stringToElement(
-                              /***
-                               * Measure the space left for the back button and decide
-                               * whether to print "Back" or the original back button,
-                               * which is title of the previous scene.
-                               */
-                              try (
-                                {
-                                  let lw =
-                                    self.state.leftWidths
-                                    |> StringMap.find(scr.key);
-                                  let tw =
-                                    self.state.titleWidths
-                                    |> StringMap.find(scr.key);
-                                  let ww =
-                                    Dimensions.get(`window)##width
-                                    |> float_of_int;
-                                  lw +. 20.0 >= (ww -. tw) /. 2.0 ?
-                                    "Back" : backTitle;
-                                }
-                              ) {
-                              | Not_found => backTitle
-                              },
+                      />
+                    </Animated.View>
+                    (
+                      switch (screens[activeScreen - 1].header.title) {
+                      | Some(backTitle) =>
+                        <Animated.View
+                          style=(animatedValue |> animation.forHeaderLeftLabel)>
+                          <Text style=Styles.leftTitle numberOfLines=1>
+                            (
+                              ReasonReact.stringToElement(
+                                /***
+                                 * Measure the space left for the back button and decide
+                                 * whether to print "Back" or the original back button,
+                                 * which is title of the previous scene.
+                                 */
+                                try (
+                                  {
+                                    let lw =
+                                      self.state.leftWidths
+                                      |> StringMap.find(key);
+                                    let tw =
+                                      self.state.titleWidths
+                                      |> StringMap.find(key);
+                                    let ww =
+                                      Dimensions.get(`window)##width
+                                      |> float_of_int;
+                                    lw +. 20.0 >= (ww -. tw) /. 2.0 ?
+                                      "Back" : backTitle;
+                                  }
+                                ) {
+                                | Not_found => backTitle
+                                },
+                              )
                             )
-                          )
-                        </Text>
-                      </Animated.View>
-                    /* If title is a custom component, we do not render it at all */
-                    | Some(`render(_))
-                    | None => ReasonReact.nullElement
-                    }
-                  )
-                </View>
-              </TouchableOpacity>
+                          </Text>
+                        </Animated.View>
+                      | None => ReasonReact.nullElement
+                      }
+                    )
+                  </View>
+                </TouchableOpacity>
+            }
           )
         </Animated.View>;
       };
-      let renderTitle = ({screens, animatedValue, activeScreen as idx}) => {
-        let {key, animation, header} = screens[idx];
+      let renderCenter = p => {
+        let {key, animation, header} = scr(p);
         let containerStyle =
           Style.(
             concat([
@@ -368,41 +367,43 @@ module IOSImpl = {
               animatedValue |> animation.forHeaderCenter,
             ])
           );
-        <Animated.View style=containerStyle>
-          <View
-            onLayout=(
-              e =>
-                self.send(
-                  SetTitleWidth(
-                    key,
-                    RNEvent.NativeLayoutEvent.layout(e).width,
-                  ),
+        <Animated.View
+          style=containerStyle
+          onLayout=(
+            e =>
+              self.send(
+                SetTitleWidth(
+                  key,
+                  RNEvent.NativeLayoutEvent.layout(e).width,
+                ),
+              )
+          )>
+          (
+            switch (header.center) {
+            | Some(func) => func(props)
+            | None =>
+              <Text style=Styles.headerTitle numberOfLines=1>
+                (
+                  ReasonReact.stringToElement(
+                    header.title |> Js.Option.getWithDefault(""),
+                  )
                 )
-            )>
-            (
-              switch (header.title) {
-              | Some(`string(title)) =>
-                <Text style=Styles.headerTitle numberOfLines=1>
-                  (ReasonReact.stringToElement(title))
-                </Text>
-              | Some(`render(func)) => func()
-              | None => ReasonReact.nullElement
-              }
-            )
-          </View>
+              </Text>
+            }
+          )
         </Animated.View>;
       };
-      let renderRight = ({screens, animatedValue, activeScreen as idx}) =>
+      let renderRight = p =>
         <Animated.View
           style=(
             Style.concat([
               Styles.right,
-              animatedValue |> screens[idx].animation.forHeaderRight,
+              animatedValue |> scr(p).animation.forHeaderRight,
             ])
           )>
           (
-            switch (screens[idx].header.right) {
-            | Some(`render(func)) => func()
+            switch (scr(p).header.right) {
+            | Some(func) => func(props)
             | None => ReasonReact.nullElement
             }
           )
@@ -451,7 +452,7 @@ module IOSImpl = {
                      maskElement=mask
                      style=(Style.concat([Styles.fill, initialOpacity]))
                      pointerEvents=(activeScreen == idx ? "box-none" : "none")>
-                     (renderTitle(props))
+                     (renderCenter(props))
                      (renderLeft(props))
                      (renderRight(props))
                    </MaskedView>;
@@ -506,22 +507,24 @@ module Android = {
       ]);
   };
   let component = ReasonReact.statelessComponent("AndroidHeader");
-  let renderTitle = ({screens, activeScreen as i}) =>
-    switch (screens[i].header.title) {
-    | Some(`string(title)) =>
-      <Text style=Styles.title> (ReasonReact.stringToElement(title)) </Text>
-    | Some(`render(func)) => func()
-    | None => ReasonReact.nullElement
-    };
-  let renderLeft = ({screens, activeScreen as i, pop}) =>
-    switch (screens[i].header.left) {
-    | Some(`render(func)) => func(() => pop(screens[i].key))
-    | Some(`string(_)) =>
-      Js.Console.warn("Strings in left header are not supported on Android");
-      ReasonReact.nullElement;
+  let renderTitle = p =>
+    switch (scr(p).header.center) {
+    | Some(func) => func(p)
     | None =>
-      i > 0 ?
-        <TouchableItem onPress=(_e => pop(screens[i].key))>
+      <Text style=Styles.title>
+        (
+          ReasonReact.stringToElement(
+            scr(p).header.title |> Js.Option.getWithDefault(""),
+          )
+        )
+      </Text>
+    };
+  let renderLeft = p =>
+    switch (scr(p).header.left) {
+    | Some(func) => func(p)
+    | None =>
+      p.activeScreen > 0 ?
+        <TouchableItem onPress=(_e => p.pop(scr(p).key))>
           <Image
             style=Styles.icon
             source=(
@@ -531,27 +534,24 @@ module Android = {
         </TouchableItem> :
         <View />
     };
-  let renderRight = ({screens, activeScreen as i}) =>
-    switch (screens[i].header.right) {
-    | Some(`render(func)) => func()
+  let renderRight = p =>
+    switch (scr(p).header.right) {
+    | Some(func) => func(p)
     | None => ReasonReact.nullElement
     };
   let make = (~headerProps as p: props, _children) => {
     ...component,
-    render: _self => {
-      let header = p.screens[p.activeScreen].header;
-      let style =
-        Style.(
-          concat([
-            Styles.header,
-            header.style |> Js.Option.getWithDefault(style([])),
-          ])
-        );
-      <View style>
+    render: _self =>
+      <View
+        style=Style.(
+                concat([
+                  Styles.header,
+                  scr(p).header.style |> Js.Option.getWithDefault(style([])),
+                ])
+              )>
         (renderLeft(p))
         (renderTitle(p))
         (renderRight(p))
-      </View>;
-    },
+      </View>,
   };
 };

@@ -5,7 +5,7 @@ let component = ReasonReact.statelessComponent("TabExample");
 let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen headerTitle=`string("Tab example") navigation=nav>
+    <StackNavigator.Screen headerTitle="Tab example" navigation=nav>
       ...(
            () =>
              <TabNavigator

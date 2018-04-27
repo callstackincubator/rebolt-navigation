@@ -1,19 +1,12 @@
 /** Header configuration object */
 type config = {
   style: option(BsReactNative.Style.t),
-  title:
-    option(
-      [ | `string(string) | `render(unit => ReasonReact.reactElement)],
-    ),
-  left:
-    option(
-      [
-        | `string(string)
-        | `render((unit => unit) => ReasonReact.reactElement)
-      ],
-    ),
-  right: option([ | `render(unit => ReasonReact.reactElement)]),
+  title: option(string),
+  center: option(returnsComponent),
+  left: option(returnsComponent),
+  right: option(returnsComponent),
 }
+and returnsComponent = props => ReasonReact.reactElement
 /** Screen object  */
 and screen = {
   header: config,
