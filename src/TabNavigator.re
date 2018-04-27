@@ -40,13 +40,13 @@ module Styles = {
         },
       ),
     ]);
-  let tabBar = hasIcon =>
+  let tabBar = hasLabelWithIcon =>
     switch (Platform.os()) {
     | Platform.Android =>
       style([
         flexDirection(Row),
         backgroundColor(String("#fff")),
-        height(Pt(hasIcon ? 72. : 48.)),
+        height(Pt(hasLabelWithIcon ? 72. : 48.)),
         position(Absolute),
         left(Pt(0.0)),
         right(Pt(0.0)),
@@ -176,22 +176,28 @@ module Styles = {
 
 module CreateTabNavigator = (Config: {type route;}) => {
   module TabNavigator = {
+    type tabItem =
+      | Label(string)
+      | Icon(Image.imageSource)
+      | IconWithActiveIcon(Image.imageSource, Image.imageSource)
+      | LabelWithIcon(string, Image.imageSource)
+      | LabelWithIconAndActiveIcon(
+          string,
+          Image.imageSource,
+          Image.imageSource,
+        );
     type currentRoute = Config.route;
     type jumpTo = Config.route => unit;
     type options = {
-      label: string,
+      tabItem,
       labelColor: option(string),
       activeLabelColor: option(string),
-      iconSource: option(Image.imageSource),
-      activeIconSource: option(Image.imageSource),
     };
     type screenConfig = {
       route: Config.route,
-      label: string,
+      tabItem,
       labelColor: option(string),
       activeLabelColor: option(string),
-      iconSource: option(Image.imageSource),
-      activeIconSource: option(Image.imageSource),
     };
     type screens = array(screenConfig);
     type navigation = {
@@ -218,23 +224,31 @@ module CreateTabNavigator = (Config: {type route;}) => {
       let component = ReasonReact.statelessComponent("TabBarItem");
       let make =
           (
-            ~label,
+            ~tabItem,
             ~labelColor: option(string),
             ~activeLabelColor: option(string),
-            ~iconSource: option(Image.imageSource),
-            ~activeIconSource: option(Image.imageSource),
             ~isActive,
             _children,
           ) => {
         ...component,
-        render: _self => {
-          let itemText =
-            switch (Platform.os()) {
-            | Platform.Android => String.uppercase(label)
-            | _ => label
-            };
-          switch (itemText, iconSource, activeIconSource) {
-          | (itemText, Some(iconSource), Some(activeIconSource)) =>
+        render: _self =>
+          switch (tabItem) {
+          | LabelWithIcon(text, iconSource) =>
+            <View style=Styles.tabBarItem>
+              <Image source=iconSource style=Styles.tabBarItemIcon />
+              <Text
+                style=(
+                  Styles.tabBarItemText(
+                    ~isActive,
+                    ~textSize=Small,
+                    ~labelColor,
+                    ~activeLabelColor,
+                  )
+                )>
+                (ReasonReact.stringToElement(text))
+              </Text>
+            </View>
+          | LabelWithIconAndActiveIcon(text, iconSource, activeIconSource) =>
             <View style=Styles.tabBarItem>
               (
                 isActive ?
@@ -253,40 +267,10 @@ module CreateTabNavigator = (Config: {type route;}) => {
                     ~activeLabelColor,
                   )
                 )>
-                (ReasonReact.stringToElement(itemText))
+                (ReasonReact.stringToElement(text))
               </Text>
             </View>
-          | (itemText, Some(iconSource), None) =>
-            <View style=Styles.tabBarItem>
-              <Image source=iconSource style=Styles.tabBarItemIcon />
-              <Text
-                style=(
-                  Styles.tabBarItemText(
-                    ~isActive,
-                    ~textSize=Small,
-                    ~labelColor,
-                    ~activeLabelColor,
-                  )
-                )>
-                (ReasonReact.stringToElement(itemText))
-              </Text>
-            </View>
-          | (itemText, None, Some(activeIconSource)) =>
-            <View style=Styles.tabBarItem>
-              <Image source=activeIconSource style=Styles.tabBarItemIcon />
-              <Text
-                style=(
-                  Styles.tabBarItemText(
-                    ~isActive,
-                    ~textSize=Small,
-                    ~labelColor,
-                    ~activeLabelColor,
-                  )
-                )>
-                (ReasonReact.stringToElement(itemText))
-              </Text>
-            </View>
-          | (itemText, None, None) =>
+          | Label(text) =>
             <Text
               style=(
                 Styles.tabBarItemText(
@@ -296,10 +280,24 @@ module CreateTabNavigator = (Config: {type route;}) => {
                   ~activeLabelColor,
                 )
               )>
-              (ReasonReact.stringToElement(itemText))
+              (ReasonReact.stringToElement(text))
             </Text>
-          };
-        },
+          | Icon(iconSource) =>
+            <View style=Styles.tabBarItem>
+              <Image source=iconSource style=Styles.tabBarItemIcon />
+            </View>
+          | IconWithActiveIcon(iconSource, activeIconSource) =>
+            <View style=Styles.tabBarItem>
+              (
+                isActive ?
+                  <Image
+                    source=activeIconSource
+                    style=Styles.tabBarItemIcon
+                  /> :
+                  <Image source=iconSource style=Styles.tabBarItemIcon />
+              )
+            </View>
+          },
       };
     };
     module TabBar = {
@@ -307,16 +305,17 @@ module CreateTabNavigator = (Config: {type route;}) => {
       let make = (~tabBarProps: tabBarProps, _children) => {
         ...component,
         render: _self => {
-          let hasIcon =
+          let hasLabelWithIcon =
             ListLabels.exists(
               screen =>
-                switch (screen.iconSource, screen.activeIconSource) {
-                | (None, None) => false
-                | _ => true
+                switch (screen.tabItem) {
+                | LabelWithIcon(_, _) => true
+                | LabelWithIconAndActiveIcon(_, _, _) => true
+                | _ => false
                 },
               ArrayLabels.to_list(tabBarProps.screens),
             );
-          <View style=(Styles.tabBar(hasIcon))>
+          <View style=(Styles.tabBar(hasLabelWithIcon))>
             (
               switch (Platform.os()) {
               | Platform.Android =>
@@ -349,12 +348,10 @@ module CreateTabNavigator = (Config: {type route;}) => {
                      onPress=(_e => tabBarProps.jumpTo(screen.route))>
                      <View style=Styles.tabBarItemContainer>
                        <TabBarItem
-                         label=screen.label
+                         tabItem=screen.tabItem
                          labelColor=screen.labelColor
                          activeLabelColor=screen.activeLabelColor
                          isActive
-                         iconSource=screen.iconSource
-                         activeIconSource=screen.activeIconSource
                        />
                      </View>
                    </TouchableWithoutFeedback>;
@@ -382,11 +379,9 @@ module CreateTabNavigator = (Config: {type route;}) => {
           |> Array.map(route =>
                {
                  route,
-                 label: "",
+                 tabItem: Label(""),
                  labelColor: None,
                  activeLabelColor: None,
-                 iconSource: None,
-                 activeIconSource: None,
                }
              ),
         currentRoute: initialRoute,
@@ -399,24 +394,13 @@ module CreateTabNavigator = (Config: {type route;}) => {
           } else {
             ReasonReact.NoUpdate;
           }
-        | SetOptions(
-            {
-              label,
-              labelColor,
-              activeLabelColor,
-              iconSource,
-              activeIconSource,
-            },
-            index,
-          ) =>
+        | SetOptions({tabItem, labelColor, activeLabelColor}, index) =>
           let screens = Js.Array.copy(state.screens);
           screens[index] = {
             ...screens[index],
-            label,
+            tabItem,
             labelColor,
             activeLabelColor,
-            iconSource,
-            activeIconSource,
           };
           ReasonReact.Update({...state, screens});
         },
@@ -480,22 +464,14 @@ module CreateTabNavigator = (Config: {type route;}) => {
       let make =
           (
             ~navigation,
-            ~label,
+            ~tabItem: tabItem,
             ~labelColor: option(string)=?,
             ~activeLabelColor: option(string)=?,
-            ~iconSource: option(Image.imageSource)=?,
-            ~activeIconSource: option(Image.imageSource)=?,
             children,
           ) => {
         ...component,
         didMount: _self => {
-          navigation.setOptions({
-            label,
-            labelColor,
-            activeLabelColor,
-            iconSource,
-            activeIconSource,
-          });
+          navigation.setOptions({labelColor, activeLabelColor, tabItem});
           ReasonReact.NoUpdate;
         },
         render: _self =>

@@ -13,7 +13,7 @@ let component = ReasonReact.statelessComponent("Likes");
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <TabNavigator.Screen label="Likes" navigation>
+    <TabNavigator.Screen tabItem=(Label("Likes")) navigation>
       ...(
            () =>
              <View style=Styles.container>

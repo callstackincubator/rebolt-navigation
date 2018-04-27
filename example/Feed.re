@@ -29,19 +29,20 @@ let make =
   ...component,
   render: _self =>
     <TabNavigator.Screen
-      label="Today"
-      labelColor="#ff9999"
-      activeLabelColor="#da4453"
-      iconSource=(
-        URI(
-          Image.(
-            imageURISource(
-              ~uri="https://png.icons8.com/metro/1600/home.png",
-              (),
-            )
+      tabItem=(
+        Icon(
+          URI(
+            Image.(
+              imageURISource(
+                ~uri="https://png.icons8.com/metro/1600/home.png",
+                (),
+              )
+            ),
           ),
         )
       )
+      labelColor="#ff9999"
+      activeLabelColor="#da4453"
       navigation>
       ...(
            () =>

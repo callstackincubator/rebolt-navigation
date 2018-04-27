@@ -2,22 +2,31 @@ module CreateTabNavigator:
   (Config: {type route;}) =>
   {
     module TabNavigator: {
+      type tabItem =
+        | Label(string)
+        | Icon(BsReactNative.Image.imageSource)
+        | IconWithActiveIcon(
+            BsReactNative.Image.imageSource,
+            BsReactNative.Image.imageSource,
+          )
+        | LabelWithIcon(string, BsReactNative.Image.imageSource)
+        | LabelWithIconAndActiveIcon(
+            string,
+            BsReactNative.Image.imageSource,
+            BsReactNative.Image.imageSource,
+          );
       type currentRoute = Config.route;
       type jumpTo = Config.route => unit;
       type options = {
-        label: string,
+        tabItem,
         labelColor: option(string),
         activeLabelColor: option(string),
-        iconSource: option(BsReactNative.Image.imageSource),
-        activeIconSource: option(BsReactNative.Image.imageSource),
       };
       type screenConfig = {
         route: Config.route,
-        label: string,
+        tabItem,
         labelColor: option(string),
         activeLabelColor: option(string),
-        iconSource: option(BsReactNative.Image.imageSource),
-        activeIconSource: option(BsReactNative.Image.imageSource),
       };
       type screens = array(screenConfig);
       type navigation = {
@@ -62,11 +71,9 @@ module CreateTabNavigator:
         let make:
           (
             ~navigation: navigation,
-            ~label: string,
+            ~tabItem: tabItem,
             ~labelColor: string=?,
             ~activeLabelColor: string=?,
-            ~iconSource: BsReactNative.Image.imageSource=?,
-            ~activeIconSource: BsReactNative.Image.imageSource=?,
             unit => ReasonReact.reactElement
           ) =>
           ReasonReact.componentSpec(
@@ -91,11 +98,9 @@ module CreateTabNavigator:
       module TabBarItem: {
         let make:
           (
-            ~label: string,
+            ~tabItem: tabItem,
             ~labelColor: option(string),
             ~activeLabelColor: option(string),
-            ~iconSource: option(BsReactNative.Image.imageSource),
-            ~activeIconSource: option(BsReactNative.Image.imageSource),
             ~isActive: bool,
             'a
           ) =>
