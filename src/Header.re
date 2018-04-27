@@ -137,7 +137,6 @@ module IOSImpl = {
         position(Absolute),
         flexDirection(Row),
         justifyContent(Center),
-        /* backgroundColor(String("#fff")), */
         alignItems(Center),
       ]);
     let headerTitle =
