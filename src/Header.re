@@ -363,14 +363,15 @@ module IOSImpl = {
       };
       let renderTitle = ({screens, animatedValue, activeScreen as idx}) => {
         let {key, animation, header} = screens[idx];
-        <Animated.View
-          style=Style.(
-                  concat([
-                    Styles.center,
-                    animatedValue |> animation.forHeaderCenter,
-                  ])
-                )>
-          <Text
+        let containerStyle =
+          Style.(
+            concat([
+              Styles.center,
+              animatedValue |> animation.forHeaderCenter,
+            ])
+          );
+        <Animated.View style=containerStyle>
+          <View
             onLayout=(
               e =>
                 self.send(
@@ -379,15 +380,18 @@ module IOSImpl = {
                     RNEvent.NativeLayoutEvent.layout(e).width,
                   ),
                 )
-            )
-            style=Styles.headerTitle
-            numberOfLines=1>
+            )>
             (
-              getProperty(
-                Js.Option.getWithDefault(`string(""), header.title),
-              )
+              switch (header.title) {
+              | Some(`string(title)) =>
+                <Text style=Styles.headerTitle numberOfLines=1>
+                  (ReasonReact.stringToElement(title))
+                </Text>
+              | Some(`render(func)) => func()
+              | None => ReasonReact.nullElement
+              }
             )
-          </Text>
+          </View>
         </Animated.View>;
       };
       let renderRight = ({screens, animatedValue, activeScreen as idx}) =>
@@ -397,23 +401,31 @@ module IOSImpl = {
               Styles.right,
               animatedValue |> screens[idx].animation.forHeaderRight,
             ])
+          )>
+          (
+            switch (screens[idx].header.right) {
+            | Some(`render(func)) => func()
+            | None => ReasonReact.nullElement
+            }
           )
-        />;
+        </Animated.View>;
       let lastIdx = Array.length(screens) - 1;
       <SafeAreaView style=Styles.container>
         <View style=Styles.header>
           Js.Option.(
             screens
             |> Array.mapi((idx: int, screen) => {
-                 let props = {
-                   ...props,
-                   animatedValue:
-                     Animated.Value.add(
-                       anim,
-                       Animated.Value.create(-. float_of_int(idx)),
-                     ),
-                   activeScreen: idx,
-                 };
+                 /**
+                  * Animated value in the header is screen index - since `interpolators`
+                  * are generic, we subtract the index of the screen to make the animation
+                  * a relation between -1, 0, 1 - just like in StackNavigator
+                  */
+                 let animatedValue =
+                   Animated.Value.add(
+                     anim,
+                     Animated.Value.create(-. float_of_int(idx)),
+                   );
+                 let props = {...props, animatedValue, activeScreen: idx};
                  /**
                   * Animated has this bug with `nativeDriver` that when you setState
                   * from onLayout, it doesn't apply interpolated styles which results
