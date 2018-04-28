@@ -23,11 +23,7 @@ type t = {
     ) =>
     BsReactNative.Animated.CompositeAnimation.t,
   forCard: interpolator,
-  forHeaderCenter: interpolator,
-  forHeaderLeft: interpolator,
-  forHeaderLeftLabel: interpolator,
-  forHeaderLeftButton: interpolator,
-  forHeaderRight: interpolator,
+  forHeader: interpolator,
 };
 
 /**

@@ -290,7 +290,8 @@ module IOSImpl = {
           style=Style.(
                   concat([
                     Styles.left,
-                    p.animatedValue |> animation.forHeaderLeft,
+                    p.animatedValue
+                    |> HeaderInterpolator.floating.forHeaderLeft,
                   ])
                 )>
           (
@@ -302,7 +303,10 @@ module IOSImpl = {
                 <TouchableOpacity onPress=(_e => p.pop(key))>
                   <View style=Styles.leftContainer>
                     <Animated.View
-                      style=(p.animatedValue |> animation.forHeaderLeftButton)>
+                      style=(
+                        p.animatedValue
+                        |> HeaderInterpolator.floating.forHeaderLeftButton
+                      )>
                       <Image
                         style=(
                           Styles.leftIcon(Js.Option.isSome(header.title))
@@ -321,7 +325,8 @@ module IOSImpl = {
                       | Some(backTitle) =>
                         <Animated.View
                           style=(
-                            p.animatedValue |> animation.forHeaderLeftLabel
+                            p.animatedValue
+                            |> HeaderInterpolator.floating.forHeaderLeftLabel
                           )>
                           <Text style=Styles.leftTitle numberOfLines=1>
                             (
@@ -367,7 +372,7 @@ module IOSImpl = {
           Style.(
             concat([
               Styles.center,
-              p.animatedValue |> animation.forHeaderCenter,
+              p.animatedValue |> HeaderInterpolator.floating.forHeaderCenter,
             ])
           );
         <Animated.View
@@ -401,7 +406,7 @@ module IOSImpl = {
           style=(
             Style.concat([
               Styles.right,
-              p.animatedValue |> scr(p).animation.forHeaderRight,
+              p.animatedValue |> HeaderInterpolator.floating.forHeaderRight,
             ])
           )>
           (
@@ -453,7 +458,13 @@ module IOSImpl = {
                    <MaskedView
                      key=(string_of_int(idx))
                      maskElement=mask
-                     style=(Style.concat([Styles.fill, initialOpacity]))
+                     style=(
+                       Style.concat([
+                         Styles.fill,
+                         props.animatedValue |> screen.animation.forHeader,
+                         initialOpacity,
+                       ])
+                     )
                      pointerEvents=(activeScreen == idx ? "box-none" : "none")>
                      (renderCenter(props))
                      (renderLeft(props))
