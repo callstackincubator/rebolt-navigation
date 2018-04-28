@@ -6,6 +6,8 @@ module Config = {
     | Home
     | About
     | TabExample;
+
+  let stateForUrl = (state, url) => state;
 };
 
 include ReRoute.CreateNavigation(Config);

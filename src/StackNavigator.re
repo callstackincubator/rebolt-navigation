@@ -1,5 +1,4 @@
 open BsReactNative;
-
 open Utils;
 
 module Styles = {
@@ -25,7 +24,7 @@ module Styles = {
     concat([flex, style([flexDirection(ColumnReverse)])]);
 };
 
-module CreateStackNavigator = (Config: {type route;}) => {
+module CreateStackNavigator = (Config: ReRouteTypes.Config) => {
   module StackNavigator = {
     module Animation = Animation;
     type screenConfig = {

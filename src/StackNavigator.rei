@@ -1,5 +1,5 @@
 module CreateStackNavigator:
-  (Config: {type route;}) =>
+  (Config: ReRouteTypes.Config) =>
   {
     module StackNavigator: {
       module Persistence: {
