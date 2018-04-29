@@ -456,7 +456,7 @@ module IOSImpl = {
                    ReasonReact.nullElement;
                  } else {
                    <MaskedView
-                     key=(string_of_int(idx))
+                     key=screen.key
                      maskElement=mask
                      style=(
                        Style.concat([

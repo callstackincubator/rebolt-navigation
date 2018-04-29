@@ -208,6 +208,15 @@ module CreateStackNavigator = (Config: {type route;}) => {
           | `Push => ((0.0, (-1.0)), (1.0, 0.0))
           | `Pop => (((-1.0), 0.0), (0.0, 1.0))
           };
+        /**
+         * There seems to be a bug with `Animated` that it resets 
+         * Animated.Values to its initial values after the transition finishes. 
+         * 
+         * Since `bs-react-native` doesn't currently support `fromValue` attribute,
+         * we explicitly setValues before starting a new animation.
+         */
+        Animated.Value.setValue(first.animatedValue, fstValues |> fst);
+        Animated.Value.setValue(second.animatedValue, sndValues |> fst);
         Animated.CompositeAnimation.start(
           Animated.parallel(
             [|
