@@ -53,7 +53,7 @@ Here is how you could use the `Screen` component:
 **Feed.re**
 
 ```reason
-open Navigation;
+open NavigationConfig;
 
 open BsReactNative;
 
