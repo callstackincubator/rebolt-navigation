@@ -30,16 +30,34 @@ let make =
   render: _self =>
     <TabNavigator.Screen
       tabItem=(
-        Icon(
-          URI(
-            Image.(
-              imageURISource(
-                ~uri="https://png.icons8.com/metro/1600/home.png",
-                (),
+        props =>
+          props.isActive ?
+            <TabBar.Item
+              label="Yolo"
+              icon=(
+                URI(
+                  Image.(
+                    imageURISource(
+                      ~uri="https://png.icons8.com/ios/1600/home.png",
+                      (),
+                    )
+                  ),
+                )
               )
-            ),
-          ),
-        )
+            /> :
+            <TabBar.Item
+              label="Feed"
+              icon=(
+                URI(
+                  Image.(
+                    imageURISource(
+                      ~uri="https://png.icons8.com/ios/1600/settings.png",
+                      (),
+                    )
+                  ),
+                )
+              )
+            />
       )
       labelColor="#ff9999"
       activeLabelColor="#da4453"
