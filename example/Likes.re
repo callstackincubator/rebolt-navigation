@@ -18,9 +18,12 @@ let make = (~navigation, _children) => {
     <Screen
       tabItem=(
         ({isActive}) =>
-          isActive ?
-            <TabBar.Item label="Active likes" /> :
-            <TabBar.Item label="Likes" />
+          <TabBar.Item
+            label="Likes"
+            style=(
+              Style.style([Style.color(String(isActive ? "red" : "gray"))])
+            )
+          />
       )
       navigation>
       ...(

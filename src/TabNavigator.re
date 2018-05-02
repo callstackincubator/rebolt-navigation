@@ -160,11 +160,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
       jumpTo,
       indicatorColor: option(string),
     }
-    and options = {
-      tabItem,
-      labelColor: option(string),
-      activeLabelColor: option(string),
-    }
+    and options = {tabItem}
     and screenConfig = {
       route: Config.route,
       tabItem,
@@ -187,21 +183,55 @@ module CreateTabNavigator = (Config: {type route;}) => {
     module TabBar = {
       module Item = {
         let component = ReasonReact.statelessComponent("TabBarItem");
-        let make = (~label, ~icon: option(Image.imageSource)=?, _children) => {
+        let make =
+            (
+              ~label,
+              ~icon: option(Image.imageSource)=?,
+              ~style: option(Style.t)=?,
+              _children,
+            ) => {
           ...component,
           render: _self =>
             switch (label, icon) {
             | (label, Some(icon)) =>
               <View style=Styles.tabBarItem>
                 <Image source=icon style=Styles.tabBarItemIcon />
-                <Text style=(Styles.tabBarItemText(~textSize=Small))>
-                  (ReasonReact.stringToElement(label))
-                </Text>
+                (
+                  switch (label) {
+                  | "" => ReasonReact.nullElement
+                  | _ =>
+                    <Text
+                      style=(
+                        Style.concat([
+                          Styles.tabBarItemText(~textSize=Small),
+                          switch (style) {
+                          | Some(style) => style
+                          | None => Style.style([])
+                          },
+                        ])
+                      )>
+                      (ReasonReact.stringToElement(label))
+                    </Text>
+                  }
+                )
               </View>
             | (label, None) =>
-              <Text style=(Styles.tabBarItemText(~textSize=Regular))>
-                (ReasonReact.stringToElement(label))
-              </Text>
+              switch (label) {
+              | "" => ReasonReact.nullElement
+              | _ =>
+                <Text
+                  style=(
+                    Style.concat([
+                      Styles.tabBarItemText(~textSize=Regular),
+                      switch (style) {
+                      | Some(style) => style
+                      | None => Style.style([])
+                      },
+                    ])
+                  )>
+                  (ReasonReact.stringToElement(label))
+                </Text>
+              }
             },
         };
       };
@@ -277,7 +307,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
           } else {
             ReasonReact.NoUpdate;
           }
-        | SetOptions({tabItem, labelColor, activeLabelColor}, index) =>
+        | SetOptions({tabItem}, index) =>
           let screens = Js.Array.copy(state.screens);
           screens[index] = {...screens[index], tabItem};
           ReasonReact.Update({...state, screens});
@@ -343,13 +373,11 @@ module CreateTabNavigator = (Config: {type route;}) => {
           (
             ~navigation,
             ~tabItem: tabItemProps => ReasonReact.reactElement,
-            ~labelColor: option(string)=?,
-            ~activeLabelColor: option(string)=?,
             children,
           ) => {
         ...component,
         didMount: _self => {
-          navigation.setOptions({labelColor, activeLabelColor, tabItem});
+          navigation.setOptions({tabItem: tabItem});
           ReasonReact.NoUpdate;
         },
         render: _self =>

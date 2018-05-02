@@ -19,16 +19,25 @@ let make = (~navigation, _children) => {
       tabItem=(
         ({isActive}) =>
           <TabBar.Item
-            label=(isActive ? "Hey" : "Ho")
+            label=""
             icon=(
-              URI(
-                Image.(
-                  imageURISource(
-                    ~uri="https://png.icons8.com/ios/1600/settings.png",
-                    (),
-                  )
-                ),
-              )
+              isActive ?
+                URI(
+                  Image.(
+                    imageURISource(
+                      ~uri="https://png.icons8.com/ios/1600/like.png",
+                      (),
+                    )
+                  ),
+                ) :
+                URI(
+                  Image.(
+                    imageURISource(
+                      ~uri="https://png.icons8.com/ios/1600/settings.png",
+                      (),
+                    )
+                  ),
+                )
             )
           />
       )
