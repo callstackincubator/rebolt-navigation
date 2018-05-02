@@ -200,6 +200,11 @@ module CreateTabNavigator = (Config: {type route;}) => {
                   switch (label) {
                   | "" => ReasonReact.nullElement
                   | _ =>
+                    let itemText =
+                      switch (Platform.os()) {
+                      | Platform.Android => String.uppercase(label)
+                      | _ => label
+                      };
                     <Text
                       style=(
                         Style.concat([
@@ -210,8 +215,8 @@ module CreateTabNavigator = (Config: {type route;}) => {
                           },
                         ])
                       )>
-                      (ReasonReact.stringToElement(label))
-                    </Text>
+                      (ReasonReact.stringToElement(itemText))
+                    </Text>;
                   }
                 )
               </View>
@@ -219,6 +224,11 @@ module CreateTabNavigator = (Config: {type route;}) => {
               switch (label) {
               | "" => ReasonReact.nullElement
               | _ =>
+                let itemText =
+                  switch (Platform.os()) {
+                  | Platform.Android => String.uppercase(label)
+                  | _ => label
+                  };
                 <Text
                   style=(
                     Style.concat([
@@ -229,8 +239,8 @@ module CreateTabNavigator = (Config: {type route;}) => {
                       },
                     ])
                   )>
-                  (ReasonReact.stringToElement(label))
-                </Text>
+                  (ReasonReact.stringToElement(itemText))
+                </Text>;
               }
             },
         };
