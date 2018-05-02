@@ -1,8 +1,10 @@
-# reroute
+# ReRoute Native
 
 > a fast, declarative navigation for react native
 
 ## Getting started
+
+[ReRoute Native website](https://reroute-native.netlify.com/)
 
 ### Installation
 
