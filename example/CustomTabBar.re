@@ -40,9 +40,7 @@ let make = (~tabBarProps: TabNavigator.tabBarProps, _children) => {
                key=(string_of_int(index))
                style=(Styles.tabBarItem(isActive))
                onPress=(_e => tabBarProps.jumpTo(screen.route))>
-               <Text style=(Styles.tabBarItemText(isActive))>
-                 (ReasonReact.stringToElement(screen.label))
-               </Text>
+               (screen.tabItem({isActive: isActive}))
              </TouchableOpacity>;
            })
         |> ReasonReact.arrayToElement

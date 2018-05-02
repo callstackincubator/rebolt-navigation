@@ -1,5 +1,7 @@
 open NavigationConfig;
 
+open TabNavigator;
+
 open BsReactNative;
 
 let component = ReasonReact.statelessComponent("Settings");
@@ -26,7 +28,17 @@ let make =
     (~navigation, ~stackNavigation: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <TabNavigator.Screen label="My Settings" navigation>
+    <Screen
+      tabItem=(
+        ({isActive}) =>
+          <TabBar.Item
+            label="MySettings"
+            style=(
+              Style.style([Style.color(String(isActive ? "blue" : "gray"))])
+            )
+          />
+      )
+      navigation>
       ...(
            () =>
              <View style=Styles.container>
@@ -59,5 +71,5 @@ let make =
                </TouchableOpacity>
              </View>
          )
-    </TabNavigator.Screen>,
+    </Screen>,
 };

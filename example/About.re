@@ -1,5 +1,7 @@
 open NavigationConfig;
 
+open TabNavigator;
+
 open BsReactNative;
 
 module Styles = {
@@ -13,7 +15,33 @@ let component = ReasonReact.statelessComponent("About");
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <TabNavigator.Screen label="About us" navigation>
+    <Screen
+      tabItem=(
+        ({isActive}) =>
+          <TabBar.Item
+            label=""
+            icon=(
+              isActive ?
+                URI(
+                  Image.(
+                    imageURISource(
+                      ~uri="https://png.icons8.com/ios/1600/like.png",
+                      (),
+                    )
+                  ),
+                ) :
+                URI(
+                  Image.(
+                    imageURISource(
+                      ~uri="https://png.icons8.com/ios/1600/settings.png",
+                      (),
+                    )
+                  ),
+                )
+            )
+          />
+      )
+      navigation>
       ...(
            () =>
              <View style=Styles.container>
@@ -22,5 +50,5 @@ let make = (~navigation, _children) => {
                </Text>
              </View>
          )
-    </TabNavigator.Screen>,
+    </Screen>,
 };

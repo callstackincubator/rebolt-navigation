@@ -1,5 +1,7 @@
 open NavigationConfig;
 
+open TabNavigator;
+
 open BsReactNative;
 
 let component = ReasonReact.statelessComponent("Contacts");
@@ -111,7 +113,17 @@ let make =
     ) => {
   ...component,
   render: _self =>
-    <TabNavigator.Screen label="Contacts" navigation>
+    <Screen
+      tabItem=(
+        ({isActive}) =>
+          <TabBar.Item
+            label="Contacts"
+            style=(
+              Style.style([Style.color(String(isActive ? "blue" : "gray"))])
+            )
+          />
+      )
+      navigation>
       ...(
            () =>
              <View style=(Styles.container(custom))>
@@ -122,5 +134,5 @@ let make =
                />
              </View>
          )
-    </TabNavigator.Screen>,
+    </Screen>,
 };

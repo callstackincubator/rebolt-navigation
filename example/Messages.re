@@ -1,5 +1,7 @@
 open NavigationConfig;
 
+open TabNavigator;
+
 open BsReactNative;
 
 let component = ReasonReact.statelessComponent("Messages");
@@ -84,12 +86,22 @@ let extractor = (item, _index) => item.name;
 let make = (~navigation, ~custom: bool, _children) => {
   ...component,
   render: _self =>
-    <TabNavigator.Screen label="Messages" navigation>
+    <Screen
+      tabItem=(
+        ({isActive}) =>
+          <TabBar.Item
+            label="Messages"
+            style=(
+              Style.style([Style.color(String(isActive ? "blue" : "gray"))])
+            )
+          />
+      )
+      navigation>
       ...(
            () =>
              <View style=(Styles.container(custom))>
                <FlatList data renderItem keyExtractor=extractor />
              </View>
          )
-    </TabNavigator.Screen>,
+    </Screen>,
 };

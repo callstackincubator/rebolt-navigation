@@ -2,25 +2,28 @@ module CreateTabNavigator:
   (Config: {type route;}) =>
   {
     module TabNavigator: {
+      type tabItemProps = {isActive: bool};
       type currentRoute = Config.route;
       type jumpTo = Config.route => unit;
-      type options = {label: string};
-      type screenConfig = {
+      type tabItem = tabItemProps => ReasonReact.reactElement
+      and tabBarProps = {
+        screens,
+        currentRoute,
+        jumpTo,
+        indicatorColor: option(string),
+      }
+      and options = {tabItem}
+      and screenConfig = {
         route: Config.route,
-        label: string,
-      };
-      type screens = array(screenConfig);
+        tabItem,
+      }
+      and screens = array(screenConfig);
       type navigation = {
         screens,
         currentRoute,
         jumpTo,
         setOptions: options => unit,
         isActive: bool,
-      };
-      type tabBarProps = {
-        screens,
-        currentRoute,
-        jumpTo,
       };
       type action =
         | JumpTo(Config.route)
@@ -36,6 +39,8 @@ module CreateTabNavigator:
           ~renderTabBar: (~tabBarProps: tabBarProps) =>
                          ReasonReact.reactElement
                            =?,
+          ~safeAreaViewBackgroundColor: string=?,
+          ~indicatorColor: string=?,
           (~navigation: navigation) => ReasonReact.reactElement
         ) =>
         ReasonReact.componentSpec(
@@ -49,7 +54,7 @@ module CreateTabNavigator:
         let make:
           (
             ~navigation: navigation,
-            ~label: string,
+            ~tabItem: tabItemProps => ReasonReact.reactElement,
             unit => ReasonReact.reactElement
           ) =>
           ReasonReact.componentSpec(
@@ -61,19 +66,24 @@ module CreateTabNavigator:
           );
       };
       module TabBar: {
+        module Item: {
+          let make:
+            (
+              ~label: string,
+              ~icon: BsReactNative.Image.imageSource=?,
+              ~style: BsReactNative.Style.t=?,
+              'a
+            ) =>
+            ReasonReact.componentSpec(
+              ReasonReact.stateless,
+              ReasonReact.stateless,
+              ReasonReact.noRetainedProps,
+              ReasonReact.noRetainedProps,
+              ReasonReact.actionless,
+            );
+        };
         let make:
           (~tabBarProps: tabBarProps, 'a) =>
-          ReasonReact.componentSpec(
-            ReasonReact.stateless,
-            ReasonReact.stateless,
-            ReasonReact.noRetainedProps,
-            ReasonReact.noRetainedProps,
-            ReasonReact.actionless,
-          );
-      };
-      module TabBarItem: {
-        let make:
-          (~label: string, ~isActive: bool, 'a) =>
           ReasonReact.componentSpec(
             ReasonReact.stateless,
             ReasonReact.stateless,

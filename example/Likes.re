@@ -1,5 +1,7 @@
 open NavigationConfig;
 
+open TabNavigator;
+
 open BsReactNative;
 
 module Styles = {
@@ -13,7 +15,17 @@ let component = ReasonReact.statelessComponent("Likes");
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <TabNavigator.Screen label="Likes" navigation>
+    <Screen
+      tabItem=(
+        ({isActive}) =>
+          <TabBar.Item
+            label="Likes"
+            style=(
+              Style.style([Style.color(String(isActive ? "red" : "gray"))])
+            )
+          />
+      )
+      navigation>
       ...(
            () =>
              <View style=Styles.container>
@@ -22,5 +34,5 @@ let make = (~navigation, _children) => {
                </Text>
              </View>
          )
-    </TabNavigator.Screen>,
+    </Screen>,
 };
