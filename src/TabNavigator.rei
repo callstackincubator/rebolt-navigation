@@ -2,45 +2,28 @@ module CreateTabNavigator:
   (Config: {type route;}) =>
   {
     module TabNavigator: {
-      type tabItem =
-        | Label(string)
-        | Icon(BsReactNative.Image.imageSource)
-        | IconWithActiveIcon(
-            BsReactNative.Image.imageSource,
-            BsReactNative.Image.imageSource,
-          )
-        | LabelWithIcon(string, BsReactNative.Image.imageSource)
-        | LabelWithIconAndActiveIcon(
-            string,
-            BsReactNative.Image.imageSource,
-            BsReactNative.Image.imageSource,
-          );
+      type tabItemProps = {isActive: bool};
       type currentRoute = Config.route;
       type jumpTo = Config.route => unit;
-      type options = {
-        tabItem,
-        labelColor: option(string),
-        activeLabelColor: option(string),
-      };
-      type screenConfig = {
+      type tabItem = tabItemProps => ReasonReact.reactElement
+      and tabBarProps = {
+        screens,
+        currentRoute,
+        jumpTo,
+        indicatorColor: option(string),
+      }
+      and options = {tabItem}
+      and screenConfig = {
         route: Config.route,
         tabItem,
-        labelColor: option(string),
-        activeLabelColor: option(string),
-      };
-      type screens = array(screenConfig);
+      }
+      and screens = array(screenConfig);
       type navigation = {
         screens,
         currentRoute,
         jumpTo,
         setOptions: options => unit,
         isActive: bool,
-      };
-      type tabBarProps = {
-        screens,
-        currentRoute,
-        jumpTo,
-        indicatorColor: option(string),
       };
       type action =
         | JumpTo(Config.route)
@@ -71,9 +54,7 @@ module CreateTabNavigator:
         let make:
           (
             ~navigation: navigation,
-            ~tabItem: tabItem,
-            ~labelColor: string=?,
-            ~activeLabelColor: string=?,
+            ~tabItem: tabItemProps => ReasonReact.reactElement,
             unit => ReasonReact.reactElement
           ) =>
           ReasonReact.componentSpec(
@@ -85,25 +66,24 @@ module CreateTabNavigator:
           );
       };
       module TabBar: {
+        module Item: {
+          let make:
+            (
+              ~label: string,
+              ~icon: BsReactNative.Image.imageSource=?,
+              ~style: BsReactNative.Style.t=?,
+              'a
+            ) =>
+            ReasonReact.componentSpec(
+              ReasonReact.stateless,
+              ReasonReact.stateless,
+              ReasonReact.noRetainedProps,
+              ReasonReact.noRetainedProps,
+              ReasonReact.actionless,
+            );
+        };
         let make:
           (~tabBarProps: tabBarProps, 'a) =>
-          ReasonReact.componentSpec(
-            ReasonReact.stateless,
-            ReasonReact.stateless,
-            ReasonReact.noRetainedProps,
-            ReasonReact.noRetainedProps,
-            ReasonReact.actionless,
-          );
-      };
-      module TabBarItem: {
-        let make:
-          (
-            ~tabItem: tabItem,
-            ~labelColor: option(string),
-            ~activeLabelColor: option(string),
-            ~isActive: bool,
-            'a
-          ) =>
           ReasonReact.componentSpec(
             ReasonReact.stateless,
             ReasonReact.stateless,

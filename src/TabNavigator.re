@@ -295,7 +295,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
         screens:
           routes
           |> Array.map(route =>
-               {route, tabItem: tabItemProps => ReasonReact.nullElement}
+               {route, tabItem: _tabItemProps => ReasonReact.nullElement}
              ),
         currentRoute: initialRoute,
       },
