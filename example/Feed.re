@@ -32,7 +32,7 @@ let make =
       tabItem=(
         ({isActive}) =>
           <TabBar.Item
-            label="Yolo"
+            label="Feed"
             style=(
               Style.style([Style.color(String(isActive ? "red" : "gray"))])
             )
