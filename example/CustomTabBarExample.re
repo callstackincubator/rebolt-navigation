@@ -1,16 +1,17 @@
 open NavigationConfig;
 
-let component = ReasonReact.statelessComponent("Profile");
+let component = ReasonReact.statelessComponent("CustomTabBarExample");
 
 let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen headerTitle="Profile" navigation=nav>
+    <StackNavigator.Screen headerTitle="CustomTabBarExample" navigation=nav>
       ...(
            () =>
              <TabNavigator
                initialRoute=Config.ContactList
-               routes=[|Config.ContactList, Config.Messages, Config.About|]>
+               routes=[|Config.ContactList, Config.Messages, Config.About|]
+               renderTabBar=((~tabBarProps) => <CustomTabBar tabBarProps />)>
                ...(
                     (~navigation) =>
                       switch (navigation.currentRoute) {
@@ -18,9 +19,9 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
                         <ContactList
                           navigation
                           stackNavigation=nav
-                          custom=false
+                          custom=true
                         />
-                      | Config.Messages => <Messages navigation custom=false />
+                      | Config.Messages => <Messages navigation custom=true />
                       | _ => <Settings navigation stackNavigation=nav />
                       }
                   )

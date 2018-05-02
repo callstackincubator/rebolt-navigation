@@ -1,10 +1,7 @@
-type options = {idx: int};
-
 /**
  * Interpolates style
  */
-type interpolator =
-  (options, BsReactNative.Animated.Value.t) => BsReactNative.Style.t;
+type interpolator = BsReactNative.Animated.Value.t => BsReactNative.Style.t;
 
 /**
  * Animation type
@@ -26,17 +23,14 @@ type t = {
     ) =>
     BsReactNative.Animated.CompositeAnimation.t,
   forCard: interpolator,
-  forHeaderCenter: interpolator,
-  forHeaderLeft: interpolator,
-  forHeaderLeftLabel: interpolator,
-  forHeaderLeftButton: interpolator,
-  forHeaderRight: interpolator,
+  forHeader: interpolator,
 };
 
 /**
  * Slide in/out animation modelled after iOS platform interactions
  */
 let slideHorizontal: t;
+
 let fadeVertical: t;
 
 /**

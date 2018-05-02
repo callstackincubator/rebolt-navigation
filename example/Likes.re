@@ -1,4 +1,4 @@
-open Navigation;
+open NavigationConfig;
 
 open TabNavigator;
 

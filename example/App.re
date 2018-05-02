@@ -1,4 +1,4 @@
-open Navigation;
+open NavigationConfig;
 
 open BsReactNative;
 
@@ -22,7 +22,7 @@ module Main = {
                   state
                   |> Js.Json.parseExn
                   |> StackNavigator.Persistence.decode
-                | None => [|Config.TabExample|]
+                | None => [|Config.Welcome|]
                 },
               ),
             ),
@@ -55,6 +55,10 @@ module Main = {
                  | Config.TabExample => <TabExample navigation />
                  | Config.Home => <Home navigation />
                  | Config.Admin => <Admin navigation />
+                 | Config.Welcome => <Welcome navigation />
+                 | Config.UserProfile => <UserProfile navigation />
+                 | Config.CustomTabBarExample =>
+                   <CustomTabBarExample navigation />
                  | _ => <TabExample navigation />
                  }
              )

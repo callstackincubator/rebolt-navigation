@@ -1,4 +1,4 @@
-open Navigation;
+open NavigationConfig;
 
 open BsReactNative;
 
@@ -23,7 +23,7 @@ let make = (~navigation, _children) => {
   ...component,
   render: _self =>
     <StackNavigator.Screen
-      headerTitle="Admin"
+      headerTitle="Admindkasldkasldkdasdas"
       navigation
       headerStyle=Style.(style([backgroundColor(String("#FFF"))]))>
       ...(

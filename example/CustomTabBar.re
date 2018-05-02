@@ -1,6 +1,6 @@
 open BsReactNative;
 
-open Navigation;
+open NavigationConfig;
 
 module Styles = {
   open Style;
