@@ -6,8 +6,8 @@ sidebar_label: Tab Navigator
 
 ## Props
 
-* `~initialRoute`: `Config.RouteName` see [Config](get-started.html#usage),
-* `~routes`: `array([Config.route](get-started.html#usage))` see ,
+* `~initialRoute`: Single `Config.RouteName`, see [Config](get-started.html#usage)
+* `~routes`: array([Config.route](get-started.html#usage))
 * `~navigation`: Navigation instance
 * `~headerMode?`: `headerMode`,
 
@@ -23,7 +23,7 @@ sidebar_label: Tab Navigator
 
 ### Props
 
-* `~tabBarProps`: [tabBarProps](get-started.html#tabbarprops)
+* `~tabBarProps`: [tabBarProps](api-tab-navigator.html#tabbarprops)
 
 ## TabBarItem
 
@@ -37,7 +37,7 @@ sidebar_label: Tab Navigator
 
 ### TabBarProps
 
-* `screens`: `array([screenConfig](get-started.html#screenconfig))`
+* `screens`: array([screenConfig](api-tab-navigator.html#screenconfig))
 * `currentRoute`: [Config.route](get-started.html#usage)
 * `jumpTo`,
 

@@ -7,8 +7,9 @@ sidebar_label: Stack Navigator
 ## Props
 
 * `~initialState`: Array with initial route `array(Config.Route name)`, see [Config](get-started.html#usage),
-* `~onStateChange?`: Function of type `tpersistedState => unit`, see [persistedState](api-stack-navigator.html#persistedstate),
-* `~headerMode`: headerMode=?,
+* `~onStateChange?`: Function of type: [persistedState](api-stack-navigator.html#persistedstate)`=> unit`
+* `~headerComponent?`: [Header](api-stack-navigator.html#header)
+* `~headerMode?`: headerMode,
 
 ## Screen
 
@@ -40,13 +41,13 @@ props:
 
 ### persistedState
 
-`array(Config.route)`
+`array(Config.route)` see [Config](get-started.html#usage)
 
 ### screen
 
 * `header`: [config](api-stack-navigator.html#config),
-* `animation`: Animation.t,
-* `key`: string,
+* `animation`: `Animation`,
+* `key`: `string`,
   }
 
 ### config
