@@ -1,14 +1,9 @@
 {
   "name": "reason-reroute",
-  "bsc-flags": [
-    "-bs-no-version-header",
-    "-bs-super-errors"
-  ],
+  "bsc-flags": ["-bs-no-version-header", "-bs-super-errors"],
   "refmt": 3,
-  "bs-dependencies": [
-    "reason-react",
-    "bs-react-native"
-  ],
+  "bs-dependencies": ["reason-react", "bs-react-native"],
+  "bs-dev-dependencies": ["@glennsl/bs-jest"],
   "reason": {
     "react-jsx": 2
   },
@@ -21,6 +16,10 @@
     },
     {
       "dir": "example",
+      "type": "dev"
+    },
+    {
+      "dir": "__tests__",
       "type": "dev"
     }
   ]

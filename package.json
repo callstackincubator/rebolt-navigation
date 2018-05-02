@@ -11,7 +11,7 @@
     "run-ios": "react-native run-ios --project-path \"./example/.native/ios\"",
     "run-android": "react-native run-android --root \"./example/.native\"",
     "start-example": "node ./node_modules/react-native/local-cli/cli.js start --root ./example",
-    "test": "exit 0"
+    "test": "npm run build && jest"
   },
   "keywords": [
     "router",
@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/callstack/reroute#readme",
   "devDependencies": {
+    "@glennsl/bs-jest": "^0.4.2",
     "bs-platform": "^2.1.0",
     "bs-react-native": "reasonml-community/bs-react-native#f0795f6",
     "react": "^16.3.0-alpha.1",
