@@ -20,6 +20,7 @@ module Styles = {
       width(Pt(100.)),
     ]);
   let buttonText = style([textAlign(Center)]);
+  let title = style([fontSize(Float(20.))]);
 };
 
 let renderButtons = (nav: StackNavigator.navigation) =>
@@ -46,7 +47,9 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
       ...(
            () =>
              <View style=Styles.continer>
-               <Text> (ReasonReact.stringToElement("You are on Home")) </Text>
+               <Text style=Styles.title>
+                 (ReasonReact.stringToElement("Home screen"))
+               </Text>
                (renderButtons(nav))
              </View>
          )

@@ -20,6 +20,7 @@ module Styles = {
       width(Pt(100.)),
     ]);
   let buttonText = style([textAlign(Center)]);
+  let title = style([fontSize(Float(20.))]);
 };
 
 let renderButtons = (nav: StackNavigator.navigation) =>
@@ -48,8 +49,8 @@ let make = (~navigation, _children) => {
       ...(
            () =>
              <View style=Styles.container>
-               <Text>
-                 (ReasonReact.stringToElement("You are on Admin"))
+               <Text style=Styles.title>
+                 (ReasonReact.stringToElement("Admin screen"))
                </Text>
                (renderButtons(navigation))
              </View>
