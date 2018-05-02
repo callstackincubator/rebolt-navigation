@@ -9,14 +9,13 @@ sidebar_label: Tab Navigator
 * `~initialRoute`: Single `Config.RouteName`, see [Config](get-started.html#usage)
 * `~routes`: array([Config.route](get-started.html#usage))
 * `~navigation`: Navigation instance
-* `~headerMode?`: `headerMode`,
 
 ## Screen
 
 ### Props
 
-* `~navigation`: Navigation instance,
-* `~label`: `string`,
+* `~navigation`: Navigation instance
+* `~label`: `string`
 * `~isActive`: `bool`
 
 ## TabBar
@@ -29,8 +28,8 @@ sidebar_label: Tab Navigator
 
 ### Props
 
-* `~navigation`: Navigation instance,
-* `~label`: `string`,
+* `~navigation`: Navigation instance
+* `~label`: `string`
 * `~isActive`: `bool`
 
 ## Types
@@ -39,9 +38,9 @@ sidebar_label: Tab Navigator
 
 * `screens`: array([screenConfig](api-tab-navigator.html#screenconfig))
 * `currentRoute`: [Config.route](get-started.html#usage)
-* `jumpTo`,
+* `jumpTo`
 
 ### screenConfig
 
-* `route`: [Config.route](get-started.html#usage),
-* `label`: `string`,
+* `route`: [Config.route](get-started.html#usage)
+* `label`: `string`
