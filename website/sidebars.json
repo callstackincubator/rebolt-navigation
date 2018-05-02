@@ -3,5 +3,8 @@
     "Intro": ["intro"],
     "Get Started": ["get-started", "contributing"],
     "Navigators": ["stack-navigator", "tab-navigator"]
+  },
+  "api": {
+    "API": ["api-stack-navigator", "api-tab-navigator"]
   }
 }

@@ -13,8 +13,8 @@ const users = [
     caption: 'User1',
     image: '/test-site/img/docusaurus.svg',
     infoLink: 'https://www.facebook.com',
-    pinned: true
-  }
+    pinned: true,
+  },
 ];
 
 const siteConfig = {
@@ -27,8 +27,9 @@ const siteConfig = {
   organizationName: 'callstack',
   headerLinks: [
     { doc: 'intro', label: 'Docs' },
+    { doc: 'api-stack-navigator', label: 'API' },
     { page: 'help', label: 'Help' },
-    { blog: false, label: 'Blog' }
+    { blog: false, label: 'Blog' },
   ],
   users,
   headerIcon: 'img/logo.png',
@@ -36,7 +37,7 @@ const siteConfig = {
   favicon: 'img/logo.png',
   colors: {
     primaryColor: '#da4453',
-    secondaryColor: '#8cc152'
+    secondaryColor: '#8cc152',
   },
   copyright: 'Copyright © ' + new Date().getFullYear() + ' Callstack',
   highlight: {
@@ -68,32 +69,32 @@ const siteConfig = {
             'reverse roundUpToAlignment sizeof sizeofValue sort split startsWith strideof ' +
             'strideofValue swap swift toString transcode underestimateCount ' +
             'unsafeReflect withExtendedLifetime withObjectAtPlusZero withUnsafePointer ' +
-            'withUnsafePointerToObject withUnsafePointers withVaList'
+            'withUnsafePointerToObject withUnsafePointers withVaList',
         };
 
         var TYPE = {
           className: 'type',
           begin: "\\b[A-Z][\\w']*",
-          relevance: 0
+          relevance: 0,
         };
         var BLOCK_COMMENT = hljs.COMMENT('/\\*', '\\*/', {
-          contains: ['self']
+          contains: ['self'],
         });
         var SUBST = {
           className: 'subst',
           begin: /\\\(/,
           end: '\\)',
           keywords: SWIFT_KEYWORDS,
-          contains: [] // assigned later
+          contains: [], // assigned later
         };
         var NUMBERS = {
           className: 'number',
           begin:
             '\\b([\\d_]+(\\.[\\deE_]+)?|0x[a-fA-F0-9_]+(\\.[a-fA-F0-9p_]+)?|0b[01_]+|0o[0-7_]+)\\b',
-          relevance: 0
+          relevance: 0,
         };
         var QUOTE_STRING_MODE = hljs.inherit(hljs.QUOTE_STRING_MODE, {
-          contains: [SUBST, hljs.BACKSLASH_ESCAPE]
+          contains: [SUBST, hljs.BACKSLASH_ESCAPE],
         });
         SUBST.contains = [NUMBERS];
 
@@ -113,13 +114,13 @@ const siteConfig = {
               contains: [
                 hljs.inherit(hljs.TITLE_MODE, {
                   begin: /[A-Za-z$_][0-9A-Za-z$_]*/,
-                  illegal: /\(/
+                  illegal: /\(/,
                 }),
                 {
                   className: 'generics',
                   begin: /</,
                   end: />/,
-                  illegal: />/
+                  illegal: />/,
                 },
                 {
                   className: 'params',
@@ -133,12 +134,12 @@ const siteConfig = {
                     NUMBERS,
                     QUOTE_STRING_MODE,
                     hljs.C_BLOCK_COMMENT_MODE,
-                    { begin: ':' } // relevance booster
+                    { begin: ':' }, // relevance booster
                   ],
-                  illegal: /["]/
-                }
+                  illegal: /["]/,
+                },
               ],
-              illegal: /\[|%/
+              illegal: /\[|%/,
             },
             {
               className: 'class',
@@ -148,9 +149,9 @@ const siteConfig = {
               excludeEnd: true,
               contains: [
                 hljs.inherit(hljs.TITLE_MODE, {
-                  begin: /[A-Za-z$_][0-9A-Za-z$_]*/
-                })
-              ]
+                  begin: /[A-Za-z$_][0-9A-Za-z$_]*/,
+                }),
+              ],
             },
             {
               className: 'preprocessor',
@@ -158,18 +159,18 @@ const siteConfig = {
                 '(@assignment|@class_protocol|@exported|@final|@lazy|@noreturn|' +
                 '@NSCopying|@NSManaged|@objc|@optional|@required|@auto_closure|' +
                 '@noreturn|@IBAction|@IBDesignable|@IBInspectable|@IBOutlet|' +
-                '@infix|@prefix|@postfix)'
-            }
-          ]
+                '@infix|@prefix|@postfix)',
+            },
+          ],
         };
       });
-    }
+    },
   },
   scripts: ['https://buttons.github.io/buttons.js'],
   onPageNav: 'separate',
   ogImage: 'img/logopng',
   twitterImage: 'img/logopng',
-  repoUrl: 'https://github.com/callstack/reroute-native'
+  repoUrl: 'https://github.com/callstack/reroute-native',
 };
 
 module.exports = siteConfig;
