@@ -68,7 +68,7 @@ Every component rendered in StackNavigator needs to be wrapped in `StackNavigato
       ...(
            () =>
              <View>
-               <Text> (ReasonReact.stringToElement("Admin")) </Text>
+               <Text> (ReasonReact.string("Admin")) </Text>
              </View>
          )
     </StackNavigator.Screen>

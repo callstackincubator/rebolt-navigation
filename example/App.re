@@ -28,7 +28,7 @@ module Main = {
             ),
         (),
       );
-      ReasonReact.NoUpdate;
+      ();
     },
     reducer: (action, state) =>
       switch (action) {

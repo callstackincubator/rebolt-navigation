@@ -72,7 +72,7 @@ let make = (~navigation, _children) => {
       ...(
            () =>
              <View style=Styles.container>
-               <Text> (ReasonReact.stringToElement("Feed")) </Text>
+               <Text> (ReasonReact.string("Feed")) </Text>
              </View>
          )
     </TabNavigator.Screen>,

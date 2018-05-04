@@ -29,13 +29,13 @@ let renderButtons = (nav: StackNavigator.navigation) =>
       style=(Styles.button("#4cd964"))
       onPress=(_e => nav.push(Config.Admin))>
       <Text style=Styles.buttonText>
-        (ReasonReact.stringToElement("Push"))
+        (ReasonReact.string("Push"))
       </Text>
     </TouchableOpacity>
     <TouchableOpacity
       style=(Styles.button("#ff9500")) onPress=(_e => nav.pop())>
       <Text style=Styles.buttonText>
-        (ReasonReact.stringToElement("Pop"))
+        (ReasonReact.string("Pop"))
       </Text>
     </TouchableOpacity>
   </View>;
@@ -48,7 +48,7 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
            () =>
              <View style=Styles.continer>
                <Text style=Styles.title>
-                 (ReasonReact.stringToElement("Home screen"))
+                 (ReasonReact.string("Home screen"))
                </Text>
                (renderButtons(nav))
              </View>

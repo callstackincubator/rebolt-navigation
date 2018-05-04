@@ -1266,9 +1266,9 @@ braces@^2.3.1:
     split-string "^3.0.2"
     to-regex "^3.0.1"
 
-bs-platform@^2.1.0:
-  version "2.2.3"
-  resolved "https://registry.npmjs.org/bs-platform/-/bs-platform-2.2.3.tgz#d905ae10a5f3621e6a739041dfa0b58483a2174f"
+bs-platform@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.npmjs.org/bs-platform/-/bs-platform-3.0.0.tgz#38f200730db52fdea37819376b6ac3dfb20244c0"
 
 bs-react-native@reasonml-community/bs-react-native#f0795f6:
   version "0.5.0"
@@ -3568,9 +3568,9 @@ readable-stream@~1.1.9:
     isarray "0.0.1"
     string_decoder "~0.10.x"
 
-reason-react@^0.3.2:
-  version "0.3.4"
-  resolved "https://registry.npmjs.org/reason-react/-/reason-react-0.3.4.tgz#afec4073ec0ea8122833f52b7e77219ef8ab8467"
+reason-react@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.npmjs.org/reason-react/-/reason-react-0.4.1.tgz#f1c8bf0d116be6bf43109912ee4d95e58dd7c64f"
   dependencies:
     react ">=15.0.0 || >=16.0.0"
     react-dom ">=15.0.0 || >=16.0.0"

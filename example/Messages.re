@@ -63,11 +63,11 @@ let renderItem =
   FlatList.renderItem((contact: FlatList.renderBag(contact)) =>
     <View style=Styles.listItem>
       <Text style=Styles.name>
-        (ReasonReact.stringToElement(contact.item.name))
+        (ReasonReact.string(contact.item.name))
       </Text>
       <View style=Styles.rightActions>
         <Text>
-          (ReasonReact.stringToElement(string_of_int(contact.item.count)))
+          (ReasonReact.string(string_of_int(contact.item.count)))
         </Text>
         <TouchableOpacity>
           <Image

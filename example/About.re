@@ -46,7 +46,7 @@ let make = (~navigation, _children) => {
            () =>
              <View style=Styles.container>
                <Text style=Style.(style([fontSize(Float(24.))]))>
-                 (ReasonReact.stringToElement("About"))
+                 (ReasonReact.string("About"))
                </Text>
              </View>
          )

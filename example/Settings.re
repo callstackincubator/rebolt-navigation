@@ -43,13 +43,13 @@ let make =
            () =>
              <View style=Styles.container>
                <Text style=Styles.title>
-                 (ReasonReact.stringToElement("My Settings"))
+                 (ReasonReact.string("My Settings"))
                </Text>
                <TouchableOpacity
                  onPress=(_e => navigation.jumpTo(Config.ContactList))>
                  <View style=(Styles.button("#2180f7"))>
                    <Text style=Styles.buttonText>
-                     (ReasonReact.stringToElement("Go to contacts"))
+                     (ReasonReact.string("Go to contacts"))
                    </Text>
                  </View>
                </TouchableOpacity>
@@ -57,7 +57,7 @@ let make =
                  onPress=(_e => navigation.jumpTo(Config.Messages))>
                  <View style=(Styles.button("#4cd964"))>
                    <Text style=Styles.buttonText>
-                     (ReasonReact.stringToElement("Go to messages"))
+                     (ReasonReact.string("Go to messages"))
                    </Text>
                  </View>
                </TouchableOpacity>
@@ -65,7 +65,7 @@ let make =
                  onPress=(_e => stackNavigation.push(Config.Home))>
                  <View style=(Styles.button("#ff2242"))>
                    <Text style=Styles.buttonText>
-                     (ReasonReact.stringToElement("Take me to stack"))
+                     (ReasonReact.string("Take me to stack"))
                    </Text>
                  </View>
                </TouchableOpacity>

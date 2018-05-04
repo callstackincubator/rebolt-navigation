@@ -30,12 +30,12 @@
   },
   "homepage": "https://github.com/callstack/reroute#readme",
   "devDependencies": {
-    "bs-platform": "^2.1.0",
+    "bs-platform": "^3.0.0",
     "bs-react-native": "reasonml-community/bs-react-native#f0795f6",
     "react": "^16.3.0-alpha.1",
     "react-native": "0.54.0",
     "react-native-gesture-handler": "^1.0.0-alpha.41",
-    "reason-react": "^0.3.2"
+    "reason-react": "^0.4.1"
   },
   "peerDependencies": {
     "bs-react-native": "reasonml-community/bs-react-native#f0795f6",
