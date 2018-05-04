@@ -64,11 +64,11 @@ let make = (~navigation: StackNavigator.navigation, _children) => {
                             }
                         )>
                         <Text style=Style.text>
-                          (ReasonReact.stringToElement(route))
+                          (ReasonReact.string(route))
                         </Text>
                       </TouchableOpacity>;
                     })
-                 |> ReasonReact.arrayToElement
+                 |> ReasonReact.array
                )
              </View>
          )

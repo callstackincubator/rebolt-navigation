@@ -86,7 +86,7 @@ let renderItem = (nav: StackNavigator.navigation) =>
     <TouchableOpacity
       style=Styles.listItem onPress=(_e => nav.push(Config.UserProfile))>
       <Text style=Styles.name>
-        (ReasonReact.stringToElement(contact.item.name))
+        (ReasonReact.string(contact.item.name))
       </Text>
       <View style=Styles.rightActions>
         <View style=(Styles.online(contact.item.online)) />

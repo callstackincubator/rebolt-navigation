@@ -21,12 +21,12 @@ let make = (~navigation: StackNavigator.navigation, _children) => {
            () =>
              <View style=Style.container>
                <Text style=Style.text>
-                 (ReasonReact.stringToElement("User profile"))
+                 (ReasonReact.string("User profile"))
                </Text>
                <TouchableOpacity
                  onPress=(_e => navigation.push(Config.Admin))>
                  <Text style=Style.text>
-                   (ReasonReact.stringToElement("Go to Admin"))
+                   (ReasonReact.string("Go to Admin"))
                  </Text>
                </TouchableOpacity>
              </View>

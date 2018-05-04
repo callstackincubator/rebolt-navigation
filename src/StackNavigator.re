@@ -97,7 +97,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
               "onHandlerStateChange": onHandlerStateChange,
               "maxDeltaX": maxDeltaX,
               "minDeltaX": minDeltaX,
-              "enabled": Js.Boolean.to_js_boolean(enabled),
+              "enabled": enabled,
               "hitSlop": hitSlop,
             },
             children,
@@ -141,7 +141,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
             Animated.Spring.animate(
               ~value=animatedValue,
               ~velocity=e##velocityX,
-              ~useNativeDriver=Js.true_,
+              ~useNativeDriver=true,
               ~toValue=`raw(float_of_int(toValue)),
               (),
             ),
@@ -209,9 +209,9 @@ module CreateStackNavigator = (Config: {type route;}) => {
           | `Pop => (((-1.0), 0.0), (0.0, 1.0))
           };
         /**
-         * There seems to be a bug with `Animated` that it resets 
-         * Animated.Values to its initial values after the transition finishes. 
-         * 
+         * There seems to be a bug with `Animated` that it resets
+         * Animated.Values to its initial values after the transition finishes.
+         *
          * Since `bs-react-native` doesn't currently support `fromValue` attribute,
          * we explicitly setValues before starting a new animation.
          */
@@ -237,11 +237,11 @@ module CreateStackNavigator = (Config: {type route;}) => {
                 ~toValue=`raw(sndValues |> snd),
               ),
             |],
-            {"stopTogether": Js.Boolean.to_js_boolean(false)},
+            {"stopTogether": false},
           ),
           ~callback=
             end_ =>
-              if (action == `Pop && Js.to_bool(end_##finished)) {
+              if (action == `Pop && end_##finished) {
                 self.send(RemoveStaleScreen(second.key));
               },
           (),
@@ -528,7 +528,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                        )
                      </Animated.View>;
                    })
-                |> ReasonReact.arrayToElement
+                |> ReasonReact.array
               )
             </Animated.View>
           </Gestures.PanHandler>
@@ -567,7 +567,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
             animation,
             style,
           });
-          ReasonReact.NoUpdate;
+          ();
         },
         render: _self => {
           let body = children();

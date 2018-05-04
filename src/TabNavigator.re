@@ -198,7 +198,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
                 <Image source=icon style=Styles.tabBarItemIcon />
                 (
                   switch (label) {
-                  | "" => ReasonReact.nullElement
+                  | "" => ReasonReact.null
                   | _ =>
                     let itemText =
                       switch (Platform.os()) {
@@ -215,14 +215,14 @@ module CreateTabNavigator = (Config: {type route;}) => {
                           },
                         ])
                       )>
-                      (ReasonReact.stringToElement(itemText))
+                      (ReasonReact.string(itemText))
                     </Text>;
                   }
                 )
               </View>
             | (label, None) =>
               switch (label) {
-              | "" => ReasonReact.nullElement
+              | "" => ReasonReact.null
               | _ =>
                 let itemText =
                   switch (Platform.os()) {
@@ -239,7 +239,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
                       },
                     ])
                   )>
-                  (ReasonReact.stringToElement(itemText))
+                  (ReasonReact.string(itemText))
                 </Text>;
               }
             },
@@ -267,10 +267,10 @@ module CreateTabNavigator = (Config: {type route;}) => {
                            )
                          )
                        /> :
-                       ReasonReact.nullElement;
+                       ReasonReact.null;
                    })
-                |> ReasonReact.arrayToElement
-              | _ => ReasonReact.nullElement
+                |> ReasonReact.array
+              | _ => ReasonReact.null
               }
             )
             (
@@ -285,7 +285,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
                      </View>
                    </TouchableWithoutFeedback>;
                  })
-              |> ReasonReact.arrayToElement
+              |> ReasonReact.array
             )
           </View>,
       };
@@ -305,7 +305,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
         screens:
           routes
           |> Array.map(route =>
-               {route, tabItem: _tabItemProps => ReasonReact.nullElement}
+               {route, tabItem: _tabItemProps => ReasonReact.null}
              ),
         currentRoute: initialRoute,
       },
@@ -350,7 +350,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
                      )
                    </View>;
                  })
-              |> ReasonReact.arrayToElement
+              |> ReasonReact.array
             )
             (
               switch (renderTabBar) {
@@ -388,12 +388,12 @@ module CreateTabNavigator = (Config: {type route;}) => {
         ...component,
         didMount: _self => {
           navigation.setOptions({tabItem: tabItem});
-          ReasonReact.NoUpdate;
+          ();
         },
         render: _self =>
           navigation.isActive ?
             <View style=Styles.tabContainer> (children()) </View> :
-            ReasonReact.nullElement,
+            ReasonReact.null,
       };
     };
   };

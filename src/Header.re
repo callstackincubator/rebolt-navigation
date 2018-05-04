@@ -55,9 +55,8 @@ module TouchableNativeFeedback = {
   module Background = {
     type t;
     [@bs.module "react-native"] [@bs.scope "TouchableNativeFeedback"]
-    external ripple_ : (string, Js.boolean) => t = "Ripple";
-    let ripple = (color, borderless) =>
-      ripple_(color, Js.Boolean.to_js_boolean(borderless));
+    external ripple_ : (string, bool) => t = "Ripple";
+    let ripple = (color, borderless) => ripple_(color, borderless);
   };
   [@bs.module "react-native"]
   external view : ReasonReact.reactClass = "TouchableNativeFeedback";
@@ -330,7 +329,7 @@ module IOSImpl = {
                           )>
                           <Text style=Styles.leftTitle numberOfLines=1>
                             (
-                              ReasonReact.stringToElement(
+                              ReasonReact.string(
                                 /***
                                  * Measure the space left for the back button and decide
                                  * whether to print "Back" or the original back button,
@@ -357,7 +356,7 @@ module IOSImpl = {
                             )
                           </Text>
                         </Animated.View>
-                      | None => ReasonReact.nullElement
+                      | None => ReasonReact.null
                       }
                     )
                   </View>
@@ -392,7 +391,7 @@ module IOSImpl = {
             | None =>
               <Text style=Styles.headerTitle numberOfLines=1>
                 (
-                  ReasonReact.stringToElement(
+                  ReasonReact.string(
                     header.title |> Js.Option.getWithDefault(""),
                   )
                 )
@@ -412,7 +411,7 @@ module IOSImpl = {
           (
             switch (scr(p).header.right) {
             | Some(func) => func(p)
-            | None => ReasonReact.nullElement
+            | None => ReasonReact.null
             }
           )
         </Animated.View>;
@@ -453,7 +452,7 @@ module IOSImpl = {
                    );
                  /* Render a header for two last routes to improve performance */
                  if (lastIdx - idx > 2) {
-                   ReasonReact.nullElement;
+                   ReasonReact.null;
                  } else {
                    <MaskedView
                      key=screen.key
@@ -472,7 +471,7 @@ module IOSImpl = {
                    </MaskedView>;
                  };
                })
-            |> ReasonReact.arrayToElement
+            |> ReasonReact.array
           )
         </View>
       </SafeAreaView>;
@@ -527,7 +526,7 @@ module Android = {
     | None =>
       <Text style=Styles.title>
         (
-          ReasonReact.stringToElement(
+          ReasonReact.string(
             scr(p).header.title |> Js.Option.getWithDefault(""),
           )
         )
@@ -551,7 +550,7 @@ module Android = {
   let renderRight = p =>
     switch (scr(p).header.right) {
     | Some(func) => func(p)
-    | None => ReasonReact.nullElement
+    | None => ReasonReact.null
     };
   let make = (~headerProps as p: props, _children) => {
     ...component,

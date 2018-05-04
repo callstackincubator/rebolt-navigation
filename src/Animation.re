@@ -19,7 +19,7 @@ let slideHorizontal = {
       ~stiffness=1000.0,
       ~damping=500.0,
       ~mass=3.0,
-      ~useNativeDriver=Js.Boolean.to_js_boolean(true),
+      ~useNativeDriver=true,
       (),
     ),
   forCard: value => {
@@ -56,8 +56,8 @@ let fadeVertical = {
   func:
     Animated.Timing.animate(
       ~duration=350.0,
-      ~easing=t => Js.Math.pow_float(t, 5.0),
-      ~useNativeDriver=Js.Boolean.to_js_boolean(true),
+      ~easing=t => Js.Math.pow_float(~base=t, ~exp=5.0),
+      ~useNativeDriver=true,
       (),
     ),
   forCard: value =>
@@ -96,10 +96,5 @@ let default =
 
 let none = {
   ...default,
-  func:
-    Animated.Timing.animate(
-      ~duration=0.0,
-      ~useNativeDriver=Js.Boolean.to_js_boolean(true),
-      (),
-    ),
+  func: Animated.Timing.animate(~duration=0.0, ~useNativeDriver=true, ()),
 };

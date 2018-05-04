@@ -43,7 +43,7 @@ let make = (~tabBarProps: TabNavigator.tabBarProps, _children) => {
                (screen.tabItem({isActive: isActive}))
              </TouchableOpacity>;
            })
-        |> ReasonReact.arrayToElement
+        |> ReasonReact.array
       )
     </View>,
 };

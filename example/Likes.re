@@ -30,7 +30,7 @@ let make = (~navigation, _children) => {
            () =>
              <View style=Styles.container>
                <Text style=Style.(style([fontSize(Float(24.))]))>
-                 (ReasonReact.stringToElement("Likes"))
+                 (ReasonReact.string("Likes"))
                </Text>
              </View>
          )
