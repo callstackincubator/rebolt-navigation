@@ -28,8 +28,6 @@ const siteConfig = {
   headerLinks: [
     { doc: 'intro', label: 'Docs' },
     { doc: 'api-stack-navigator', label: 'API' },
-    { page: 'help', label: 'Help' },
-    { blog: false, label: 'Blog' },
   ],
   users,
   headerIcon: 'img/logo.png',
