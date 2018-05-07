@@ -35,7 +35,7 @@ const siteConfig = {
   favicon: 'img/logo.png',
   colors: {
     primaryColor: '#da4453',
-    secondaryColor: '#8cc152',
+    secondaryColor: '#2f4f92',
   },
   copyright: 'Copyright © ' + new Date().getFullYear() + ' Callstack',
   highlight: {
