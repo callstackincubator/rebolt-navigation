@@ -46,8 +46,7 @@ Let's see an example to what we described above:
 
 ## Screen
 
-Every component that is rendered by `TabNavigator` needs to be wrapped in `Screen` component. This allows you pass an extra info to Tab Navigator like a label that will be showed in the default `TabBar`. `TabNavigator.Screen` component requires you to pass the navigation prop that you receive from the `TabNavigator`. This is way in the example above we passed the `navigation` prop to every single component that is rendered by `TabNavigator`.
-
+Every component that is rendered by `TabNavigator` needs to be wrapped in `Screen` component. That allows you to customize `TabBar` item as you like by setting `tabItem` props. `tabItem` it is a function that receives `tabItemProps` e.g. `isActive` which indicate whether the tab is active or not. Returned can be any component or you can use default `TabBar.Item`. `TabBar.Item` and pass props like: `label`, `icon` or `style`. `TabNavigator.Screen` component requires you to pass the navigation prop that you receive from the `TabNavigator`. This is way in the example above we passed the `navigation` prop to every single component that is rendered by `TabNavigator`.
 Here is how you could use the `Screen` component:
 
 **Feed.re**
@@ -68,7 +67,15 @@ let component = ReasonReact.statelessComponent("Feed");
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <TabNavigator.Screen label="Feed" navigation>
+    <TabNavigator.Screen
+      tabItem=(
+        ({isActive}) =>
+          <TabBar.Item
+            label="Contacts"
+            style=(
+              Style.style([Style.color(String(isActive ? "blue" : "gray"))])
+            )
+      navigation>
       ...(
            () =>
              <View style=Styles.container>
