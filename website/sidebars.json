@@ -2,7 +2,8 @@
   "docs": {
     "Intro": ["intro"],
     "Get Started": ["get-started", "contributing"],
-    "Navigators": ["stack-navigator", "tab-navigator"]
+    "Navigators": ["stack-navigator", "tab-navigator"],
+    "Guide": ["persisted"]
   },
   "api": {
     "API": ["api-stack-navigator", "api-tab-navigator"]

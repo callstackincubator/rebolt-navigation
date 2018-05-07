@@ -14,6 +14,8 @@
     "Quick start": "Quick start",
     "intro": "What is ReRoute?",
     "What is ReRoute?": "What is ReRoute?",
+    "persisted": "Persisted state",
+    "Persisted state": "Persisted state",
     "stack-navigator": "Stack Navigator",
     "tab-navigator": "Tab Navigator",
     "Docs": "Docs",
@@ -22,7 +24,8 @@
     "Blog": "Blog",
     "Intro": "Intro",
     "Get Started": "Get Started",
-    "Navigators": "Navigators"
+    "Navigators": "Navigators",
+    "Guide": "Guide"
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",
