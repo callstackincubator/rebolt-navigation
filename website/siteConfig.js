@@ -28,8 +28,6 @@ const siteConfig = {
   headerLinks: [
     { doc: 'intro', label: 'Docs' },
     { doc: 'api-stack-navigator', label: 'API' },
-    { page: 'help', label: 'Help' },
-    { blog: false, label: 'Blog' },
   ],
   users,
   headerIcon: 'img/logo.png',
@@ -37,7 +35,7 @@ const siteConfig = {
   favicon: 'img/logo.png',
   colors: {
     primaryColor: '#da4453',
-    secondaryColor: '#8cc152',
+    secondaryColor: '#2f4f92',
   },
   copyright: 'Copyright © ' + new Date().getFullYear() + ' Callstack',
   highlight: {
