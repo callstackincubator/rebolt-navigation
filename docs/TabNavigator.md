@@ -75,7 +75,9 @@ let make = (~navigation, _children) => {
             style=(
               Style.style([Style.color(String(isActive ? "blue" : "gray"))])
             )
-      navigation>
+            navigation
+          />
+      )>
       ...(
            () =>
              <View style=Styles.container>
