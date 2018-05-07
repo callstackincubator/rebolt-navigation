@@ -4,40 +4,48 @@ title: Persisted state
 sidebar_label: Persisted state
 ---
 
-If you would like to keep your navigation history, you can use asyncstorage.
-In your main component, there where you define `StackNavigator`.
+## Introduction
 
-First define `reducerComponent`:
+In some cases, it's a good idea to keep your navigation history e.g. If someone closes the app and opens it again, it expects to be on the last visited screen.
+
+We can quickly do this using `AsyncStorage` and adding few modifications in your main component where you define `StackNavigator`.
+
+## Component
+
+First, define your main component with `reducerComponent`:
 
 ```js
 let component = ReasonReact.reducerComponent('Main');
 ```
 
-Now we need to define a type of component state and our actions:
+## State
 
-State:
+Define the type of your state:
 
 ```js
 type state = {persistedState: option(StackNavigator.persistedState)};
 ```
 
-Actions:
+## Actions
 
 ```js
 type action =
     | Rehydrate(StackNavigator.persistedState);
 ```
 
-Now is time to define the `main` method of our component.
+## Initial state
 
-We start from initial state:
+Now it is time to define the `main` method of our component.
+
+Let's start from initial state:
 
 ```js
 let make = _children => {
     ...component,
     initialState: () => {persistedState: None},
-...
 ```
+
+## Reducer
 
 We need to define `reducer` method to handle our actions
 
@@ -49,48 +57,54 @@ reducer: (action, _state) =>
   },
 ```
 
-Our next step is to define `didUpdate` component lifecycle method. Here we used `AsyncStorage` to store our routes and rehydrate action from our component.
+## didUpdate
+
+Next step is to define `didUpdate` component lifecycle method.
+Here we use `AsyncStorage` to get our routes from `AsyncStorage` if any exists.
+If any routes config exists, then we do rehydrate our state. Otherwise, we use the default configuration.
 
 ```js
 didMount: self => {
-      AsyncStorage.getItem(
-        "$state",
-        ~callback=
-          (_, value) =>
-            self.send(
-              Rehydrate(
-                switch (value) {
-                | Some(state) =>
-                  state
-                  |> Js.Json.parseExn
-                  |> StackNavigator.Persistence.decode
-                | None => [|Config.Welcome|]
-                },
-              ),
-            ),
-        (),
-      );
-      ReasonReact.NoUpdate;
-    },
+  AsyncStorage.getItem(
+    "$state",
+    ~callback=
+      (_, value) =>
+        self.send(
+          Rehydrate(
+            switch (value) {
+            | Some(state) =>
+              state
+              |> Js.Json.parseExn
+              |> StackNavigator.Persistence.decode
+            | None => [|Config.Welcome|]
+            },
+          ),
+        ),
+    (),
+  );
+  ReasonReact.NoUpdate;
+},
 ```
 
-The last think is to render StackNavigator with `initialState` and `onStateChange`
+## StackNavigator
 
-`onStateChange`:
+The last thing is to render StackNavigator with `initialState` and `onStateChange` props
 
 ```js
-(
-  state =>
-    AsyncStorage.setItem(
-      "$state",
-      state |> StackNavigator.Persistence.encode |> Js.Json.stringify,
-      (),
-    )
-    |> ignore
-)
+<StackNavigator
+  initialState=state
+  onStateChange=(
+    state =>
+      AsyncStorage.setItem(
+        "$state",
+        state |> StackNavigator.Persistence.encode |> Js.Json.stringify,
+        (),
+      )
+      |> ignore
+  )>
 ```
 
-### Full Example:
+## Full Example
 
 ```js
 open NavigationConfig;
