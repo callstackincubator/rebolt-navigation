@@ -54,6 +54,8 @@ Here is how you could use the `Screen` component:
 ```reason
 open NavigationConfig;
 
+open TabNavigator;
+
 open BsReactNative;
 
 module Styles = {
@@ -67,7 +69,8 @@ let component = ReasonReact.statelessComponent("Feed");
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <TabNavigator.Screen
+    <Screen
+      navigation
       tabItem=(
         ({isActive}) =>
           <TabBar.Item
@@ -75,7 +78,6 @@ let make = (~navigation, _children) => {
             style=(
               Style.style([Style.color(String(isActive ? "blue" : "gray"))])
             )
-            navigation
           />
       )>
       ...(
@@ -84,6 +86,6 @@ let make = (~navigation, _children) => {
                <Text> (ReasonReact.string("Feed")) </Text>
              </View>
          )
-    </TabNavigator.Screen>,
+    </Screen>,
 };
 ```
