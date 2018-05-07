@@ -15,8 +15,7 @@ sidebar_label: Tab Navigator
 ### Props
 
 * `~navigation`: Navigation instance
-* `~label`: `string`
-* `~isActive`: `bool`
+* `~tabItem`: [tabItemProps](api-tab-navigator.html#tabitemprops) => `ReasonReact.reactElement`
 
 ## TabBar
 
@@ -28,9 +27,9 @@ sidebar_label: Tab Navigator
 
 ### Props
 
-* `~navigation`: Navigation instance
 * `~label`: `string`
-* `~isActive`: `bool`
+* `~icon?`: `BsReactNative.Image.imageSource`
+* `~style?`: `BsReactNative.Style.t`
 
 ## Types
 
@@ -38,9 +37,14 @@ sidebar_label: Tab Navigator
 
 * `screens`: array([screenConfig](api-tab-navigator.html#screenconfig))
 * `currentRoute`: [Config.route](get-started.html#usage)
-* `jumpTo`
+* `jumpTo`: `Config.route => unit`
+* `indicatorColor`: option(`string`),
 
 ### screenConfig
 
 * `route`: [Config.route](get-started.html#usage)
 * `label`: `string`
+
+### tabItemProps
+
+* `isActive`: `bool`
