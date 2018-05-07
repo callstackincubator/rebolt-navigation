@@ -47,7 +47,6 @@ StackNavigator Props:
 | ------------- | ----------------------- | -------- | ----------------------------------------- |
 | initialState  | array(NavigatorConfig)  | Yes      | [NavigatorConfig](get-started.html#usage) |
 | onStateChange | navigationState => unit |          |                                           |
-|               |                         |          |                                           |
 
 Render props:
 
@@ -80,4 +79,3 @@ Screen Props:
 | ----------- | ------ |
 | headerTitle | String |
 | headerStyle | Style  |
-|             |        |
