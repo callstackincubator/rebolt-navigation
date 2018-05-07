@@ -1270,9 +1270,9 @@ bs-platform@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/bs-platform/-/bs-platform-3.0.0.tgz#38f200730db52fdea37819376b6ac3dfb20244c0"
 
-bs-react-native@reasonml-community/bs-react-native#f0795f6:
-  version "0.5.0"
-  resolved "https://codeload.github.com/reasonml-community/bs-react-native/tar.gz/f0795f656afb88446f35c7b6bf23367d830909e8"
+bs-react-native@^0.7.0-beta:
+  version "0.7.0-beta1"
+  resolved "https://registry.npmjs.org/bs-react-native/-/bs-react-native-0.7.0-beta1.tgz#901cd6b3860c353a2ce91c35b451559149643232"
 
 bser@^2.0.0:
   version "2.0.0"

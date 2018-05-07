@@ -25,6 +25,13 @@ In your `bsconfig.json` add it to the dependecies:
 ]
 ```
 
+### Peer dependencies
+
+In addition you will need to install a few peer dependencies:
+
+* `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
+* `bs-react-native` - `^0.7.0-beta`
+
 ## Usage
 
 First we need to create the navigation based on our needs.
