@@ -1,5 +1,5 @@
 {
-  "name": "reason-reroute",
+  "name": "reroute-native",
   "bsc-flags": [
     "-bs-no-version-header",
     "-bs-super-errors"
