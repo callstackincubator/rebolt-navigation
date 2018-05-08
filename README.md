@@ -11,7 +11,7 @@
 Open a Terminal in your project's folder and run,
 
 ```
-$ yarn add reason-reroute
+$ yarn add reroute-native
 ```
 
 After installation, you will need to add this library to your `bsconfig.json` dependencies
@@ -19,7 +19,7 @@ After installation, you will need to add this library to your `bsconfig.json` de
 ```
 "bs-dependencies": [
   "reason-react",
-  "reason-reroute"
+  "reroute-native"
 ],
 ```
 
