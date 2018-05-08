@@ -28,15 +28,11 @@ let renderButtons = (nav: StackNavigator.navigation) =>
     <TouchableOpacity
       style=(Styles.button("#4cd964"))
       onPress=(_e => nav.push(Config.Admin))>
-      <Text style=Styles.buttonText>
-        (ReasonReact.string("Push"))
-      </Text>
+      <Text style=Styles.buttonText> (ReasonReact.string("Push")) </Text>
     </TouchableOpacity>
     <TouchableOpacity
       style=(Styles.button("#ff9500")) onPress=(_e => nav.pop())>
-      <Text style=Styles.buttonText>
-        (ReasonReact.string("Pop"))
-      </Text>
+      <Text style=Styles.buttonText> (ReasonReact.string("Pop")) </Text>
     </TouchableOpacity>
   </View>;
 
