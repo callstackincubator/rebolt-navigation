@@ -17,7 +17,7 @@ $ yarn add reroute-native
 We haven't published the package on npm yet. If you are beta testing, please install the package from GH:
 
 **package.json**
-`"reason-reroute": "knowbody/reroute-native#master"`
+`"reroute-native": "knowbody/reroute-native#master"`
 
 After installation, you will need to add this library to your `bsconfig.json` dependencies
 
