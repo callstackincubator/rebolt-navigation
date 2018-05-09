@@ -12,7 +12,7 @@
   "reason": {
     "react-jsx": 2
   },
-  "namespace": false,
+  "namespace": true,
   "sources": [
     {
       "dir": "src",
