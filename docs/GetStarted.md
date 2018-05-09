@@ -47,7 +47,7 @@ module Config = {
     | Contact;
 };
 
-include ReRoute.CreateNavigation(Config);
+include RerouteNative.ReRoute.CreateNavigation(Config);
 ```
 
 That's it! Now you are ready to use ReRoute in your React Native application.
