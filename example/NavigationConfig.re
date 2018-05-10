@@ -18,4 +18,4 @@ module Config = {
     | CustomProfileStats;
 };
 
-include ReRoute.CreateNavigation(Config);
+include RerouteNative.ReRoute.CreateNavigation(Config);
