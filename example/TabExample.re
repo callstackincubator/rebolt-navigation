@@ -1,3 +1,5 @@
+open BsReactNative;
+
 open NavigationConfig;
 
 let component = ReasonReact.statelessComponent("Profile");
@@ -5,7 +7,7 @@ let component = ReasonReact.statelessComponent("Profile");
 let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen headerTitle="Profile" navigation=nav>
+    <StackNavigator.Screen headerTitle="Profile" headerStyle=Style.(style([elevation(0.)])) navigation=nav>
       ...(
            () =>
              <TabNavigator

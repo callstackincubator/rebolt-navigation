@@ -233,7 +233,7 @@ let component = ReasonReact.statelessComponent("CustomTabBarExample");
 let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen headerTitle="CustomTabBarExample" navigation=nav>
+    <StackNavigator.Screen headerTitle="CustomTabBarExample" headerStyle=Style.(style([elevation(0.)])) navigation=nav>
       ...(
            () =>
              <TabNavigator
