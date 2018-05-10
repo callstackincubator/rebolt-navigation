@@ -13,4 +13,4 @@ module Config = {
     | CustomTabBarExample;
 };
 
-include ReRoute.CreateNavigation(Config);
+include RerouteNative.ReRoute.CreateNavigation(Config);
