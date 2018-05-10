@@ -258,7 +258,7 @@ module IOSImpl = {
           <Image
             source=(
               Required(
-                Packager.require("../../../src/assets/back-icon-mask.png"),
+                Packager.require("./assets/back-icon-mask.png"),
               )
             )
             style=Styles.iconMask
@@ -313,7 +313,7 @@ module IOSImpl = {
                         source=(
                           Required(
                             Packager.require(
-                              "../../../src/assets/back-icon.png",
+                              "./assets/back-icon.png",
                             ),
                           )
                         )
@@ -541,7 +541,7 @@ module Android = {
           <Image
             style=Styles.icon
             source=(
-              Required(Packager.require("../../../src/assets/back-icon.png"))
+              Required(Packager.require("./assets/back-icon.png"))
             )
           />
         </TouchableItem> :
