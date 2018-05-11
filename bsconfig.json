@@ -13,11 +13,6 @@
     "react-jsx": 2
   },
   "namespace": true,
-  "package-specs": {
-    "module": "commonjs",
-    "in-source": true
-  },
-  "suffix": ".bs.js",
   "sources": [
     {
       "dir": "src",
