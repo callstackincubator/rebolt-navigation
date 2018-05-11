@@ -2,7 +2,7 @@
 
 > a fast, declarative navigation for react native
 
-Reach us on
+We're looking forward to seeing your feedback or questions on:
 ![Discord](https://img.shields.io/discord/426714625279524876.svg)
 
 ## Getting started
