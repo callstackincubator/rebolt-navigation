@@ -1,6 +1,8 @@
 .merlin
 .bsb.lock
 lib
+example/**/!(index).js
+src/**/*.js
 *.bs.js
 
 # OSX
