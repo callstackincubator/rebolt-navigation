@@ -2,6 +2,10 @@
 
 > a fast, declarative navigation for react native
 
+We're looking forward to seeing your feedback or questions on Discord
+
+![Discord](https://img.shields.io/discord/426714625279524876.svg)
+
 ## Getting started
 
 [ReRoute Native website](https://reroute-native.netlify.com/)
