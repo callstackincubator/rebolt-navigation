@@ -85,17 +85,13 @@ let renderItem = (nav: StackNavigator.navigation) =>
   FlatList.renderItem((contact: FlatList.renderBag(contact)) =>
     <TouchableOpacity
       style=Styles.listItem onPress=(_e => nav.push(Config.UserProfile))>
-      <Text style=Styles.name>
-        (ReasonReact.string(contact.item.name))
-      </Text>
+      <Text style=Styles.name> (ReasonReact.string(contact.item.name)) </Text>
       <View style=Styles.rightActions>
         <View style=(Styles.online(contact.item.online)) />
         <TouchableOpacity>
           <Image
             style=Styles.icon
-            source=(
-              Required(Packager.require("../../../example/assets/right.png"))
-            )
+            source=(Required(Packager.require("./assets/right.png")))
           />
         </TouchableOpacity>
       </View>

@@ -62,9 +62,7 @@ let data = [|
 let renderItem =
   FlatList.renderItem((contact: FlatList.renderBag(contact)) =>
     <View style=Styles.listItem>
-      <Text style=Styles.name>
-        (ReasonReact.string(contact.item.name))
-      </Text>
+      <Text style=Styles.name> (ReasonReact.string(contact.item.name)) </Text>
       <View style=Styles.rightActions>
         <Text>
           (ReasonReact.string(string_of_int(contact.item.count)))
@@ -72,9 +70,7 @@ let renderItem =
         <TouchableOpacity>
           <Image
             style=Styles.icon
-            source=(
-              Required(Packager.require("../../../example/assets/right.png"))
-            )
+            source=(Required(Packager.require("./assets/right.png")))
           />
         </TouchableOpacity>
       </View>
