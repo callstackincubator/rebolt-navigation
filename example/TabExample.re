@@ -2,12 +2,18 @@ open BsReactNative;
 
 open NavigationConfig;
 
+module Styles = {
+  open Style;
+  let header = style([elevation(0.)]);
+};
+
 let component = ReasonReact.statelessComponent("Profile");
 
 let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen headerTitle="Profile" headerStyle=Style.(style([elevation(0.)])) navigation=nav>
+    <StackNavigator.Screen
+      headerTitle="Profile" headerStyle=Styles.header navigation=nav>
       ...(
            () =>
              <TabNavigator

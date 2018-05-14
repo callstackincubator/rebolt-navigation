@@ -4,10 +4,12 @@ open NavigationConfig;
 
 open TabNavigator;
 
-module ProfileStyles = {
+module Styles = {
   open Style;
   let container = style([flex(1.), backgroundColor(String("#37bc9b"))]);
   let contentContainer = style([flex(1.)]);
+  let tabBarItem = isActive =>
+    style([color(isActive ? String("blue") : String("gray"))]);
   let profileContainer =
     style([justifyContent(Center), alignItems(Center), margin(Pt(16.))]);
   let profileImg =
@@ -36,21 +38,14 @@ let make = (~navigation, _children) => {
       navigation
       tabItem=(
         ({isActive}) =>
-          <TabBar.Item
-            label="Profile"
-            style=Style.(
-                    style([
-                      color(isActive ? String("blue") : String("gray")),
-                    ])
-                  )
-          />
+          <TabBar.Item label="Profile" style=(Styles.tabBarItem(isActive)) />
       )>
       ...(
            () =>
-             <View style=ProfileStyles.container>
-               <View style=ProfileStyles.profileContainer>
+             <View style=Styles.container>
+               <View style=Styles.profileContainer>
                  <Image
-                   style=ProfileStyles.profileImg
+                   style=Styles.profileImg
                    source=(
                      URI(
                        Image.(
@@ -63,7 +58,7 @@ let make = (~navigation, _children) => {
                      )
                    )
                  />
-                 <Text style=ProfileStyles.name>
+                 <Text style=Styles.name>
                    (ReasonReact.string("Julia Chow"))
                  </Text>
                </View>

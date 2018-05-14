@@ -4,6 +4,11 @@ open NavigationConfig;
 
 open TabNavigator;
 
+module Styles = {
+  open Style;
+  let header = style([elevation(0.), backgroundColor(String("#37bc9b"))]);
+};
+
 let component = ReasonReact.statelessComponent("CustomTabBarExample");
 
 let make = (~navigation as nav: StackNavigator.navigation, _children) => {
@@ -11,9 +16,7 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
   render: _self =>
     <StackNavigator.Screen
       headerTitle="CustomTabBarExample"
-      headerStyle=Style.(
-                    style([elevation(0.), backgroundColor(String("#37bc9b"))])
-                  )
+      headerStyle=Styles.header
       navigation=nav>
       ...(
            () =>
