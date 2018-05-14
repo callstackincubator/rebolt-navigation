@@ -76,11 +76,18 @@ let make = (~navigation, _children) => {
                  renderTabBar=((~tabBarProps) => <CustomTabBar tabBarProps />)>
                  ...(
                       (~navigation) =>
-                        switch (navigation.currentRoute) {
-                        | Config.CustomProfileDetails =>
-                          <CustomProfileDetails navigation />
-                        | _ => <CustomProfileStats navigation />
-                        }
+                        <View
+                          style=Style.(
+                                  style([flex(1.), marginTop(Pt(40.))])
+                                )>
+                          (
+                            switch (navigation.currentRoute) {
+                            | Config.CustomProfileDetails =>
+                              <CustomProfileDetails navigation />
+                            | _ => <CustomProfileStats navigation />
+                            }
+                          )
+                        </View>
                     )
                </TabNavigator>
              </View>

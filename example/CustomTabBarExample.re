@@ -12,16 +12,13 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
     <StackNavigator.Screen
       headerTitle="CustomTabBarExample"
       headerStyle=Style.(
-                    style([
-                      elevation(4.),
-                      backgroundColor(String("#37bc9b")),
-                    ])
+                    style([elevation(0.), backgroundColor(String("#37bc9b"))])
                   )
       navigation=nav>
       ...(
            () =>
              <TabNavigator
-               initialRoute=Config.CustomHome
+               initialRoute=Config.CustomProfile
                routes=[|
                  Config.CustomHome,
                  Config.CustomMessages,

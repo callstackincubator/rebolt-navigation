@@ -32,7 +32,7 @@ module Styles = {
       position(Absolute),
       bottom(Pt(0.)),
       height(Pt(2.)),
-      left(Pt(itemWidth *. float_of_int(itemIndex))),
+      marginLeft(Pt(itemWidth *. float_of_int(itemIndex))),
       backgroundColor(String("white")),
       width(Pt(itemWidth)),
       zIndex(1),
@@ -51,7 +51,7 @@ let make = (~tabBarProps: TabNavigator.tabBarProps, _children) => {
         |> Array.mapi((index, screen: TabNavigator.screenConfig) => {
              let isActive = tabBarProps.currentRoute === screen.route;
              isActive ?
-               <View
+               <Animated.View
                  key=(string_of_int(index))
                  style=(
                    Styles.tabBarIndicator(
