@@ -10,7 +10,12 @@ module Config = {
     | TabExample
     | ContactList
     | Messages
-    | CustomTabBarExample;
+    | CustomTabBarExample
+    | CustomHome
+    | CustomMessages
+    | CustomProfile
+    | CustomProfileDetails
+    | CustomProfileStats;
 };
 
 include ReRoute.CreateNavigation(Config);
