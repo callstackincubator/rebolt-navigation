@@ -305,9 +305,7 @@ module IOSImpl = {
                         |> HeaderInterpolator.floating.forHeaderLeftButton
                       )>
                       <Image
-                        style=(
-                          Styles.leftIcon
-                        )
+                        style=Styles.leftIcon
                         source=(
                           Required(
                             Packager.require("./assets/back-icon.png"),
