@@ -297,66 +297,71 @@ module IOSImpl = {
             | None =>
               p.activeScreen === 0 ?
                 <View /> :
-                <TouchableOpacity onPress=(_e => p.pop(key))>
-                  <View style=Styles.leftContainer>
-                    <Animated.View
-                      style=(
-                        p.animatedValue
-                        |> HeaderInterpolator.floating.forHeaderLeftButton
-                      )>
-                      <Image
+                {
+                  let prevScreen = p.screens[p.activeScreen - 1].header;
+                  <TouchableOpacity onPress=(_e => p.pop(key))>
+                    <View style=Styles.leftContainer>
+                      <Animated.View
                         style=(
-                          Styles.leftIcon(Js.Option.isSome(header.title))
-                        )
-                        source=(
-                          Required(
-                            Packager.require("./assets/back-icon.png"),
-                          )
-                        )
-                      />
-                    </Animated.View>
-                    (
-                      switch (p.screens[p.activeScreen - 1].header.title) {
-                      | Some(backTitle) =>
-                        <Animated.View
+                          p.animatedValue
+                          |> HeaderInterpolator.floating.forHeaderLeftButton
+                        )>
+                        <Image
                           style=(
-                            p.animatedValue
-                            |> HeaderInterpolator.floating.forHeaderLeftLabel
-                          )>
-                          <Text style=Styles.leftTitle numberOfLines=1>
-                            (
-                              ReasonReact.string(
-                                /***
-                                 * Measure the space left for the back button and decide
-                                 * whether to print "Back" or the original back button,
-                                 * which is title of the previous scene.
-                                 */
-                                try (
-                                  {
-                                    let lw =
-                                      self.state.leftWidths
-                                      |> StringMap.find(key);
-                                    let tw =
-                                      self.state.titleWidths
-                                      |> StringMap.find(key);
-                                    let ww =
-                                      Dimensions.get(`window)##width
-                                      |> float_of_int;
-                                    lw +. 20.0 >= (ww -. tw) /. 2.0 ?
-                                      "Back" : backTitle;
-                                  }
-                                ) {
-                                | Not_found => backTitle
-                                },
-                              )
+                            Styles.leftIcon(
+                              Js.Option.isSome(prevScreen.title),
                             )
-                          </Text>
-                        </Animated.View>
-                      | None => ReasonReact.null
-                      }
-                    )
-                  </View>
-                </TouchableOpacity>
+                          )
+                          source=(
+                            Required(
+                              Packager.require("./assets/back-icon.png"),
+                            )
+                          )
+                        />
+                      </Animated.View>
+                      (
+                        switch (prevScreen.title) {
+                        | Some(backTitle) =>
+                          <Animated.View
+                            style=(
+                              p.animatedValue
+                              |> HeaderInterpolator.floating.forHeaderLeftLabel
+                            )>
+                            <Text style=Styles.leftTitle numberOfLines=1>
+                              (
+                                ReasonReact.string(
+                                  /***
+                                   * Measure the space left for the back button and decide
+                                   * whether to print "Back" or the original back button,
+                                   * which is title of the previous scene.
+                                   */
+                                  try (
+                                    {
+                                      let lw =
+                                        self.state.leftWidths
+                                        |> StringMap.find(key);
+                                      let tw =
+                                        self.state.titleWidths
+                                        |> StringMap.find(key);
+                                      let ww =
+                                        Dimensions.get(`window)##width
+                                        |> float_of_int;
+                                      lw +. 20.0 >= (ww -. tw) /. 2.0 ?
+                                        "Back" : backTitle;
+                                    }
+                                  ) {
+                                  | Not_found => backTitle
+                                  },
+                                )
+                              )
+                            </Text>
+                          </Animated.View>
+                        | None => ReasonReact.null
+                        }
+                      )
+                    </View>
+                  </TouchableOpacity>;
+                }
             }
           )
         </Animated.View>;
