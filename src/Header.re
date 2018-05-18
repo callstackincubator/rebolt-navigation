@@ -160,12 +160,12 @@ module IOSImpl = {
     let leftTitle =
       style([fontSize(Float(17.0)), color(String("#037aff"))]);
     let leftContainer = style([flexDirection(Row), alignItems(Center)]);
-    let leftIcon = withTitle =>
+    let leftIcon =
       style([
         height(Pt(21.0)),
         width(Pt(12.0)),
         marginLeft(Pt(9.0)),
-        marginRight(Pt(withTitle ? 3.0 : 22.0)),
+        marginRight(Pt(3.0)),
         marginVertical(Pt(12.0)),
         resizeMode(Contain),
       ]);
@@ -305,9 +305,7 @@ module IOSImpl = {
                         |> HeaderInterpolator.floating.forHeaderLeftButton
                       )>
                       <Image
-                        style=(
-                          Styles.leftIcon(Js.Option.isSome(header.title))
-                        )
+                        style=Styles.leftIcon
                         source=(
                           Required(
                             Packager.require("./assets/back-icon.png"),
