@@ -76,33 +76,6 @@ module CreateStackNavigator = (Config: {type route;}) => {
      * Gestures
      */
     module Gestures = {
-      /** PanGestureHandler from `react-native-gesture-handler */
-      module PanHandler = {
-        [@bs.module "react-native-gesture-handler"]
-        external view : ReasonReact.reactClass = "PanGestureHandler";
-        let make =
-            (
-              ~onGestureEvent,
-              ~maxDeltaX,
-              ~enabled,
-              ~onHandlerStateChange,
-              ~minDeltaX,
-              ~hitSlop,
-              children,
-            ) =>
-          ReasonReact.wrapJsForReason(
-            ~reactClass=view,
-            ~props={
-              "onGestureEvent": onGestureEvent,
-              "onHandlerStateChange": onHandlerStateChange,
-              "maxDeltaX": maxDeltaX,
-              "minDeltaX": minDeltaX,
-              "enabled": enabled,
-              "hitSlop": hitSlop,
-            },
-            children,
-          );
-      };
       let screenWidth = Dimensions.get(`window)##width;
       let animatedValue = Animated.Value.create(0.0);
       let handler =
@@ -478,7 +451,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                ),
         };
         <View style=Styles.stackContainer>
-          <Gestures.PanHandler
+          <GestureHandlers.PanHandler
             minDeltaX=aquaPoint
             hitSlop={"right": aquaPoint - screenWidth}
             maxDeltaX=screenWidth
@@ -531,7 +504,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                 |> ReasonReact.array
               )
             </Animated.View>
-          </Gestures.PanHandler>
+          </GestureHandlers.PanHandler>
           (
             headerMode == Floating ?
               ReasonReact.element(headerComponent(headerProps, [||])) :
