@@ -299,14 +299,41 @@ module CreateTabNavigator = (Config: {type route;}) => {
       let animatedProgress =
         AnimatedUtils.interpolate(
           animatedValue,
-          ~inputRange=[0.0, float_of_int(screenWidth)],
-          ~outputRange=`float([0.0, 1.0]),
+          ~inputRange=[
+            -. float_of_int(screenWidth),
+            float_of_int(screenWidth),
+          ],
+          ~outputRange=`float([(-1.0), 1.0]),
           ~extrapolate=Animated.Interpolation.Clamp,
           (),
         );
       let onStateChange = (event, _self) => {
-        let _e = event##nativeEvent;
-        ();
+        let e = event##nativeEvent;
+        switch (e##state) {
+        | 5 =>
+          let toValue =
+            switch (e##translationX, e##velocityX) {
+            | (translationX, _) when translationX > screenWidth / 2 => screenWidth
+            | (translationX, _) when translationX < screenWidth / 2 =>
+              - screenWidth
+            | (_, velocityX) when velocityX > 150. => screenWidth
+            | (_, _) => 0
+            };
+          Animated.CompositeAnimation.start(
+            Animated.Spring.animate(
+              ~value=animatedValue,
+              ~velocity=e##velocityX,
+              ~useNativeDriver=true,
+              ~toValue=`raw(float_of_int(toValue)),
+              (),
+            ),
+            ~callback=
+              _end_ =>
+                Animated.Value.setValue(Animated.Value.create(1.0), 0.0),
+            (),
+          );
+        | _ => ()
+        };
       };
     };
     let component = ReasonReact.reducerComponent("TabNavigator");
