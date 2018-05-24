@@ -22,7 +22,8 @@ In your `bsconfig.json` add it to the dependecies:
 "bs-dependencies": [
   "reason-react",
   "reroute-native"
-]
+],
+"namespace": true
 ```
 
 ### Peer dependencies
