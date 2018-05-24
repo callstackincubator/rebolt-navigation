@@ -9,9 +9,9 @@ The library is built in Reason, so we are assuming you are all set with the Reas
 ## Install the library
 
 ```sh
-yarn add reroute
+yarn add reroute-native
 # or
-npm install reroute --save
+npm install reroute-native --save
 ```
 
 ## Add it to your config
@@ -21,7 +21,7 @@ In your `bsconfig.json` add it to the dependecies:
 ```json
 "bs-dependencies": [
   "reason-react",
-  "reroute"
+  "reroute-native"
 ]
 ```
 
