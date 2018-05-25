@@ -10,15 +10,11 @@
     "prepublish": "npm run build",
     "run-ios": "react-native run-ios --project-path \"./example/.native/ios\"",
     "run-android": "react-native run-android --root \"./example/.native\"",
-    "start-example": "node ./node_modules/react-native/local-cli/cli.js start --root ./example",
+    "start-example":
+      "node ./node_modules/react-native/local-cli/cli.js start --root ./example",
     "test": "exit 0"
   },
-  "keywords": [
-    "router",
-    "react",
-    "reason",
-    "reasonml"
-  ],
+  "keywords": ["router", "react", "reason", "reasonml"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/callstack/reroute-native.git"
@@ -31,14 +27,14 @@
   "homepage": "https://github.com/callstack/reroute-native#readme",
   "devDependencies": {
     "bs-platform": "^3.0.0",
-    "bs-react-native": "^0.7.0-beta",
+    "bs-react-native": "^0.8.0",
     "react": "^16.3.0-alpha.1",
     "react-native": "0.54.0",
     "react-native-gesture-handler": "^1.0.0-alpha.41",
     "reason-react": "^0.4.1"
   },
   "peerDependencies": {
-    "bs-react-native": "^0.7.0-beta",
+    "bs-react-native": "^0.8.0",
     "react-native-gesture-handler": "*",
     "reason-react": "*"
   }

@@ -30,11 +30,15 @@ After installation, you will need to add this library to your `bsconfig.json` de
 In addition you will need to install a few peer dependencies:
 
 * `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
-* `bs-react-native` - `^0.7.0-beta`
+* `bs-react-native` - `^0.8.0`
 
 ## Usage
 
 [View the docs](https://reroute-native.netlify.com/docs/get-started.html#usage)
+
+## Examples
+- example built-in library - [/example](/example)
+- standalone example - [reroute-example](https://github.com/souhe/reroute-example)
 
 ## Developing
 
