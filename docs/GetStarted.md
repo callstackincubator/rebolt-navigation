@@ -9,9 +9,9 @@ The library is built in Reason, so we are assuming you are all set with the Reas
 ## Install the library
 
 ```sh
-yarn add reroute
+yarn add reroute-native
 # or
-npm install reroute --save
+npm install reroute-native --save
 ```
 
 ## Add it to your config
@@ -21,8 +21,9 @@ In your `bsconfig.json` add it to the dependecies:
 ```json
 "bs-dependencies": [
   "reason-react",
-  "reroute"
-]
+  "reroute-native"
+],
+"namespace": true
 ```
 
 ### Peer dependencies
@@ -30,7 +31,7 @@ In your `bsconfig.json` add it to the dependecies:
 In addition you will need to install a few peer dependencies:
 
 * `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
-* `bs-react-native` - `^0.7.0-beta`
+* `bs-react-native` - `^0.8.0`
 
 ## Usage
 

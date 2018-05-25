@@ -1,10 +1,13 @@
 # ReRoute Native
 
+[![CircleCI](https://circleci.com/gh/callstack/reroute-native.svg?style=svg)](https://circleci.com/gh/callstack/reroute-native)
+
 > a fast, declarative navigation for react native
 
 We're looking forward to seeing your feedback or questions on Discord
 
-![Discord](https://img.shields.io/discord/426714625279524876.svg)
+[![Discord](https://img.shields.io/discord/426714625279524876.svg)](https://discord.gg/8DW7b4N)
+
 
 ## Getting started
 
@@ -18,11 +21,6 @@ Open a Terminal in your project's folder and run,
 $ yarn add reroute-native
 ```
 
-We haven't published the package on npm yet. If you are beta testing, please install the package from GH:
-
-**package.json**
-`"reroute-native": "knowbody/reroute-native#master"`
-
 After installation, you will need to add this library to your `bsconfig.json` dependencies
 
 ```
@@ -35,11 +33,15 @@ After installation, you will need to add this library to your `bsconfig.json` de
 In addition you will need to install a few peer dependencies:
 
 * `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
-* `bs-react-native` - `^0.7.0-beta`
+* `bs-react-native` - `^0.8.0`
 
 ## Usage
 
 [View the docs](https://reroute-native.netlify.com/docs/get-started.html#usage)
+
+## Examples
+- example built-in library - [/example](/example)
+- standalone example - [reroute-example](https://github.com/souhe/reroute-example)
 
 ## Developing
 
