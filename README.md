@@ -1,10 +1,13 @@
 # ReRoute Native
 
+[![CircleCI](https://circleci.com/gh/callstack/reroute-native.svg?style=svg)](https://circleci.com/gh/callstack/reroute-native)
+
 > a fast, declarative navigation for react native
 
 We're looking forward to seeing your feedback or questions on Discord
 
-![Discord](https://img.shields.io/discord/426714625279524876.svg)
+[![Discord](https://img.shields.io/discord/426714625279524876.svg)](https://discord.gg/8DW7b4N)
+
 
 ## Getting started
 
