@@ -17,13 +17,13 @@ We're looking forward to seeing your feedback or questions on Discord
 
 Open a Terminal in your project's folder and run,
 
-```
-$ yarn add reroute-native
+```she
+yarn add reroute-native
 ```
 
 After installation, you will need to add this library to your `bsconfig.json` dependencies
 
-```
+```json
 "bs-dependencies": [
   "reason-react",
   "reroute-native"
@@ -31,6 +31,10 @@ After installation, you will need to add this library to your `bsconfig.json` de
 ```
 
 In addition you will need to install a few peer dependencies:
+
+```sh
+yarn add bs-react-native react-native-gesture-handler
+```
 
 * `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
 * `bs-react-native` - `^0.8.0`
@@ -45,15 +49,15 @@ In addition you will need to install a few peer dependencies:
 
 ## Developing
 
-```
+```sh
 # Starts Metro (React Native Packager)
-$ npm run start-example
+npm run start-example
 
 # Runs the app on iOS/Android
-$ npm run run-ios
+npm run run-ios
 
 # Watches for source build changes
-$ npm start
+npm start
 ```
 
 ## License
