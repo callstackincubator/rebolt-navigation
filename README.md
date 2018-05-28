@@ -30,6 +30,14 @@ After installation, you will need to add this library to your `bsconfig.json` de
 ],
 ```
 
+Also, add the following to your `bsconfig.json` file:
+
+```json
+  "package-specs": {
+    "in-source": true
+  }
+```
+
 In addition you will need to install a few peer dependencies:
 
 ```sh
