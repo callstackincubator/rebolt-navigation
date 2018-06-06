@@ -39,6 +39,19 @@ yarn add bs-react-native react-native-gesture-handler
 * `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
 * `bs-react-native` - `^0.8.0`
 
+As per [this issue](https://github.com/callstack/reroute-native/issues/103), you might need to add the following to your `bsconfig.json`:
+
+```
+
+"package-specs": {
+  "module": "commonjs",
+  "in-source": true
+}
+
+```
+This generates output alongside source files. ([documentation](https://bucklescript.github.io/docs/en/build-configuration.html#package-specs))
+
+
 ## Usage
 
 [View the docs](https://reroute-native.netlify.com/docs/get-started.html#usage)
