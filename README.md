@@ -44,6 +44,7 @@ As per [this issue](https://github.com/callstack/reroute-native/issues/103), you
 ```
 
 "package-specs": {
+  "module": "commonjs",
   "in-source": true
 }
 
