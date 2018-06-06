@@ -30,6 +30,18 @@ After installation, you will need to add this library to your `bsconfig.json` de
 ],
 ```
 
+Then, as per [this issue](https://github.com/callstack/reroute-native/issues/103), you might need to add the following to your `bsconfig`:
+
+```
+
+"package-specs": {
+  "in-source": true
+}
+
+```
+If you are curious what the above does, you can find the [documentation](https://bucklescript.github.io/docs/en/build-configuration.html#package-specs) here.
+
+
 In addition you will need to install a few peer dependencies:
 
 ```sh
