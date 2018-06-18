@@ -16,9 +16,9 @@ sidebar_label: Stack Navigator
 ### ScreenProps
 
 * `~navigation`: Navigation instance
-* `~style?`: `BsReactNative.Style`
+* `~style?`: `Rebolt.Style`
 * `~headerTitle?`: `string`
-* `~headerStyle?`: `BsReactNative.Style`
+* `~headerStyle?`: `Rebolt.Style`
 * `~headerLeft?`: [Header.props](api-stack-navigator.html#header) `=>` [returnsComponent](api-stack-navigator.html#returnscomponent)
 * `~headerCenter?`: [Header.props](api-stack-navigator.html#header) `=>` [returnsComponent](api-stack-navigator.html#returnscomponent)
 * `~headerRight?`: [Header.props](api-stack-navigator.html#header) `=>` [returnsComponent](api-stack-navigator.html#returnscomponent)
@@ -51,7 +51,7 @@ sidebar_label: Stack Navigator
 
 ### config
 
-* `style`: option(`BsReactNative.Style`)
+* `style`: option(`Rebolt.Style`)
 * `title`: option(`string`)
 * `center`: option([returnsComponent](api-stack-navigator.html#returnscomponent))
 * `left`: option([returnsComponent](api-stack-navigator.html#returnscomponent))

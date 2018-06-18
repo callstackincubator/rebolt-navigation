@@ -1,4 +1,4 @@
-open BsReactNative.Animated;
+open Rebolt.Animated;
 
 
 /***

@@ -1,4 +1,4 @@
-type interpolator = BsReactNative.Animated.Value.t => BsReactNative.Style.t;
+type interpolator = Rebolt.Animated.Value.t => Rebolt.Style.t;
 
 type t = {
   forHeaderCenter: interpolator,

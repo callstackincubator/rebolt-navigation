@@ -2,7 +2,7 @@ open NavigationConfig;
 
 open TabNavigator;
 
-open BsReactNative;
+open Rebolt;
 
 let component = ReasonReact.statelessComponent("Messages");
 

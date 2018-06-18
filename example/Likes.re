@@ -2,7 +2,7 @@ open NavigationConfig;
 
 open TabNavigator;
 
-open BsReactNative;
+open Rebolt;
 
 module Styles = {
   open Style;
