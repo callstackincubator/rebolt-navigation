@@ -1,6 +1,6 @@
 # ReRoute Native
 
-[![CircleCI](https://circleci.com/gh/callstack/reroute-native.svg?style=svg)](https://circleci.com/gh/callstack/reroute-native)
+[![CircleCI](https://circleci.com/gh/callstackincubator/rebolt-navigation.svg?style=svg)](https://circleci.com/gh/callstackincubator/rebolt-navigation)
 
 > a fast, declarative navigation for react native
 
