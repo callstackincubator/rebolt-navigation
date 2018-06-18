@@ -1,4 +1,4 @@
-open BsReactNative;
+open Rebolt;
 
 type interpolator = Animated.Value.t => Style.t;
 

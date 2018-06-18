@@ -1,6 +1,6 @@
 open NavigationConfig;
 
-open BsReactNative;
+open Rebolt;
 
 let screenWidth = Dimensions.get(`screen)##width;
 

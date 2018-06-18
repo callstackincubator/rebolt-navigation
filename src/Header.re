@@ -1,9 +1,9 @@
-open BsReactNative;
+open Rebolt;
 
 open Utils;
 
 type config = {
-  style: option(BsReactNative.Style.t),
+  style: option(Rebolt.Style.t),
   title: option(string),
   center: option(returnsComponent),
   left: option(returnsComponent),

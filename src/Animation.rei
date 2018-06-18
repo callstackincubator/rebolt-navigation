@@ -1,7 +1,7 @@
 /**
  * Interpolates style
  */
-type interpolator = BsReactNative.Animated.Value.t => BsReactNative.Style.t;
+type interpolator = Rebolt.Animated.Value.t => Rebolt.Style.t;
 
 /**
  * Animation type
@@ -15,13 +15,13 @@ type interpolator = BsReactNative.Animated.Value.t => BsReactNative.Style.t;
 type t = {
   func:
     (
-      ~value: BsReactNative.Animated.Value.value,
+      ~value: Rebolt.Animated.Value.value,
       ~toValue: [
-                  | `animated(BsReactNative.Animated.Value.value)
+                  | `animated(Rebolt.Animated.Value.value)
                   | `raw(float)
                 ]
     ) =>
-    BsReactNative.Animated.CompositeAnimation.t,
+    Rebolt.Animated.CompositeAnimation.t,
   forCard: interpolator,
   forHeader: interpolator,
 };

@@ -109,7 +109,7 @@ The last thing is to render StackNavigator with `initialState` and `onStateChang
 ```js
 open NavigationConfig;
 
-open BsReactNative;
+open Rebolt;
 
 module Main = {
   type state = {persistedState: option(StackNavigator.persistedState)};

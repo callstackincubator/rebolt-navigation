@@ -1,6 +1,6 @@
 open NavigationConfig;
 
-open BsReactNative;
+open Rebolt;
 
 let component = ReasonReact.statelessComponent("Admin");
 

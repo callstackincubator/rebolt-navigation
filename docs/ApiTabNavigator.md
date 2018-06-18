@@ -28,8 +28,8 @@ sidebar_label: Tab Navigator
 ### Props
 
 * `~label`: `string`
-* `~icon?`: `BsReactNative.Image.imageSource`
-* `~style?`: `BsReactNative.Style.t`
+* `~icon?`: `Rebolt.Image.imageSource`
+* `~style?`: `Rebolt.Style.t`
 
 ## Types
 

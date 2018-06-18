@@ -1,6 +1,6 @@
 open NavigationConfig;
 
-open BsReactNative;
+open Rebolt;
 
 module Main = {
   let component = ReasonReact.statelessComponent("Main");

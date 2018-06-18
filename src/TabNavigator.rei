@@ -70,8 +70,8 @@ module CreateTabNavigator:
           let make:
             (
               ~label: string,
-              ~icon: BsReactNative.Image.imageSource=?,
-              ~style: BsReactNative.Style.t=?,
+              ~icon: Rebolt.Image.imageSource=?,
+              ~style: Rebolt.Style.t=?,
               'a
             ) =>
             ReasonReact.componentSpec(
