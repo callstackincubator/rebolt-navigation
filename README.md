@@ -11,7 +11,7 @@ We're looking forward to seeing your feedback or questions on Discord
 
 ## Getting started
 
-[ReRoute Native website](https://reroute-native.netlify.com/)
+[ReRoute Native website](https://reroute.callstack.com/)
 
 ### Installation
 
