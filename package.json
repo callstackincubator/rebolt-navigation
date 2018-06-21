@@ -32,14 +32,14 @@
   "devDependencies": {
     "bs-platform": "^3.1.5",
     "react": "^16.3.0-alpha.1",
-    "react-native": "0.54.0",
+    "react-native": "^0.55.4",
     "react-native-gesture-handler": "^1.0.0-alpha.41",
     "reason-react": "^0.4.1",
     "rebolt": "^0.1.0"
   },
   "peerDependencies": {
-    "rebolt": "^0.1.0",
     "react-native-gesture-handler": "*",
-    "reason-react": "*"
+    "reason-react": "*",
+    "rebolt": "^0.1.0"
   }
 }

@@ -66,12 +66,9 @@ module CreateStackNavigator = (Config: {type route;}) => {
       setOptions: options => unit,
       pop: unit => unit,
     };
-    include
-      Persistence.CreatePersistence(
-        {
-          type state = persistedState;
-        },
-      );
+    include Persistence.CreatePersistence({
+      type state = persistedState;
+    });
     /**
      * Gestures
      */
@@ -116,7 +113,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
         );
       /** Interpolated progress in range of 0 to 1 (start to end) */
       let animatedProgress =
-        AnimatedUtils.interpolate(
+        Animated.Value.interpolate(
           animatedValue,
           ~inputRange=[0.0, float_of_int(screenWidth)],
           ~outputRange=`float([0.0, 1.0]),

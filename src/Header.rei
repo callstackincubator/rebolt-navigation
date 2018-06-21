@@ -17,7 +17,7 @@ and screen = {
 and props = {
   screens: array(screen),
   activeScreen: int,
-  animatedValue: Rebolt.Animated.Value.t,
+  animatedValue: Rebolt.Animated.Interpolation.t,
   pop: string => unit,
 };
 

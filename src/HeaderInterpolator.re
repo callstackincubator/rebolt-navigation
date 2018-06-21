@@ -1,13 +1,11 @@
 open Rebolt;
 
-type interpolator = Animated.Value.t => Style.t;
-
 type t = {
-  forHeaderCenter: interpolator,
-  forHeaderLeft: interpolator,
-  forHeaderLeftLabel: interpolator,
-  forHeaderLeftButton: interpolator,
-  forHeaderRight: interpolator,
+  forHeaderCenter: 'a .Animated.node('a) => Style.t,
+  forHeaderLeft: 'a .Animated.node('a) => Style.t,
+  forHeaderLeftLabel: 'a .Animated.node('a) => Style.t,
+  forHeaderLeftButton: 'a .Animated.node('a) => Style.t,
+  forHeaderRight: 'a .Animated.node('a) => Style.t,
 };
 
 let crossFadeInterpolation = ([start, mid, end_], value) =>
