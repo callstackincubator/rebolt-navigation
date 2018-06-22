@@ -3640,9 +3640,9 @@ rebolt@callstackincubator/rebolt#1374ada:
   version "0.1.0"
   resolved "https://codeload.github.com/callstackincubator/rebolt/tar.gz/1374ada18b4b6bfc822168a92ce8d3715f080cbf"
 
-rebolt@callstackincubator/rebolt#2392966:
+rebolt@callstackincubator/rebolt#65ebba2:
   version "0.1.0"
-  resolved "https://codeload.github.com/callstackincubator/rebolt/tar.gz/239296654f98854fd82c4f120892ef3147ef2f9d"
+  resolved "https://codeload.github.com/callstackincubator/rebolt/tar.gz/65ebba2a74382d40e43806382061c2fce9dadf82"
 
 regenerate@^1.2.1:
   version "1.3.3"
