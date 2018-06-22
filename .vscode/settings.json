@@ -1,9 +1,0 @@
-{
-  "files.exclude": {
-    "lib": true,
-    "*.lock": true,
-    "package-lock.json": true,
-    ".merlin": true
-  },
-  "eslint.enable": false
-}
