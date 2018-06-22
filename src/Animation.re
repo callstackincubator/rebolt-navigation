@@ -3,12 +3,15 @@ open Rebolt;
 type t = {
   func:
     (
-      ~value: Animated.Value.t,
-      ~toValue: [ | `animated(Animated.Value.t) | `raw(float)]
+      ~value: Animated.value(Animated.regular),
+      ~toValue: [
+                  | `animated(Animated.value(Animated.regular))
+                  | `raw(float)
+                ]
     ) =>
     Animated.CompositeAnimation.t,
-  forCard: 'a .Animated.node('a) => Style.t,
-  forHeader: 'a .Animated.node('a) => Style.t,
+  forCard: 'a .Animated.value('a) => Style.t,
+  forHeader: 'a .Animated.value('a) => Style.t,
 };
 
 let slideHorizontal = {

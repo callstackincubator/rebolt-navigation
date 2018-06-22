@@ -10,12 +10,15 @@
 type t = {
   func:
     (
-      ~value: Rebolt.Animated.Value.t,
-      ~toValue: [ | `animated(Rebolt.Animated.Value.t) | `raw(float)]
+      ~value: Rebolt.Animated.value(Rebolt.Animated.regular),
+      ~toValue: [
+                  | `animated(Rebolt.Animated.value(Rebolt.Animated.regular))
+                  | `raw(float)
+                ]
     ) =>
     Rebolt.Animated.CompositeAnimation.t,
-  forCard: 'a .Rebolt.Animated.node('a) => Rebolt.Style.t,
-  forHeader: 'a .Rebolt.Animated.node('a) => Rebolt.Style.t,
+  forCard: 'a .Rebolt.Animated.value('a) => Rebolt.Style.t,
+  forHeader: 'a .Rebolt.Animated.value('a) => Rebolt.Style.t,
 };
 
 /**

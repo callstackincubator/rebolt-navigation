@@ -1,11 +1,11 @@
 open Rebolt;
 
 type t = {
-  forHeaderCenter: 'a .Animated.node('a) => Style.t,
-  forHeaderLeft: 'a .Animated.node('a) => Style.t,
-  forHeaderLeftLabel: 'a .Animated.node('a) => Style.t,
-  forHeaderLeftButton: 'a .Animated.node('a) => Style.t,
-  forHeaderRight: 'a .Animated.node('a) => Style.t,
+  forHeaderCenter: 'a .Animated.value('a) => Style.t,
+  forHeaderLeft: 'a .Animated.value('a) => Style.t,
+  forHeaderLeftLabel: 'a .Animated.value('a) => Style.t,
+  forHeaderLeftButton: 'a .Animated.value('a) => Style.t,
+  forHeaderRight: 'a .Animated.value('a) => Style.t,
 };
 
 let crossFadeInterpolation = ([start, mid, end_], value) =>
