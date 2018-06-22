@@ -1,16 +1,17 @@
 open Rebolt;
 
-type interpolator = Animated.Value.t => Style.t;
-
 type t = {
   func:
     (
-      ~value: Animated.Value.value,
-      ~toValue: [ | `animated(Animated.Value.value) | `raw(float)]
+      ~value: Animated.value(Animated.regular),
+      ~toValue: [
+                  | `animated(Animated.value(Animated.regular))
+                  | `raw(float)
+                ]
     ) =>
     Animated.CompositeAnimation.t,
-  forCard: interpolator,
-  forHeader: interpolator,
+  forCard: 'a .Animated.value('a) => Style.t,
+  forHeader: 'a .Animated.value('a) => Style.t,
 };
 
 let slideHorizontal = {
@@ -49,7 +50,7 @@ let slideHorizontal = {
       ])
     );
   },
-  forHeader: (_) => Style.style([]),
+  forHeader: _ => Style.style([]),
 };
 
 let fadeVertical = {
@@ -85,7 +86,7 @@ let fadeVertical = {
         ),
       ])
     ),
-  forHeader: (_) => Style.style([]),
+  forHeader: _ => Style.style([]),
 };
 
 let default =

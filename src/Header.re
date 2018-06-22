@@ -18,7 +18,7 @@ and screen = {
 and props = {
   screens: array(screen),
   activeScreen: int,
-  animatedValue: Animated.Value.t,
+  animatedValue: Animated.Interpolation.t,
   pop: string => unit,
 };
 
@@ -246,7 +246,7 @@ module IOSImpl = {
        */
       let upperBound = float_of_int(Array.length(screens));
       let anim =
-        AnimatedUtils.interpolate(
+        Animated.Value.interpolate(
           anim,
           ~inputRange=[0.0, upperBound],
           ~outputRange=`float([0.0, upperBound]),
@@ -425,7 +425,11 @@ module IOSImpl = {
                      anim,
                      Animated.Value.create(-. float_of_int(idx)),
                    );
-                 let props = {...props, animatedValue, activeScreen: idx};
+                 let screenProps = {
+                   ...props,
+                   animatedValue,
+                   activeScreen: idx,
+                 };
                  /**
                   * Animated has this bug with `nativeDriver` that when you setState
                   * from onLayout, it doesn't apply interpolated styles which results
@@ -451,17 +455,11 @@ module IOSImpl = {
                    <MaskedView
                      key=screen.key
                      maskElement=mask
-                     style=(
-                       Style.concat([
-                         Styles.fill,
-                         props.animatedValue |> screen.animation.forHeader,
-                         initialOpacity,
-                       ])
-                     )
+                     style=(Style.concat([Styles.fill, initialOpacity]))
                      pointerEvents=(activeScreen == idx ? "box-none" : "none")>
-                     (renderCenter(props))
-                     (renderLeft(props))
-                     (renderRight(props))
+                     (renderCenter(screenProps))
+                     (renderLeft(screenProps))
+                     (renderRight(screenProps))
                    </MaskedView>;
                  };
                })

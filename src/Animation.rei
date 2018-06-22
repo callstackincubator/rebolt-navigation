@@ -1,9 +1,4 @@
 /**
- * Interpolates style
- */
-type interpolator = Rebolt.Animated.Value.t => Rebolt.Style.t;
-
-/**
  * Animation type
  *
  * Lots of logic used for `forX` interpolators has been inspired and borrowed by
@@ -15,15 +10,15 @@ type interpolator = Rebolt.Animated.Value.t => Rebolt.Style.t;
 type t = {
   func:
     (
-      ~value: Rebolt.Animated.Value.value,
+      ~value: Rebolt.Animated.value(Rebolt.Animated.regular),
       ~toValue: [
-                  | `animated(Rebolt.Animated.Value.value)
+                  | `animated(Rebolt.Animated.value(Rebolt.Animated.regular))
                   | `raw(float)
                 ]
     ) =>
     Rebolt.Animated.CompositeAnimation.t,
-  forCard: interpolator,
-  forHeader: interpolator,
+  forCard: 'a .Rebolt.Animated.value('a) => Rebolt.Style.t,
+  forHeader: 'a .Rebolt.Animated.value('a) => Rebolt.Style.t,
 };
 
 /**
