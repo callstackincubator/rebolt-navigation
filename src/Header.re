@@ -425,7 +425,11 @@ module IOSImpl = {
                      anim,
                      Animated.Value.create(-. float_of_int(idx)),
                    );
-                 let screenProps = {...props, animatedValue, activeScreen: idx};
+                 let screenProps = {
+                   ...props,
+                   animatedValue,
+                   activeScreen: idx,
+                 };
                  /**
                   * Animated has this bug with `nativeDriver` that when you setState
                   * from onLayout, it doesn't apply interpolated styles which results
