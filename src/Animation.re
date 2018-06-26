@@ -57,7 +57,7 @@ let fadeVertical = {
   func:
     Animated.timing(
       ~duration=350.0,
-      ~easing=t => Js.Math.pow_float(~base=t, ~exp=5.0),
+      ~easing=Easing.out(Easing.poly(5.0)),
       ~useNativeDriver=true,
       (),
     ),
