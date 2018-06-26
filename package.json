@@ -35,7 +35,7 @@
     "react-native": "^0.55.4",
     "react-native-gesture-handler": "^1.0.0-alpha.41",
     "reason-react": "^0.4.1",
-    "rebolt": "callstackincubator/rebolt#1374ada"
+    "rebolt": "callstackincubator/rebolt#e5503ad"
   },
   "peerDependencies": {
     "react-native-gesture-handler": "*",

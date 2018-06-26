@@ -9,14 +9,14 @@ type t = {
                   | `raw(float)
                 ]
     ) =>
-    Animated.CompositeAnimation.t,
+    Animated.Animation.t,
   forCard: 'a .Animated.value('a) => Style.t,
   forHeader: 'a .Animated.value('a) => Style.t,
 };
 
 let slideHorizontal = {
   func:
-    Animated.Spring.animate(
+    Animated.spring(
       ~stiffness=1000.0,
       ~damping=500.0,
       ~mass=3.0,
@@ -55,7 +55,7 @@ let slideHorizontal = {
 
 let fadeVertical = {
   func:
-    Animated.Timing.animate(
+    Animated.timing(
       ~duration=350.0,
       ~easing=t => Js.Math.pow_float(~base=t, ~exp=5.0),
       ~useNativeDriver=true,
@@ -97,5 +97,5 @@ let default =
 
 let none = {
   ...default,
-  func: Animated.Timing.animate(~duration=0.0, ~useNativeDriver=true, ()),
+  func: Animated.timing(~duration=0.0, ~useNativeDriver=true, ()),
 };

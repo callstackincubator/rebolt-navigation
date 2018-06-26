@@ -3636,13 +3636,9 @@ reason-react@^0.4.1:
     react ">=15.0.0 || >=16.0.0"
     react-dom ">=15.0.0 || >=16.0.0"
 
-rebolt@callstackincubator/rebolt#1374ada:
+rebolt@callstackincubator/rebolt#e5503ad:
   version "0.1.0"
-  resolved "https://codeload.github.com/callstackincubator/rebolt/tar.gz/1374ada18b4b6bfc822168a92ce8d3715f080cbf"
-
-rebolt@callstackincubator/rebolt#2392966:
-  version "0.1.0"
-  resolved "https://codeload.github.com/callstackincubator/rebolt/tar.gz/239296654f98854fd82c4f120892ef3147ef2f9d"
+  resolved "https://codeload.github.com/callstackincubator/rebolt/tar.gz/e5503ada09dc4a89472e1e9362cad33fd8db25b3"
 
 regenerate@^1.2.1:
   version "1.3.3"

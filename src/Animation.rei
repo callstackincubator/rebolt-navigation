@@ -16,7 +16,7 @@ type t = {
                   | `raw(float)
                 ]
     ) =>
-    Rebolt.Animated.CompositeAnimation.t,
+    Rebolt.Animated.Animation.t,
   forCard: 'a .Rebolt.Animated.value('a) => Rebolt.Style.t,
   forHeader: 'a .Rebolt.Animated.value('a) => Rebolt.Style.t,
 };

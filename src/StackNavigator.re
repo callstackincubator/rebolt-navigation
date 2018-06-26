@@ -135,7 +135,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
             e##translationX > screenWidth / 2 || e##velocityX > 150.00 ?
               screenWidth : 0;
           Animated.CompositeAnimation.start(
-            Animated.Spring.animate(
+            Animated.spring(
               ~value=animatedValue,
               ~velocity=e##velocityX,
               ~useNativeDriver=true,
@@ -214,7 +214,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
          */
         Animated.Value.setValue(first.animatedValue, fstValues |> fst);
         Animated.Value.setValue(second.animatedValue, sndValues |> fst);
-        Animated.CompositeAnimation.start(
+        Animated.start(
           Animated.parallel(
             [|
               second.animation.func(
