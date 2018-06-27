@@ -51,30 +51,6 @@ module MaskedView = {
     );
 };
 
-module TouchableNativeFeedback = {
-  module Background = {
-    type t;
-    [@bs.module "react-native"] [@bs.scope "TouchableNativeFeedback"]
-    external ripple_ : (string, bool) => t = "Ripple";
-    let ripple = (color, borderless) => ripple_(color, borderless);
-  };
-  [@bs.module "react-native"]
-  external view : ReasonReact.reactClass = "TouchableNativeFeedback";
-  let make =
-      (~onPress=?, ~style=?, ~background: option(Background.t)=?, children) =>
-    Js.Undefined.(
-      ReasonReact.wrapJsForReason(
-        ~reactClass=view,
-        ~props={
-          "onPress": fromOption(onPress),
-          "background": fromOption(background),
-          "style": fromOption(style),
-        },
-        <View> ...children </View>,
-      )
-    );
-};
-
 /**
  * Wrapper around `TouchableNativeFeedback` that makes sure Ripple effect
  * is used on Android devices that support this version.
@@ -93,9 +69,7 @@ module TouchableItem = {
       Platform.version() >= 21 && Platform.os() == Platform.Android ?
         <TouchableNativeFeedback
           onPress
-          background=(
-            TouchableNativeFeedback.Background.ripple(pressColor, borderless)
-          )>
+          background=(TouchableNativeFeedback.ripple(pressColor, borderless))>
           ...children
         </TouchableNativeFeedback> :
         <TouchableOpacity onPress> ...children </TouchableOpacity>,
