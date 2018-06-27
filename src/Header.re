@@ -33,25 +33,6 @@ let default = {
 let scr = p => p.screens[p.activeScreen];
 
 /**
- * Bare minimum wrapper around MaskedViewIOS. Consider open sourcing to
- * `bs-react-native` at some point
- */
-module MaskedView = {
-  [@bs.module "react-native"]
-  external view : ReasonReact.reactClass = "MaskedViewIOS";
-  let make = (~maskElement, ~pointerEvents, ~style, children) =>
-    ReasonReact.wrapJsForReason(
-      ~reactClass=view,
-      ~props={
-        "maskElement": maskElement,
-        "pointerEvents": pointerEvents,
-        "style": style,
-      },
-      children,
-    );
-};
-
-/**
  * Wrapper around `TouchableNativeFeedback` that makes sure Ripple effect
  * is used on Android devices that support this version.
  */
@@ -426,15 +407,15 @@ module IOSImpl = {
                  if (lastIdx - idx > 2) {
                    ReasonReact.null;
                  } else {
-                   <MaskedView
+                   <MaskedViewIOS
                      key=screen.key
                      maskElement=mask
                      style=(Style.concat([Styles.fill, initialOpacity]))
-                     pointerEvents=(activeScreen == idx ? "box-none" : "none")>
+                     pointerEvents=(activeScreen == idx ? `boxNone : `none)>
                      (renderCenter(screenProps))
                      (renderLeft(screenProps))
                      (renderRight(screenProps))
-                   </MaskedView>;
+                   </MaskedViewIOS>;
                  };
                })
             |> ReasonReact.array
