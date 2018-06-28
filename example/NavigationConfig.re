@@ -18,4 +18,4 @@ module Config = {
     | CustomProfileStats;
 };
 
-include ReboltNavigation.CreateNavigation(Config);
+include Navigation.CreateNavigation(Config);
