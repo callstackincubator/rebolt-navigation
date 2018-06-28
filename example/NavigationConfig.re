@@ -18,4 +18,5 @@ module Config = {
     | CustomProfileStats;
 };
 
-include Navigation.CreateNavigation(Config);
+include StackNavigator.CreateStackNavigator(Config);
+include TabNavigator.CreateTabNavigator(Config);
