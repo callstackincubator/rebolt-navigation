@@ -33,11 +33,10 @@ After installation, you will need to add this library to your `bsconfig.json` de
 In addition you will need to install a few peer dependencies:
 
 ```sh
-yarn add bs-react-native react-native-gesture-handler
+yarn add rebolt react-native-gesture-handler
 ```
 
 * `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
-* `bs-react-native` - `^0.8.0`
 
 As per [this issue](https://github.com/callstackincubator/rebolt-navigation/issues/103), you might need to add the following to your `bsconfig.json`:
 
