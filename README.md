@@ -1,13 +1,14 @@
 # Rebolt Navigation
 
-[![CircleCI](https://circleci.com/gh/callstackincubator/rebolt-navigation.svg?style=svg)](https://circleci.com/gh/callstackincubator/rebolt-navigation)
+[![Build Status][build-badge]][build]
+[![Version][version-badge]][package]
+[![MIT License][license-badge]][license]
+[![PRs Welcome][prs-welcome-badge]][prs-welcome]
+[![Chat][chat-badge]][chat]
 
 > a fast, declarative navigation for react native
 
 We're looking forward to seeing your feedback or questions on Discord
-
-[![Discord](https://img.shields.io/discord/426714625279524876.svg)](https://discord.gg/8DW7b4N)
-
 
 ## Getting started
 
@@ -75,3 +76,15 @@ npm start
 ## License
 
 MIT (c) 2018 Callstack
+
+<!-- badges -->
+[build-badge]: https://img.shields.io/circleci/project/github/callstackincubator/rebolt-navigation/master.svg?style=flat-square
+[build]: https://circleci.com/gh/callstackincubator/rebolt-navigation
+[version-badge]: https://img.shields.io/npm/v/rebolt-navigation.svg?style=flat-square
+[package]: https://www.npmjs.com/package/rebolt-navigation
+[license-badge]: https://img.shields.io/npm/l/rebolt-navigation.svg?style=flat-square
+[license]: https://opensource.org/licenses/MIT
+[prs-welcome-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
+[prs-welcome]: http://makeapullrequest.com
+[chat-badge]: https://img.shields.io/discord/426714625279524876.svg?style=flat-square&colorB=758ED3
+[chat]: https://discord.gg/zwR2Cdh
