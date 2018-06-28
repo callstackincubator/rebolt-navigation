@@ -1,4 +1,4 @@
-# ReRoute Native
+# Rebolt Navigation
 
 [![CircleCI](https://circleci.com/gh/callstackincubator/rebolt-navigation.svg?style=svg)](https://circleci.com/gh/callstackincubator/rebolt-navigation)
 
@@ -11,14 +11,14 @@ We're looking forward to seeing your feedback or questions on Discord
 
 ## Getting started
 
-[ReRoute Native website](https://reroute.callstack.com/)
+[Rebolt Navigation website](https://rebolt-navigation.callstack.com/)
 
 ### Installation
 
 Open a Terminal in your project's folder and run,
 
 ```she
-yarn add reroute-native
+yarn add rebolt-navigation
 ```
 
 After installation, you will need to add this library to your `bsconfig.json` dependencies
@@ -26,7 +26,7 @@ After installation, you will need to add this library to your `bsconfig.json` de
 ```json
 "bs-dependencies": [
   "reason-react",
-  "reroute-native"
+  "rebolt-navigation"
 ],
 ```
 
@@ -39,7 +39,7 @@ yarn add bs-react-native react-native-gesture-handler
 * `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
 * `bs-react-native` - `^0.8.0`
 
-As per [this issue](https://github.com/callstack/reroute-native/issues/103), you might need to add the following to your `bsconfig.json`:
+As per [this issue](https://github.com/callstackincubator/rebolt-navigation/issues/103), you might need to add the following to your `bsconfig.json`:
 
 ```
 
@@ -54,7 +54,7 @@ This generates output alongside source files. ([documentation](https://bucklescr
 
 ## Usage
 
-[View the docs](https://reroute-native.netlify.com/docs/get-started.html#usage)
+[View the docs](https://rebolt-navigation.callstack.com/docs/get-started.html#usage)
 
 ## Examples
 - example built-in library - [/example](/example)

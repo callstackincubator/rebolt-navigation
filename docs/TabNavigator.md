@@ -21,7 +21,7 @@ module Config = {
 
 `TabNavigator` requires initial route, the screen that will be showed first. In our case it will be `Config.About`. In addition we need to specify what routes are going to represent our tabs, we do it by passing an array of routes to `routes` prop.
 
-ReRoute provides a default Tab Bar for iOS and Android, but if you want to use a custom one, use the optional prop `renderTabBar`.
+Rebolt Navigation provides a default Tab Bar for iOS and Android, but if you want to use a custom one, use the optional prop `renderTabBar`.
 `renderTabBar` prop gives you a `tabBarProps` which consist all of the data you will need to build your custom Tab Bar with.
 
 `TabNavigator` also provides you with the `navigation` render prop, which you will use to pattern match on `navigation.currentRoute`.

@@ -13,7 +13,7 @@ module UUID = {
 };
 
 /**
- * Some common Array operations used within ReRoute extracted to one place
+ * Some common Array operations used within Rebolt Navigation extracted to one place
  */
 module ReArray = {
   let set = (el, idx, arr) => {
@@ -44,12 +44,9 @@ let option_map = (fn, opt_value) =>
   };
 
 module StringMap = {
-  include
-    Map.Make(
-      {
-        type t = string;
-        let compare = compare;
-      },
-    );
+  include Map.Make({
+    type t = string;
+    let compare = compare;
+  });
   let hasKey = (skey, map) => map |> exists((key, _val) => key == skey);
 };

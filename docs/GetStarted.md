@@ -9,9 +9,9 @@ The library is built in Reason, so we are assuming you are all set with the Reas
 ## Install the library
 
 ```sh
-yarn add reroute-native
+yarn add rebolt-navigation
 # or
-npm install reroute-native --save
+npm install rebolt-navigation --save
 ```
 
 ## Add it to your config
@@ -21,7 +21,7 @@ In your `bsconfig.json` add it to the dependecies:
 ```json
 "bs-dependencies": [
   "reason-react",
-  "reroute-native"
+  "rebolt-navigation"
 ],
 "namespace": true
 ```
@@ -48,7 +48,7 @@ module Config = {
     | Contact;
 };
 
-include RerouteNative.ReRoute.CreateNavigation(Config);
+include RerouteNative.Rebolt Navigation.CreateNavigation(Config);
 ```
 
-That's it! Now you are ready to use ReRoute in your React Native application.
+That's it! Now you are ready to use Rebolt Navigation in your React Native application.

@@ -1,7 +1,7 @@
 {
-  "name": "reroute-native",
-  "version": "0.0.5",
-  "description": "ReRoute Native",
+  "name": "rebolt-navigation",
+  "version": "0.1.0",
+  "description": "Rebolt Navigation",
   "main": "index.js",
   "scripts": {
     "build": "bsb -make-world",
@@ -17,29 +17,30 @@
     "router",
     "react",
     "reason",
-    "reasonml"
+    "reasonml",
+    "rebolt"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/callstack/reroute-native.git"
+    "url": "git+https://github.com/callstackincubator/rebolt-navigation.git"
   },
   "author": "Mike Grabowski <grabbou@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/callstack/reroute-native/issues"
+    "url": "https://github.com/callstackincubator/rebolt-navigation/issues"
   },
-  "homepage": "https://github.com/callstack/reroute-native#readme",
+  "homepage": "https://github.com/callstackincubator/rebolt-navigation#readme",
   "devDependencies": {
     "bs-platform": "^3.1.5",
     "react": "^16.3.0-alpha.1",
     "react-native": "^0.55.4",
     "react-native-gesture-handler": "^1.0.0-alpha.41",
     "reason-react": "^0.4.1",
-    "rebolt": "callstackincubator/rebolt#048ed6c"
+    "rebolt": "^0.2.0"
   },
   "peerDependencies": {
     "react-native-gesture-handler": "*",
     "reason-react": "*",
-    "rebolt": "^0.1.0"
+    "rebolt": "^0.2.0"
   }
 }

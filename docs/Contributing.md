@@ -4,7 +4,7 @@ title: Contributing
 sidebar_label: Contributing
 ---
 
-### We would love to get your help, to make ReRoute even better!
+### We would love to get your help, to make Rebolt Navigation even better!
 
 If you spot some bugs or have an idea for a new feature or an enhancment please submit a PR or an issue.
 
