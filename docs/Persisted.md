@@ -14,7 +14,7 @@ We can quickly do this using `AsyncStorage` and adding few modifications in your
 
 First, define your main component with `reducerComponent`:
 
-```js
+```reason
 let component = ReasonReact.reducerComponent('Main');
 ```
 
@@ -22,13 +22,13 @@ let component = ReasonReact.reducerComponent('Main');
 
 Define the type of your state:
 
-```js
+```reason
 type state = {persistedState: option(StackNavigator.persistedState)};
 ```
 
 ## Actions
 
-```js
+```reason
 type action =
     | Rehydrate(StackNavigator.persistedState);
 ```
@@ -39,7 +39,7 @@ Now it is time to define the `main` method of our component.
 
 Let's start from initial state:
 
-```js
+```reason
 let make = _children => {
     ...component,
     initialState: () => {persistedState: None},
@@ -49,7 +49,7 @@ let make = _children => {
 
 We need to define `reducer` method to handle our actions
 
-```js
+```reason
 reducer: (action, _state) =>
   switch (action) {
   | Rehydrate(state) =>
@@ -63,7 +63,7 @@ Next step is to define `didUpdate` component lifecycle method.
 Here we use `AsyncStorage` to get our routes from `AsyncStorage` if any exists.
 If any routes config exists, then we do rehydrate our state. Otherwise, we use the default configuration.
 
-```js
+```reason
 didMount: self => {
   AsyncStorage.getItem(
     "$state",
@@ -90,7 +90,7 @@ didMount: self => {
 
 The last thing is to render StackNavigator with `initialState` and `onStateChange` props
 
-```js
+```reason
 <StackNavigator
   initialState=state
   onStateChange=(
@@ -106,7 +106,7 @@ The last thing is to render StackNavigator with `initialState` and `onStateChang
 
 ## Full Example
 
-```js
+```reason
 open NavigationConfig;
 
 open Rebolt;

@@ -30,8 +30,8 @@ In your `bsconfig.json` add it to the dependecies:
 
 In addition you will need to install a few peer dependencies:
 
-* `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
-* `bs-react-native` - `^0.8.0`
+- `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
+- `bs-react-native` - `^0.8.0`
 
 ## Usage
 
@@ -48,7 +48,7 @@ module Config = {
     | Contact;
 };
 
-include RerouteNative.Rebolt Navigation.CreateNavigation(Config);
+include ReboltNavigation.Navigation.CreateNavigation(Config);
 ```
 
 That's it! Now you are ready to use Rebolt Navigation in your React Native application.
