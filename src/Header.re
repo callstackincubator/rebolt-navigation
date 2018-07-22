@@ -365,9 +365,16 @@ module IOSImpl = {
           )
         </Animated.View>;
       let lastIdx = Array.length(screens) - 1;
-      <SafeAreaView style=Styles.container>
+      <SafeAreaView
+        style=Style.(
+                concat([
+                  Styles.container,
+                  scr(props).header.style
+                  |> Js.Option.getWithDefault(style([])),
+                ])
+              )>
         <View style=Styles.header>
-          Js.Option.(
+          (
             screens
             |> Array.mapi((idx: int, screen) => {
                  /**
