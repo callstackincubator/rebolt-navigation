@@ -6,23 +6,14 @@ module Styles = {
     | Small
     | Regular;
   let tabContainer = style([flex(1.)]);
-  let screenContainer = isActive =>
-    isActive ?
-      style([
-        position(Absolute),
-        top(Pt(0.)),
-        right(Pt(0.)),
-        bottom(Pt(0.)),
-        left(Pt(0.)),
-      ]) :
-      style([
-        position(Absolute),
-        top(Pt(0.)),
-        right(Pt(0.)),
-        bottom(Pt(0.)),
-        left(Pt(0.)),
-        opacity(Float(0.)),
-      ]);
+  let screenContainer =
+    style([
+      position(Absolute),
+      top(Pt(0.)),
+      right(Pt(0.)),
+      bottom(Pt(0.)),
+      left(Pt(0.)),
+    ]);
   let tabBarContainer =
       (safeAreaViewBackgroundColor: option(string), renderTabBar) =>
     style([
@@ -290,6 +281,61 @@ module CreateTabNavigator = (Config: {type route;}) => {
           </View>,
       };
     };
+    /* TODO: find index of initialRoute */
+    let activeScreenAnimatedValue = Animated.Value.create(float_of_int(1));
+    module Gestures = {
+      let screenWidth = Dimensions.get(`window)##width;
+      let animatedValue = Animated.Value.create(0.0);
+      let handler =
+        Animated.event(
+          [|{
+              "nativeEvent": {
+                "translationX": animatedValue,
+              },
+            }|],
+          {"useNativeDriver": true},
+        );
+      /** Interpolated progress in range of 0 to 1 (start to end) */
+      let animatedProgress =
+        AnimatedUtils.interpolate(
+          animatedValue,
+          ~inputRange=[
+            -. float_of_int(screenWidth),
+            float_of_int(screenWidth),
+          ],
+          ~outputRange=`float([(-1.0), 1.0]),
+          ~extrapolate=Animated.Interpolation.Clamp,
+          (),
+        );
+      let onStateChange = (event, _self) => {
+        let e = event##nativeEvent;
+        switch (e##state) {
+        | 5 =>
+          let toValue =
+            switch (e##translationX, e##velocityX) {
+            | (translationX, _) when translationX > screenWidth / 2 => screenWidth
+            | (translationX, _) when translationX < screenWidth / 2 =>
+              - screenWidth
+            | (_, velocityX) when velocityX > 150. => screenWidth
+            | (_, _) => 0
+            };
+          Animated.CompositeAnimation.start(
+            Animated.Spring.animate(
+              ~value=animatedValue,
+              ~velocity=e##velocityX,
+              ~useNativeDriver=true,
+              ~toValue=`raw(float_of_int(toValue)),
+              (),
+            ),
+            ~callback=
+              _end_ =>
+                Animated.Value.setValue(Animated.Value.create(1.0), 0.0),
+            (),
+          );
+        | _ => ()
+        };
+      };
+    };
     let component = ReasonReact.reducerComponent("TabNavigator");
     let make =
         (
@@ -322,60 +368,96 @@ module CreateTabNavigator = (Config: {type route;}) => {
           screens[index] = {...screens[index], tabItem};
           ReasonReact.Update({...state, screens});
         },
-      render: self =>
+      render: self => {
+        let screenWidth = Dimensions.get(`window)##width;
+        let aquaPoint = 20;
+        let animatedValue =
+          Animated.Value.add(
+            activeScreenAnimatedValue,
+            Animated.Value.multiply(
+              Gestures.animatedProgress,
+              Animated.Value.create(-1.0),
+            ),
+          );
+        let size = Array.length(routes);
         <SafeAreaView
           style=(
             Styles.tabBarContainer(safeAreaViewBackgroundColor, renderTabBar)
           )>
-          <View style=Styles.tabContainer>
-            (
-              self.state.screens
-              |> Array.mapi((index, screen) => {
-                   let isActive = self.state.currentRoute === screen.route;
-                   <View
-                     key=(string_of_int(index))
-                     style=(Styles.screenContainer(isActive))
-                     pointerEvents=(isActive ? `auto : `none)>
-                     (
-                       children(
-                         ~navigation={
-                           jumpTo: route => self.send(JumpTo(route)),
-                           currentRoute: screen.route,
-                           screens: self.state.screens,
-                           setOptions: options =>
-                             self.send(SetOptions(options, index)),
-                           isActive,
-                         },
-                       )
-                     )
-                   </View>;
-                 })
-              |> ReasonReact.array
-            )
-            (
-              switch (renderTabBar) {
-              | Some(renderTabBar) =>
-                renderTabBar(
-                  ~tabBarProps={
-                    screens: self.state.screens,
-                    currentRoute: self.state.currentRoute,
-                    jumpTo: route => self.send(JumpTo(route)),
-                    indicatorColor,
-                  },
+          <View style=Style.(style([flex(1.)]))>
+            <GestureHandlers.PanHandler
+              minDeltaX=aquaPoint
+              hitSlop={"right": 0}
+              maxDeltaX=screenWidth
+              enabled=(size > 1)
+              onGestureEvent=Gestures.handler
+              onHandlerStateChange=(self.handle(Gestures.onStateChange))>
+              <Animated.View style=Styles.tabContainer>
+                (
+                  self.state.screens
+                  |> Array.mapi((index, screen) => {
+                       let isActive = self.state.currentRoute === screen.route;
+                       let screenAnimatedValue =
+                         Animated.Value.add(
+                           Animated.Value.create(float_of_int(index)),
+                           Animated.Value.multiply(
+                             animatedValue,
+                             Animated.Value.create(-1.),
+                           ),
+                         );
+                       <Animated.View
+                         key=(string_of_int(index))
+                         style=(
+                           Style.concat([
+                             Styles.screenContainer,
+                             screenAnimatedValue
+                             |> TabInterpolator.default.forCard,
+                           ])
+                         )
+                         pointerEvents=(isActive ? `auto : `none)>
+                         (
+                           children(
+                             ~navigation={
+                               jumpTo: route => self.send(JumpTo(route)),
+                               currentRoute: screen.route,
+                               screens: self.state.screens,
+                               setOptions: options =>
+                                 self.send(SetOptions(options, index)),
+                               isActive,
+                             },
+                           )
+                         )
+                       </Animated.View>;
+                     })
+                  |> ReasonReact.array
                 )
-              | None =>
-                <TabBar
-                  tabBarProps={
-                    screens: self.state.screens,
-                    currentRoute: self.state.currentRoute,
-                    jumpTo: route => self.send(JumpTo(route)),
-                    indicatorColor,
+                (
+                  switch (renderTabBar) {
+                  | Some(renderTabBar) =>
+                    renderTabBar(
+                      ~tabBarProps={
+                        screens: self.state.screens,
+                        currentRoute: self.state.currentRoute,
+                        jumpTo: route => self.send(JumpTo(route)),
+                        indicatorColor,
+                      },
+                    )
+                  | None =>
+                    <TabBar
+                      tabBarProps={
+                        screens: self.state.screens,
+                        currentRoute: self.state.currentRoute,
+                        jumpTo: route => self.send(JumpTo(route)),
+                        indicatorColor,
+                      }
+                    />
                   }
-                />
-              }
-            )
+                )
+              </Animated.View>
+            </GestureHandlers.PanHandler>
           </View>
-        </SafeAreaView>,
+        </SafeAreaView>;
+      },
     };
     module Screen = {
       let component = ReasonReact.statelessComponent("Screen");
@@ -390,10 +472,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
           navigation.setOptions({tabItem: tabItem});
           ();
         },
-        render: _self =>
-          navigation.isActive ?
-            <View style=Styles.tabContainer> (children()) </View> :
-            ReasonReact.null,
+        render: _self => <View style=Styles.tabContainer> (children()) </View>,
       };
     };
   };
