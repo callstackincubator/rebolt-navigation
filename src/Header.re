@@ -187,7 +187,7 @@ module IOSImpl = {
         })
       },
     render: self => {
-      let {screens, activeScreen, animatedValue as anim, pop} = props;
+      let {screens, activeScreen, animatedValue} = props;
       /**
        * The animated value passed to Header is screen index -
        * gesture progress. When user starts moving its finger
@@ -202,7 +202,7 @@ module IOSImpl = {
       let upperBound = float_of_int(Array.length(screens));
       let anim =
         Animated.Value.interpolate(
-          anim,
+          animatedValue,
           ~inputRange=[0.0, upperBound],
           ~outputRange=`float([0.0, upperBound]),
           ~extrapolate=Animated.Interpolation.Clamp,
@@ -219,7 +219,7 @@ module IOSImpl = {
           <View style=Styles.iconMaskFillerRect />
         </View>;
       let renderLeft = p => {
-        let {animation, header, key} = scr(p);
+        let {header, key} = scr(p);
         <Animated.View
           onLayout=(
             /**
@@ -228,7 +228,7 @@ module IOSImpl = {
              */
             self.state.leftWidths
             |> StringMap.hasKey(key) ?
-              e_ => () :
+              _e => () :
               (
                 e =>
                   self.send(
@@ -315,7 +315,7 @@ module IOSImpl = {
         </Animated.View>;
       };
       let renderCenter = p => {
-        let {key, animation, header} = scr(p);
+        let {key, header} = scr(p);
         let containerStyle =
           Style.(
             concat([
