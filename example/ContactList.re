@@ -1,7 +1,3 @@
-open NavigationConfig;
-
-open TabNavigator;
-
 open Rebolt;
 
 let component = ReasonReact.statelessComponent("Contacts");
@@ -81,10 +77,11 @@ let data = [|
   {name: "Monty Carlo", online: false},
 |];
 
-let renderItem = (nav: StackNavigator.navigation) =>
+let renderItem = (nav: NavigationConfig.StackNavigator.navigation) =>
   FlatList.renderItem((contact: FlatList.renderBag(contact)) =>
     <TouchableOpacity
-      style=Styles.listItem onPress=(_e => nav.push(Config.UserProfile))>
+      style=Styles.listItem
+      onPress=(_e => nav.push(NavigationConfig.Config.UserProfile))>
       <Text style=Styles.name> (ReasonReact.string(contact.item.name)) </Text>
       <View style=Styles.rightActions>
         <View style=(Styles.online(contact.item.online)) />
@@ -103,32 +100,36 @@ let extractor = (item, _index) => item.name;
 let make =
     (
       ~navigation,
-      ~stackNavigation: StackNavigator.navigation,
+      ~stackNavigation: NavigationConfig.StackNavigator.navigation,
       ~custom: bool,
       _children,
     ) => {
   ...component,
   render: _self =>
-    <Screen
-      tabItem=(
-        ({isActive}) =>
-          <TabBar.Item
-            label="Contacts"
-            style=(
-              Style.style([Style.color(String(isActive ? "blue" : "gray"))])
-            )
-          />
-      )
-      navigation>
-      ...(
-           () =>
-             <View style=(Styles.container(custom))>
-               <FlatList
-                 data
-                 renderItem=(renderItem(stackNavigation))
-                 keyExtractor=extractor
-               />
-             </View>
-         )
-    </Screen>,
+    NavigationConfig.TabNavigator.(
+      <Screen
+        tabItem=(
+          ({isActive}) =>
+            <TabBar.Item
+              label="Contacts"
+              style=(
+                Style.style([
+                  Style.color(String(isActive ? "blue" : "gray")),
+                ])
+              )
+            />
+        )
+        navigation>
+        ...(
+             () =>
+               <View style=(Styles.container(custom))>
+                 <FlatList
+                   data
+                   renderItem=(renderItem(stackNavigation))
+                   keyExtractor=extractor
+                 />
+               </View>
+           )
+      </Screen>
+    ),
 };

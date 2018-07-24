@@ -1,7 +1,3 @@
-open NavigationConfig;
-
-open TabNavigator;
-
 open Rebolt;
 
 let component = ReasonReact.statelessComponent("Messages");
@@ -82,10 +78,10 @@ let extractor = (item, _index) => item.name;
 let make = (~navigation, ~custom: bool, _children) => {
   ...component,
   render: _self =>
-    <Screen
+    <NavigationConfig.TabNavigator.Screen
       tabItem=(
         ({isActive}) =>
-          <TabBar.Item
+          <NavigationConfig.TabNavigator.TabBar.Item
             label="Messages"
             style=(
               Style.style([Style.color(String(isActive ? "blue" : "gray"))])
@@ -99,5 +95,5 @@ let make = (~navigation, ~custom: bool, _children) => {
                <FlatList data renderItem keyExtractor=extractor />
              </View>
          )
-    </Screen>,
+    </NavigationConfig.TabNavigator.Screen>,
 };

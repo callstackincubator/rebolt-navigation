@@ -1,5 +1,3 @@
-open NavigationConfig;
-
 open Rebolt;
 
 let component = ReasonReact.statelessComponent("Home");
@@ -23,11 +21,11 @@ module Styles = {
   let title = style([fontSize(Float(20.))]);
 };
 
-let renderButtons = (nav: StackNavigator.navigation) =>
+let renderButtons = (nav: NavigationConfig.StackNavigator.navigation) =>
   <View>
     <TouchableOpacity
       style=(Styles.button("#4cd964"))
-      onPress=(_e => nav.push(Config.Admin))>
+      onPress=(_e => nav.push(NavigationConfig.Config.Admin))>
       <Text style=Styles.buttonText> (ReasonReact.string("Push")) </Text>
     </TouchableOpacity>
     <TouchableOpacity
@@ -36,10 +34,14 @@ let renderButtons = (nav: StackNavigator.navigation) =>
     </TouchableOpacity>
   </View>;
 
-let make = (~navigation as nav: StackNavigator.navigation, _children) => {
+let make =
+    (
+      ~navigation as nav: NavigationConfig.StackNavigator.navigation,
+      _children,
+    ) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen headerTitle="Home" navigation=nav>
+    <NavigationConfig.StackNavigator.Screen headerTitle="Home" navigation=nav>
       ...(
            () =>
              <View style=Styles.continer>
@@ -49,5 +51,5 @@ let make = (~navigation as nav: StackNavigator.navigation, _children) => {
                (renderButtons(nav))
              </View>
          )
-    </StackNavigator.Screen>,
+    </NavigationConfig.StackNavigator.Screen>,
 };

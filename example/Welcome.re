@@ -1,5 +1,3 @@
-open NavigationConfig;
-
 open Rebolt;
 
 let screenWidth = Dimensions.get(`screen)##width;
@@ -35,10 +33,11 @@ type examples =
 
 let examplesList = [|Tab, TabCustom, Stack|];
 
-let make = (~navigation: StackNavigator.navigation, _children) => {
+let make =
+    (~navigation: NavigationConfig.StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen navigation headerTitle="Examples">
+    <NavigationConfig.StackNavigator.Screen navigation headerTitle="Examples">
       ...(
            () =>
              <View style=Style.container>
@@ -57,10 +56,16 @@ let make = (~navigation: StackNavigator.navigation, _children) => {
                         onPress=(
                           () =>
                             switch (example) {
-                            | Tab => navigation.push(Config.TabExample)
-                            | Stack => navigation.push(Config.Home)
+                            | Tab =>
+                              navigation.push(
+                                NavigationConfig.Config.TabExample,
+                              )
+                            | Stack =>
+                              navigation.push(NavigationConfig.Config.Home)
                             | TabCustom =>
-                              navigation.push(Config.CustomTabBarExample)
+                              navigation.push(
+                                NavigationConfig.Config.CustomTabBarExample,
+                              )
                             }
                         )>
                         <Text style=Style.text>
@@ -72,5 +77,5 @@ let make = (~navigation: StackNavigator.navigation, _children) => {
                )
              </View>
          )
-    </StackNavigator.Screen>,
+    </NavigationConfig.StackNavigator.Screen>,
 };

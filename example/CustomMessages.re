@@ -1,19 +1,15 @@
 open Rebolt;
 
-open NavigationConfig;
-
-open TabNavigator;
-
 let component = ReasonReact.statelessComponent("CustomMessages");
 
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <Screen
+    <NavigationConfig.TabNavigator.Screen
       navigation
       tabItem=(
         ({isActive}) =>
-          <TabBar.Item
+          <NavigationConfig.TabNavigator.TabBar.Item
             label="Messages"
             style=Style.(
                     style([
@@ -23,5 +19,5 @@ let make = (~navigation, _children) => {
           />
       )>
       ...(() => <Text> (ReasonReact.string("Messages")) </Text>)
-    </Screen>,
+    </NavigationConfig.TabNavigator.Screen>,
 };

@@ -1,7 +1,5 @@
 open Rebolt;
 
-open NavigationConfig;
-
 module Styles = {
   open Style;
   let header = style([elevation(0.)]);
@@ -9,30 +7,32 @@ module Styles = {
 
 let component = ReasonReact.statelessComponent("Profile");
 
-let make = (~navigation as nav: StackNavigator.navigation, _children) => {
+let make = (~navigation as nav: NavigationConfig.StackNavigator.navigation, _children) => {
   ...component,
-  render: _self =>
-    <StackNavigator.Screen
-      headerTitle="Profile" headerStyle=Styles.header navigation=nav>
-      ...(
-           () =>
-             <TabNavigator
-               initialRoute=Config.ContactList
-               routes=[|Config.ContactList, Config.Messages, Config.About|]>
-               ...(
-                    (~navigation) =>
-                      switch (navigation.currentRoute) {
-                      | Config.ContactList =>
-                        <ContactList
-                          navigation
-                          stackNavigation=nav
-                          custom=false
-                        />
-                      | Config.Messages => <Messages navigation custom=false />
-                      | _ => <Settings navigation stackNavigation=nav />
-                      }
-                  )
-             </TabNavigator>
-         )
-    </StackNavigator.Screen>,
+  render: _self => (
+      <NavigationConfig.StackNavigator.Screen
+        headerTitle="Profile" headerStyle=Styles.header navigation=nav>
+        ...(
+             () =>
+               <NavigationConfig.TabNavigator
+                 initialRoute=NavigationConfig.Config.ContactList
+                 routes=[|NavigationConfig.Config.ContactList, NavigationConfig.Config.Messages, NavigationConfig.Config.About|]>
+                 ...(
+                      (~navigation) =>
+                        switch (navigation.currentRoute) {
+                        | NavigationConfig.Config.ContactList =>
+                          <ContactList
+                            navigation
+                            stackNavigation=nav
+                            custom=false
+                          />
+                        | NavigationConfig.Config.Messages =>
+                          <Messages navigation custom=false />
+                        | _ => <Settings navigation stackNavigation=nav />
+                        }
+                    )
+               </NavigationConfig.TabNavigator>
+           )
+      </NavigationConfig.StackNavigator.Screen>
+  )
 };

@@ -1,7 +1,5 @@
 open Rebolt;
 
-open NavigationConfig;
-
 module Styles = {
   open Style;
   let tabBar =
@@ -21,7 +19,7 @@ module Styles = {
       style([flex(1.), justifyContent(Center), alignItems(Center)])
     | _ => style([flex(1.), justifyContent(Center), alignItems(Center)])
     };
-  let tabBarItem = isActive =>
+  let tabBarItem = _isActive =>
     style([flex(1.), justifyContent(Center), alignItems(Center)]);
   let tabBarItemText = isActive =>
     style([color(isActive ? String("white") : String("tomato"))]);
@@ -42,13 +40,15 @@ module Styles = {
 
 let component = ReasonReact.statelessComponent("CustomTabBar");
 
-let make = (~tabBarProps: TabNavigator.tabBarProps, _children) => {
+let make =
+    (~tabBarProps: NavigationConfig.TabNavigator.tabBarProps, _children) => {
   ...component,
   render: _self =>
     <View style=Styles.tabBar>
       (
         tabBarProps.screens
-        |> Array.mapi((index, screen: TabNavigator.screenConfig) => {
+        |> Array.mapi(
+             (index, screen: NavigationConfig.TabNavigator.screenConfig) => {
              let isActive = tabBarProps.currentRoute === screen.route;
              isActive ?
                <Animated.View
@@ -66,7 +66,8 @@ let make = (~tabBarProps: TabNavigator.tabBarProps, _children) => {
       )
       (
         tabBarProps.screens
-        |> Array.mapi((index, screen: TabNavigator.screenConfig) => {
+        |> Array.mapi(
+             (index, screen: NavigationConfig.TabNavigator.screenConfig) => {
              let isActive = tabBarProps.currentRoute === screen.route;
              <TouchableWithoutFeedback
                key=(string_of_int(index))

@@ -505,7 +505,10 @@ module CreateStackNavigator = (Config: {type route;}) => {
                          headerMode == Screen ?
                            ReasonReact.element(
                              headerComponent(
-                               {...headerProps, activeScreen: idx},
+                               ~headerProps={
+                                 ...headerProps,
+                                 activeScreen: idx,
+                               },
                                [||],
                              ),
                            ) :
@@ -531,13 +534,14 @@ module CreateStackNavigator = (Config: {type route;}) => {
           </Gestures.PanHandler>
           (
             headerMode == Floating ?
-              ReasonReact.element(headerComponent(headerProps, [||])) :
+              ReasonReact.element(headerComponent(~headerProps, [||])) :
               <View />
           )
         </View>;
       },
     };
     module Screen = {
+      let flexOne = Style.(style([flex(1.)]));
       let component = ReasonReact.statelessComponent("CallstackScreen");
       let make =
           (
@@ -568,7 +572,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
         },
         render: _self => {
           let body = children();
-          <View style=Style.(style([flex(1.0)]))> body </View>;
+          <View style=flexOne> body </View>;
         },
       };
     };

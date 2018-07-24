@@ -8,17 +8,17 @@ type t = {
   forHeaderRight: 'a .Animated.value('a) => Style.t,
 };
 
-let crossFadeInterpolation = ([start, mid, end_], value) =>
+let crossFadeInterpolation = (~startRange, ~midRange, ~endRange, value) =>
   Animated.Value.interpolate(
     value,
     ~inputRange=[
-      start,
-      start +. 0.001,
-      mid -. 0.9,
-      mid -. 0.2,
-      mid,
-      end_ -. 0.001,
-      end_,
+      startRange,
+      startRange +. 0.001,
+      midRange -. 0.9,
+      midRange -. 0.2,
+      midRange,
+      endRange -. 0.001,
+      endRange,
     ],
     ~outputRange=`float([0.0, 0.0, 0.0, 0.3, 1.0, 0.0, 0.0]),
     (),
@@ -107,7 +107,14 @@ let floating = {
     Style.(
       style([
         opacity(
-          Interpolated(value |> crossFadeInterpolation([(-1.0), 0.0, 1.0])),
+          Interpolated(
+            value
+            |> crossFadeInterpolation(
+                 ~startRange=-1.0,
+                 ~midRange=0.0,
+                 ~endRange=1.0,
+               ),
+          ),
         ),
       ])
     ),
