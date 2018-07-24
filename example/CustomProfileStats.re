@@ -1,9 +1,5 @@
 open Rebolt;
 
-open NavigationConfig;
-
-open TabNavigator;
-
 module Styles = {
   open Style;
   let tabBarItem = isActive =>
@@ -36,11 +32,14 @@ let component = ReasonReact.statelessComponent("CustomProfileStats");
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <Screen
+    <NavigationConfig.TabNavigator.Screen
       navigation
       tabItem=(
         ({isActive}) =>
-          <TabBar.Item label="Stats" style=(Styles.tabBarItem(isActive)) />
+          <NavigationConfig.TabNavigator.TabBar.Item
+            label="Stats"
+            style=(Styles.tabBarItem(isActive))
+          />
       )>
       ...(
            () =>
@@ -64,5 +63,5 @@ let make = (~navigation, _children) => {
                </View>
              </ScrollView>
          )
-    </Screen>,
+    </NavigationConfig.TabNavigator.Screen>,
 };

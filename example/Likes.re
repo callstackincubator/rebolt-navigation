@@ -1,7 +1,3 @@
-open NavigationConfig;
-
-open TabNavigator;
-
 open Rebolt;
 
 module Styles = {
@@ -15,10 +11,10 @@ let component = ReasonReact.statelessComponent("Likes");
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <Screen
+    <NavigationConfig.TabNavigator.Screen
       tabItem=(
         ({isActive}) =>
-          <TabBar.Item
+          <NavigationConfig.TabNavigator.TabBar.Item
             label="Likes"
             style=(
               Style.style([Style.color(String(isActive ? "red" : "gray"))])
@@ -34,5 +30,5 @@ let make = (~navigation, _children) => {
                </Text>
              </View>
          )
-    </Screen>,
+    </NavigationConfig.TabNavigator.Screen>,
 };

@@ -1,9 +1,5 @@
 open Rebolt;
 
-open NavigationConfig;
-
-open TabNavigator;
-
 module Styles = {
   open Style;
   let container = style([flex(1.), backgroundColor(String("#37bc9b"))]);
@@ -34,11 +30,14 @@ let component = ReasonReact.statelessComponent("CustomProfile");
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <Screen
+    <NavigationConfig.TabNavigator.Screen
       navigation
       tabItem=(
         ({isActive}) =>
-          <TabBar.Item label="Profile" style=(Styles.tabBarItem(isActive)) />
+          <NavigationConfig.TabNavigator.TabBar.Item
+            label="Profile"
+            style=(Styles.tabBarItem(isActive))
+          />
       )>
       ...(
            () =>
@@ -62,11 +61,11 @@ let make = (~navigation, _children) => {
                    (ReasonReact.string("Julia Chow"))
                  </Text>
                </View>
-               <TabNavigator
-                 initialRoute=Config.CustomProfileDetails
+               <NavigationConfig.TabNavigator
+                 initialRoute=NavigationConfig.Config.CustomProfileDetails
                  routes=[|
-                   Config.CustomProfileDetails,
-                   Config.CustomProfileStats,
+                   NavigationConfig.Config.CustomProfileDetails,
+                   NavigationConfig.Config.CustomProfileStats,
                  |]
                  renderTabBar=((~tabBarProps) => <CustomTabBar tabBarProps />)>
                  ...(
@@ -77,15 +76,15 @@ let make = (~navigation, _children) => {
                                 )>
                           (
                             switch (navigation.currentRoute) {
-                            | Config.CustomProfileDetails =>
+                            | NavigationConfig.Config.CustomProfileDetails =>
                               <CustomProfileDetails navigation />
                             | _ => <CustomProfileStats navigation />
                             }
                           )
                         </View>
                     )
-               </TabNavigator>
+               </NavigationConfig.TabNavigator>
              </View>
          )
-    </Screen>,
+    </NavigationConfig.TabNavigator.Screen>,
 };

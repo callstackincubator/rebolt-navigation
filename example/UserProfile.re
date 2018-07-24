@@ -1,5 +1,3 @@
-open NavigationConfig;
-
 open Rebolt;
 
 let screenWidth = Dimensions.get(`screen)##width;
@@ -13,10 +11,12 @@ module Style = {
 
 let component = ReasonReact.statelessComponent("UserProfile");
 
-let make = (~navigation: StackNavigator.navigation, _children) => {
+let make =
+    (~navigation: NavigationConfig.StackNavigator.navigation, _children) => {
   ...component,
   render: _self =>
-    <StackNavigator.Screen navigation headerTitle="User profile">
+    <NavigationConfig.StackNavigator.Screen
+      navigation headerTitle="User profile">
       ...(
            () =>
              <View style=Style.container>
@@ -24,12 +24,14 @@ let make = (~navigation: StackNavigator.navigation, _children) => {
                  (ReasonReact.string("User profile"))
                </Text>
                <TouchableOpacity
-                 onPress=(_e => navigation.push(Config.Admin))>
+                 onPress=(
+                   _e => navigation.push(NavigationConfig.Config.Admin)
+                 )>
                  <Text style=Style.text>
                    (ReasonReact.string("Go to Admin"))
                  </Text>
                </TouchableOpacity>
              </View>
          )
-    </StackNavigator.Screen>,
+    </NavigationConfig.StackNavigator.Screen>,
 };

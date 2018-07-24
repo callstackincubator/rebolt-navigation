@@ -1,7 +1,3 @@
-open NavigationConfig;
-
-open TabNavigator;
-
 open Rebolt;
 
 module Styles = {
@@ -15,10 +11,10 @@ let component = ReasonReact.statelessComponent("About");
 let make = (~navigation, _children) => {
   ...component,
   render: _self =>
-    <Screen
+    <NavigationConfig.TabNavigator.Screen
       tabItem=(
         ({isActive}) =>
-          <TabBar.Item
+          <NavigationConfig.TabNavigator.TabBar.Item
             label=""
             icon=(
               isActive ?
@@ -50,5 +46,5 @@ let make = (~navigation, _children) => {
                </Text>
              </View>
          )
-    </Screen>,
+    </NavigationConfig.TabNavigator.Screen>,
 };
