@@ -542,7 +542,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
     };
     module Screen = {
       type retainedProps = {
-        style: option(Style.t),
+        /* style: option(Style.t), */
         headerTitle: option(string),
         /* headerStyle: option(Style.t), */
         headerLeft: option(Header.returnsComponent),
@@ -567,15 +567,16 @@ module CreateStackNavigator = (Config: {type route;}) => {
             children,
           ) => {
         ...component,
-        retainedProps: {
-          style,
-          headerTitle,
-          /* headerStyle, */
-          headerLeft,
-          headerCenter,
-          headerRight,
-          animation,
-        },
+        retainedProps:
+          /* style, */
+          {
+            headerTitle,
+            /* headerStyle, */
+            headerLeft,
+            headerCenter,
+            headerRight,
+            animation,
+          },
         didMount: _self =>
           navigation.setOptions({
             header: {
@@ -591,7 +592,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
         didUpdate: ({oldSelf: {retainedProps}}) => {
           let propsChanged =
             [
-              retainedProps.style !== style,
+              /* retainedProps.style !== style, */
               retainedProps.headerTitle !== headerTitle,
               /* oldSelf.retainedProps.headerStyle !== headerStyle, */
               retainedProps.headerLeft !== headerLeft,

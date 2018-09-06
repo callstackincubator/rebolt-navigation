@@ -41,7 +41,7 @@ module CreateStackNavigator:
       module Animation = Animation;
       module Screen: {
         type retainedProps = {
-          style: option(Rebolt.Style.t),
+          /* style: option(Rebolt.Style.t), */
           headerTitle: option(string),
           /* headerStyle: option(Rebolt.Style.t), */
           headerLeft: option(Header.returnsComponent),
