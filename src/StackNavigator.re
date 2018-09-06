@@ -541,8 +541,19 @@ module CreateStackNavigator = (Config: {type route;}) => {
       },
     };
     module Screen = {
+      type retainedProps = {
+        style: option(Style.t),
+        headerTitle: option(string),
+        /* headerStyle: option(Style.t), */
+        headerLeft: option(Header.returnsComponent),
+        headerCenter: option(Header.returnsComponent),
+        headerRight: option(Header.returnsComponent),
+        animation: option(Animation.t),
+      };
+
       let flexOne = Style.(style([flex(1.)]));
-      let component = ReasonReact.statelessComponent("CallstackScreen");
+      let component =
+        ReasonReact.statelessComponentWithRetainedProps("CallstackScreen");
       let make =
           (
             ~navigation: navigation,
@@ -556,7 +567,16 @@ module CreateStackNavigator = (Config: {type route;}) => {
             children,
           ) => {
         ...component,
-        didMount: _self => {
+        retainedProps: {
+          style,
+          headerTitle,
+          /* headerStyle, */
+          headerLeft,
+          headerCenter,
+          headerRight,
+          animation,
+        },
+        didMount: _self =>
           navigation.setOptions({
             header: {
               title: headerTitle,
@@ -567,7 +587,33 @@ module CreateStackNavigator = (Config: {type route;}) => {
             },
             animation,
             style,
-          });
+          }),
+        didUpdate: ({oldSelf: {retainedProps}}) => {
+          let propsChanged =
+            [
+              retainedProps.style !== style,
+              retainedProps.headerTitle !== headerTitle,
+              /* oldSelf.retainedProps.headerStyle !== headerStyle, */
+              retainedProps.headerLeft !== headerLeft,
+              retainedProps.headerCenter !== headerCenter,
+              retainedProps.headerRight !== headerRight,
+              retainedProps.animation !== animation,
+            ]
+            |> Belt.List.some(_, a => a);
+
+          if (propsChanged) {
+            navigation.setOptions({
+              header: {
+                title: headerTitle,
+                style: headerStyle,
+                center: headerCenter,
+                left: headerLeft,
+                right: headerRight,
+              },
+              animation,
+              style,
+            });
+          };
           ();
         },
         render: _self => {

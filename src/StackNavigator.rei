@@ -40,6 +40,15 @@ module CreateStackNavigator:
         );
       module Animation = Animation;
       module Screen: {
+        type retainedProps = {
+          style: option(Rebolt.Style.t),
+          headerTitle: option(string),
+          /* headerStyle: option(Rebolt.Style.t), */
+          headerLeft: option(Header.returnsComponent),
+          headerCenter: option(Header.returnsComponent),
+          headerRight: option(Header.returnsComponent),
+          animation: option(Animation.t),
+        };
         let make:
           (
             ~navigation: navigation,
@@ -55,8 +64,8 @@ module CreateStackNavigator:
           ReasonReact.componentSpec(
             ReasonReact.stateless,
             ReasonReact.stateless,
-            ReasonReact.noRetainedProps,
-            ReasonReact.noRetainedProps,
+            retainedProps,
+            retainedProps,
             ReasonReact.actionless,
           );
       };
