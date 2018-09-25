@@ -422,7 +422,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                 self =>
                   self.send(
                     StartTransition(
-                      `Push,
+                      `Pop,
                       self.state.activeScreen,
                       self.state.activeScreen - 1,
                     ),
