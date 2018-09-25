@@ -411,20 +411,21 @@ module CreateStackNavigator = (Config: {type route;}) => {
          * Pops screen from the stack
          */
         | PopScreen(key) =>
+          let activeScreen = state.activeScreen
           if (state.activeScreen > 0 && Helpers.isActiveScreen(state, key)) {
             UpdateWithSideEffects(
               {
                 ...state,
                 pendingTransition: None,
-                activeScreen: state.activeScreen - 1,
+                activeScreen: activeScreen - 1,
               },
               (
                 self =>
                   self.send(
                     StartTransition(
                       `Pop,
-                      self.state.activeScreen,
-                      self.state.activeScreen - 1,
+                      activeScreen,
+                      activeScreen - 1,
                     ),
                   )
               ),
