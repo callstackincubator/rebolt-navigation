@@ -66,6 +66,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
       | StartTransition([ | `Pop | `Replace | `Push], int, int)
       | SetOptions(options, string)
       | RemoveStaleScreen(string)
+      | ReplaceScreenFinish(string)
       | RemoveLastScreen
       | PopScreen(string);
     type navigation = commonNavigation(Config.route, options);
@@ -331,7 +332,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                       | `Pop when end_##finished =>
                         self.send(RemoveStaleScreen(second.key))
                       | `Replace when end_##finished =>
-                        self.send(RemoveStaleScreen(first.key))
+                        self.send(ReplaceScreenFinish(first.key))
                       | _ => ()
                       },
                   (),
@@ -377,6 +378,17 @@ module CreateStackNavigator = (Config: {type route;}) => {
           } else {
             ReasonReact.NoUpdate;
           }
+        /***
+          * Rearranges the index after removing the replaced screen
+          */
+        | ReplaceScreenFinish(key) =>
+          ReasonReact.Update({
+            ...state,
+            activeScreen: state.activeScreen - 1,
+            screens:
+              state.screens
+              ->Belt.Array.keep((screen: screenConfig) => screen.key !== key),
+          })
         /***
          * Pushes new screen onto the stack
          *
