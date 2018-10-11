@@ -41,6 +41,7 @@ module CreateTabNavigator:
                            =?,
           ~safeAreaViewBackgroundColor: string=?,
           ~indicatorColor: string=?,
+          ~onNavigationReady: navigation => unit=?,
           (~navigation: navigation) => ReasonReact.reactElement
         ) =>
         ReasonReact.componentSpec(
