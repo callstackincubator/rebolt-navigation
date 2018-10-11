@@ -72,6 +72,15 @@ module CreateStackNavigator = (Config: {type route;}) => {
     include Persistence.CreatePersistence({
       type state = persistedState;
     });
+    let getNavigationInterface = (send, screenKey) => {
+       push: route =>
+         send(PushScreen(route, screenKey)),
+       replace: route =>
+         send(ReplaceScreen(route, screenKey)),
+       pop: () => send(PopScreen(screenKey)),
+       setOptions: opts =>
+         send(SetOptions(opts, screenKey)),
+    };
     /**
      * Gestures
      */
@@ -193,6 +202,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                       | Platform.Android => Screen
                       | _ => Floating
                       },
+          ~onNavigationReady=ignore,
           children,
         ) => {
       ...component,
@@ -220,6 +230,9 @@ module CreateStackNavigator = (Config: {type route;}) => {
                ),
           activeScreen,
         };
+      },
+      didMount: self => {
+        onNavigationReady(getNavigationInterface(self.send, string_of_int(self.state.activeScreen)))
       },
       /***
        * Begin animating two states as soon as the index changes.
@@ -557,15 +570,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                        {
                          children(
                            ~currentRoute=screen.route,
-                           ~navigation={
-                             push: route =>
-                               self.send(PushScreen(route, screen.key)),
-                             replace: route =>
-                               self.send(ReplaceScreen(route, screen.key)),
-                             pop: () => self.send(PopScreen(screen.key)),
-                             setOptions: opts =>
-                               self.send(SetOptions(opts, screen.key)),
-                           },
+                           ~navigation=getNavigationInterface(self.send, screen.key),
                          )
                        }
                      </Animated.View>;

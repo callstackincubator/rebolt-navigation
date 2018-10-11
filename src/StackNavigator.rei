@@ -30,6 +30,7 @@ module CreateStackNavigator:
                             )
                               =?,
           ~headerMode: headerMode=?,
+          ~onNavigationReady: navigation => unit=?,
           (~currentRoute: Config.route, ~navigation: navigation) =>
           ReasonReact.reactElement
         ) =>
