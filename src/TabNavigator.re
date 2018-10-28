@@ -290,6 +290,14 @@ module CreateTabNavigator = (Config: {type route;}) => {
           </View>,
       };
     };
+    let getNavigationInterface = (~send, ~currentRoute, ~screens, ~index, ~isActive) => {
+       jumpTo: route => send(JumpTo(route)),
+       currentRoute,
+       screens: screens,
+       setOptions: options =>
+         send(SetOptions(options, index)),
+       isActive,
+    };
     let component = ReasonReact.reducerComponent("TabNavigator");
     let make =
         (
@@ -298,6 +306,7 @@ module CreateTabNavigator = (Config: {type route;}) => {
           ~renderTabBar=?,
           ~safeAreaViewBackgroundColor: option(string)=?,
           ~indicatorColor: option(string)=?,
+          ~onNavigationReady=ignore,
           children,
         ) => {
       ...component,
@@ -322,6 +331,10 @@ module CreateTabNavigator = (Config: {type route;}) => {
           screens[index] = {...screens[index], tabItem};
           ReasonReact.Update({...state, screens});
         },
+      didMount: self => {
+        onNavigationReady(getNavigationInterface(~send=self.send, ~screens=self.state.screens, ~currentRoute=self.state.currentRoute, ~isActive=true, ~index=0));
+        ();
+      },
       render: self =>
         <SafeAreaView
           style=(
@@ -338,14 +351,13 @@ module CreateTabNavigator = (Config: {type route;}) => {
                      pointerEvents=(isActive ? `auto : `none)>
                      (
                        children(
-                         ~navigation={
-                           jumpTo: route => self.send(JumpTo(route)),
-                           currentRoute: screen.route,
-                           screens: self.state.screens,
-                           setOptions: options =>
-                             self.send(SetOptions(options, index)),
-                           isActive,
-                         },
+                         ~navigation=getNavigationInterface(
+                           ~send=self.send,
+                           ~screens=self.state.screens,
+                           ~currentRoute=screen.route,
+                           ~index,
+                           ~isActive,
+                         ),
                        )
                      )
                    </View>;

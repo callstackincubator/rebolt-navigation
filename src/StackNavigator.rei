@@ -1,6 +1,12 @@
+type commonNavigation('route, 'options) = {
+  push: 'route => unit,
+  replace: 'route => unit,
+  setOptions: 'options => unit,
+  pop: unit => unit,
+};
 module CreateStackNavigator:
   (Config: {type route;}) =>
-  {
+   {
     module StackNavigator: {
       module Persistence: {
         let encode: array(Config.route) => Js.Json.t;
@@ -11,11 +17,7 @@ module CreateStackNavigator:
       type action;
       type persistedState = array(Config.route);
       type headerMode;
-      type navigation = {
-        push: Config.route => unit,
-        setOptions: options => unit,
-        pop: unit => unit,
-      };
+      type navigation = commonNavigation(Config.route, options);
       let make:
         (
           ~initialState: persistedState,
@@ -28,6 +30,7 @@ module CreateStackNavigator:
                             )
                               =?,
           ~headerMode: headerMode=?,
+          ~onNavigationReady: ((commonNavigation(Config.route, options) => unit) => unit) => unit=?,
           (~currentRoute: Config.route, ~navigation: navigation) =>
           ReasonReact.reactElement
         ) =>

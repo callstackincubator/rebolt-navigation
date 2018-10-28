@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/callstackincubator/rebolt-navigation#readme",
   "devDependencies": {
-    "bs-platform": "^4.0.0",
+    "bs-platform": "^4.0.5",
     "react": "^16.3.0-alpha.1",
     "react-native": "^0.55.4",
     "react-native-gesture-handler": "^1.0.0-alpha.41",

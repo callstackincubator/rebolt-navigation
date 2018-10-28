@@ -25,6 +25,13 @@ module Styles = {
     concat([flex, style([flexDirection(ColumnReverse)])]);
 };
 
+type commonNavigation('route, 'options) = {
+  push: 'route => unit,
+  replace: 'route => unit,
+  setOptions: 'options => unit,
+  pop: unit => unit,
+};
+
 module CreateStackNavigator = (Config: {type route;}) => {
   module StackNavigator = {
     module Animation = Animation;
@@ -55,20 +62,26 @@ module CreateStackNavigator = (Config: {type route;}) => {
     };
     type action =
       | PushScreen(Config.route, string)
+      | ReplaceScreen(Config.route, string)
+      | StartTransition([ | `Pop | `Replace | `Push], int, int)
       | SetOptions(options, string)
       | RemoveStaleScreen(string)
+      | ReplaceScreenFinish(string)
       | RemoveLastScreen
-      | DequeueTransition
-      | EnqueueTransition(int, int)
       | PopScreen(string);
-    type navigation = {
-      push: Config.route => unit,
-      setOptions: options => unit,
-      pop: unit => unit,
-    };
+    type navigation = commonNavigation(Config.route, options);
     include Persistence.CreatePersistence({
       type state = persistedState;
     });
+    let getNavigationInterface = (send, screenKey) => {
+       push: route =>
+         send(PushScreen(route, screenKey)),
+       replace: route =>
+         send(ReplaceScreen(route, screenKey)),
+       pop: () => send(PopScreen(screenKey)),
+       setOptions: opts =>
+         send(SetOptions(opts, screenKey)),
+    };
     /**
      * Gestures
      */
@@ -76,7 +89,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
       /** PanGestureHandler from `react-native-gesture-handler */
       module PanHandler = {
         [@bs.module "react-native-gesture-handler"]
-        external view : ReasonReact.reactClass = "PanGestureHandler";
+        external view: ReasonReact.reactClass = "PanGestureHandler";
         let make =
             (
               ~onGestureEvent,
@@ -173,78 +186,6 @@ module CreateStackNavigator = (Config: {type route;}) => {
     module Helpers = {
       let isActiveScreen = (state, key) =>
         state.screens[state.activeScreen].key == key;
-      /**
-       * Starts Animated transition between two screens
-       *
-       * The animation is configured based on the latter screen. That said,
-       * when screen B (being removed) uses `fade` transition, the screen
-       * that is to appear will fade in (even though it doesn't define custom
-       * animation itself).
-       *
-       * Values -1, 0, 1 describe position on screen. Screen with value `0` is the
-       * one that is currently visible. Screen with "1" is rendered and hidden on the
-       * right hand side whereas "-1" is hidden on the left hand side.
-       *
-       * Example:
-       * 0 to -1 -> next screen has been pushed
-       * 0 to 1 -> this screen is getting popped
-       * -1 to 0 -> next screen has been popped
-       * 1 to 0 -> this screen has been pushed
-       */
-      let beginScreenAnimation = (fromIdx, toIdx, self) => {
-        let action = fromIdx < toIdx ? `Push : `Pop;
-        let (first, second) =
-          action == `Push ?
-            (
-              self.ReasonReact.state.screens[fromIdx],
-              self.state.screens[toIdx],
-            ) :
-            (self.state.screens[toIdx], self.state.screens[fromIdx]);
-        let (fstValues, sndValues) =
-          switch (action) {
-          | `Push => ((0.0, (-1.0)), (1.0, 0.0))
-          | `Pop => (((-1.0), 0.0), (0.0, 1.0))
-          };
-        /**
-         * There seems to be a bug with `Animated` that it resets
-         * Animated.Values to its initial values after the transition finishes.
-         *
-         * Since `bs-react-native` doesn't currently support `fromValue` attribute,
-         * we explicitly setValues before starting a new animation.
-         */
-        Animated.Value.setValue(first.animatedValue, fstValues |> fst);
-        Animated.Value.setValue(second.animatedValue, sndValues |> fst);
-        Animated.start(
-          Animated.parallel(
-            [|
-              second.animation.func(
-                ~value=Gestures.animatedValue,
-                ~toValue=`raw(0.0),
-              ),
-              second.animation.func(
-                ~value=self.state.headerAnimatedValue,
-                ~toValue=`raw(float_of_int(toIdx)),
-              ),
-              second.animation.func(
-                ~value=first.animatedValue,
-                ~toValue=`raw(fstValues |> snd),
-              ),
-              second.animation.func(
-                ~value=second.animatedValue,
-                ~toValue=`raw(sndValues |> snd),
-              ),
-            |],
-            {"stopTogether": false},
-          ),
-          ~callback=
-            end_ =>
-              if (action == `Pop && end_##finished) {
-                self.send(RemoveStaleScreen(second.key));
-              },
-          (),
-        );
-        ();
-      };
     };
     /**
      * StackNavigator component
@@ -262,6 +203,7 @@ module CreateStackNavigator = (Config: {type route;}) => {
                       | Platform.Android => Screen
                       | _ => Floating
                       },
+          ~onNavigationReady=ignore,
           children,
         ) => {
       ...component,
@@ -290,42 +232,22 @@ module CreateStackNavigator = (Config: {type route;}) => {
           activeScreen,
         };
       },
+      didMount: self =>
+        onNavigationReady(
+          self.handle((cb, self) =>
+            cb(getNavigationInterface( self.send, self.state.screens[self.state.activeScreen].key ))
+          )
+        ),
       /***
        * Begin animating two states as soon as the index changes.
        *
        * If screen we are transitioning to didn't mount yet, we delay the transition
        * until that happens.
        */
-      didUpdate: ({oldSelf, newSelf: self}) => {
+      didUpdate: ({newSelf: self}) =>
         onStateChange(
           self.state.screens |> Array.map(screen => screen.route),
-        );
-        /**
-         * If there is pending transition and the active screen did mount, execute the animation.
-         */
-        (
-          if (Js.Option.isSome(self.state.pendingTransition)) {
-            let (pendingFromIdx, pendingToIdx) =
-              Js.Option.getExn(self.state.pendingTransition);
-            if (self.state.screens[pendingToIdx].didMount) {
-              self.send(DequeueTransition);
-              self
-              |> Helpers.beginScreenAnimation(pendingFromIdx, pendingToIdx);
-            };
-          }
-        );
-        let fromIdx = oldSelf.state.activeScreen;
-        let toIdx = self.state.activeScreen;
-        let needsAnimation =
-          Array.length(self.state.screens) > Js.Math.max_int(toIdx, fromIdx);
-        if (fromIdx !== toIdx && needsAnimation) {
-          if (self.state.screens[toIdx].didMount) {
-            self |> Helpers.beginScreenAnimation(fromIdx, toIdx);
-          } else {
-            self.send(EnqueueTransition(fromIdx, toIdx));
-          };
-        };
-      },
+        ),
       /***
        * StackNavigator router
        *
@@ -336,17 +258,140 @@ module CreateStackNavigator = (Config: {type route;}) => {
       reducer: (action, state) =>
         switch (action) {
         /***
-         * The screen is not mounted at the time of the push. In order to guarantee
-         * smooth transition to an already configured screen, we store it here and
-         * will execute as soon as it mounts.
+         * Starts Animated transition between two screens
+         *
+         * The animation is configured based on the latter screen. That said,
+         * when screen B (being removed) uses `fade` transition, the screen
+         * that is to appear will fade in (even though it doesn't define custom
+         * animation itself).
+         *
+         * Values -1, 0, 1 describe position on screen. Screen with value `0` is the
+         * one that is currently visible. Screen with "1" is rendered and hidden on the
+         * right hand side whereas "-1" is hidden on the left hand side.
+         *
+         * Example:
+         * 0 to -1 -> next screen has been pushed
+         * 0 to 1 -> this screen is getting popped
+         * -1 to 0 -> next screen has been popped
+         * 1 to 0 -> this screen has been pushed
          */
-        | EnqueueTransition(fromIdx, toIdx) =>
+        | StartTransition(transition, fromIdx, toIdx) =>
+          SideEffects(
+            (
+              self => {
+                let (first, second) =
+                  transition == `Push || transition == `Replace ?
+                    (
+                      self.ReasonReact.state.screens[fromIdx],
+                      self.state.screens[toIdx],
+                    ) :
+                    (self.state.screens[toIdx], self.state.screens[fromIdx]);
+                let (fstValues, sndValues) =
+                  switch (transition) {
+                  | `Push => ((0.0, (-1.0)), (1.0, 0.0))
+                  | `Replace => ((0.0, (-1.0)), (1.0, 0.0))
+                  | `Pop => (((-1.0), 0.0), (0.0, 1.0))
+                  };
+                /**
+                 * There seems to be a bug with `Animated` that it resets
+                 * Animated.Values to its initial values after the transition finishes.
+                 *
+                 * Since `bs-react-native` doesn't currently support `fromValue` attribute,
+                 * we explicitly setValues before starting a new animation.
+                 */
+                Animated.Value.setValue(
+                  first.animatedValue,
+                  fstValues |> fst,
+                );
+                Animated.Value.setValue(
+                  second.animatedValue,
+                  sndValues |> fst,
+                );
+                Animated.start(
+                  Animated.parallel(
+                    [|
+                      second.animation.func(
+                        ~value=Gestures.animatedValue,
+                        ~toValue=`raw(0.0),
+                      ),
+                      second.animation.func(
+                        ~value=self.state.headerAnimatedValue,
+                        ~toValue=`raw(float_of_int(toIdx)),
+                      ),
+                      second.animation.func(
+                        ~value=first.animatedValue,
+                        ~toValue=`raw(fstValues |> snd),
+                      ),
+                      second.animation.func(
+                        ~value=second.animatedValue,
+                        ~toValue=`raw(sndValues |> snd),
+                      ),
+                    |],
+                    {"stopTogether": false},
+                  ),
+                  ~callback=
+                    end_ =>
+                      switch (transition) {
+                      | `Pop when end_##finished =>
+                        self.send(RemoveStaleScreen(second.key))
+                      | `Replace when end_##finished =>
+                        self.send(ReplaceScreenFinish(first.key))
+                      | _ => ()
+                      },
+                  (),
+                );
+                ();
+              }
+            ),
+          )
+        | ReplaceScreen(route, key) =>
+          if (Helpers.isActiveScreen(state, key)) {
+            let index = state.activeScreen + 1;
+            let oldActiveScreen = state.activeScreen;
+            UpdateWithSideEffects(
+              {
+                ...state,
+                activeScreen: index,
+                screens:
+                  state.screens
+                  |> ReArray.append(
+                       {
+                         route,
+                         header: Header.default,
+                         animation: Animation.default,
+                         animatedValue: Animated.Value.create(1.0),
+                         key: UUID.generate(),
+                         didMount: false,
+                         style: Styles.card,
+                       },
+                       index,
+                     ),
+              },
+              (
+                self =>
+                  self.send(
+                    StartTransition(
+                      `Replace,
+                      oldActiveScreen,
+                      self.state.activeScreen,
+                    ),
+                  )
+              ),
+            );
+          } else {
+            ReasonReact.NoUpdate;
+          }
+        /***
+          * Rearranges the index after removing the replaced screen
+          */
+        | ReplaceScreenFinish(key) =>
           ReasonReact.Update({
             ...state,
-            pendingTransition: Some((fromIdx, toIdx)),
+            activeScreen: state.activeScreen - 1,
+            screens:
+              state.screens
+              ->Belt.Array.keep((screen: screenConfig) => screen.key !== key),
           })
-        | DequeueTransition =>
-          ReasonReact.Update({...state, pendingTransition: None})
         /***
          * Pushes new screen onto the stack
          *
@@ -357,25 +402,36 @@ module CreateStackNavigator = (Config: {type route;}) => {
         | PushScreen(route, key) =>
           if (Helpers.isActiveScreen(state, key)) {
             let index = state.activeScreen + 1;
-            ReasonReact.Update({
-              ...state,
-              pendingTransition: None,
-              activeScreen: index,
-              screens:
-                state.screens
-                |> ReArray.append(
-                     {
-                       route,
-                       header: Header.default,
-                       animation: Animation.default,
-                       animatedValue: Animated.Value.create(1.0),
-                       key: UUID.generate(),
-                       didMount: false,
-                       style: Styles.card,
-                     },
-                     index,
-                   ),
-            });
+            UpdateWithSideEffects(
+              {
+                ...state,
+                activeScreen: index,
+                screens:
+                  state.screens
+                  |> ReArray.append(
+                       {
+                         route,
+                         header: Header.default,
+                         animation: Animation.default,
+                         animatedValue: Animated.Value.create(1.0),
+                         key: UUID.generate(),
+                         didMount: false,
+                         style: Styles.card,
+                       },
+                       index,
+                     ),
+              },
+              (
+                self =>
+                  self.send(
+                    StartTransition(
+                      `Push,
+                      index - 1,
+                      self.state.activeScreen,
+                    ),
+                  )
+              ),
+            );
           } else {
             ReasonReact.NoUpdate;
           }
@@ -383,12 +439,25 @@ module CreateStackNavigator = (Config: {type route;}) => {
          * Pops screen from the stack
          */
         | PopScreen(key) =>
+          let activeScreen = state.activeScreen
           if (state.activeScreen > 0 && Helpers.isActiveScreen(state, key)) {
-            ReasonReact.Update({
-              ...state,
-              pendingTransition: None,
-              activeScreen: state.activeScreen - 1,
-            });
+            UpdateWithSideEffects(
+              {
+                ...state,
+                pendingTransition: None,
+                activeScreen: activeScreen - 1,
+              },
+              (
+                self =>
+                  self.send(
+                    StartTransition(
+                      `Pop,
+                      activeScreen,
+                      activeScreen - 1,
+                    ),
+                  )
+              ),
+            );
           } else {
             ReasonReact.NoUpdate;
           }
@@ -399,13 +468,12 @@ module CreateStackNavigator = (Config: {type route;}) => {
          * finishes and the screen is no longer within the viewport.
          */
         | RemoveStaleScreen(key) =>
-          let idx =
-            state.screens
-            |> Js.Array.findIndex((screen: screenConfig) => screen.key == key);
           ReasonReact.Update({
             ...state,
-            screens: state.screens |> ReArray.remove(idx),
-          });
+            screens:
+              state.screens
+              ->Belt.Array.keep((screen: screenConfig) => screen.key !== key),
+          })
         | RemoveLastScreen =>
           ReasonReact.Update({
             ...state,
@@ -479,11 +547,11 @@ module CreateStackNavigator = (Config: {type route;}) => {
             minDeltaX=aquaPoint
             hitSlop={"right": aquaPoint - screenWidth}
             maxDeltaX=screenWidth
-            enabled=(size > 1)
+            enabled={size > 1}
             onGestureEvent=Gestures.handler
-            onHandlerStateChange=(self.handle(Gestures.onStateChange))>
+            onHandlerStateChange={self.handle(Gestures.onStateChange)}>
             <Animated.View style=Styles.flex>
-              (
+              {
                 self.state.screens
                 |> Array.mapi((idx, screen: screenConfig) => {
                      let animation =
@@ -497,11 +565,11 @@ module CreateStackNavigator = (Config: {type route;}) => {
                          |> getAnimation(idx, self.state.screens).forCard;
                        };
                      <Animated.View
-                       key=screen.key
+                       key={screen.key}
                        style=Style.(
-                               concat([Styles.fill, screen.style, animation])
-                             )>
-                       (
+                         concat([Styles.fill, screen.style, animation])
+                       )>
+                       {
                          headerMode == Screen ?
                            ReasonReact.element(
                              headerComponent(
@@ -513,30 +581,24 @@ module CreateStackNavigator = (Config: {type route;}) => {
                              ),
                            ) :
                            <View />
-                       )
-                       (
+                       }
+                       {
                          children(
                            ~currentRoute=screen.route,
-                           ~navigation={
-                             push: route =>
-                               self.send(PushScreen(route, screen.key)),
-                             pop: () => self.send(PopScreen(screen.key)),
-                             setOptions: opts =>
-                               self.send(SetOptions(opts, screen.key)),
-                           },
+                           ~navigation=getNavigationInterface(self.send, screen.key),
                          )
-                       )
+                       }
                      </Animated.View>;
                    })
                 |> ReasonReact.array
-              )
+              }
             </Animated.View>
           </Gestures.PanHandler>
-          (
+          {
             headerMode == Floating ?
               ReasonReact.element(headerComponent(~headerProps, [||])) :
               <View />
-          )
+          }
         </View>;
       },
     };
