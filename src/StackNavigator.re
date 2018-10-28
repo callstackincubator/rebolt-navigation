@@ -232,9 +232,12 @@ module CreateStackNavigator = (Config: {type route;}) => {
           activeScreen,
         };
       },
-      didMount: self => {
-        onNavigationReady(getNavigationInterface(self.send, string_of_int(self.state.activeScreen)))
-      },
+      didMount: self =>
+        onNavigationReady(
+          self.handle((cb, self) =>
+            cb(getNavigationInterface( self.send, self.state.screens[self.state.activeScreen].key ))
+          )
+        ),
       /***
        * Begin animating two states as soon as the index changes.
        *
