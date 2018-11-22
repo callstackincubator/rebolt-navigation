@@ -1,27 +1,26 @@
 {
-  "name": "rebolt-navigation",
+  "name": "bs-react-navigation",
   "bsc-flags": [
     "-bs-no-version-header",
     "-bs-super-errors"
   ],
   "refmt": 3,
-  "bs-dependencies": [
-    "reason-react",
-    "rebolt"
-  ],
   "reason": {
     "react-jsx": 2
   },
-  "namespace": true,
+  "bs-dependencies": [
+    "bs-react-native",
+    "reason-react"
+  ],
   "package-specs": {
     "module": "commonjs",
     "in-source": true
   },
   "suffix": ".bs.js",
+  "namespace": true,
   "sources": [
     {
       "dir": "src",
-      "public": "all",
       "subdirs": true
     },
     {

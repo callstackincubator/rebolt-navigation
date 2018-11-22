@@ -1,40 +1,42 @@
-open Rebolt;
+/**
+ * Route and Navigation types are kept in a separate module to
+ * handle circular references between modules
+ */
+open Config;
 
-module Main = {
-  let component = ReasonReact.statelessComponent("Main");
-  let make = _children => {
-    ...component,
-    render: _self =>
-      NavigationConfig.(
-        <NavigationConfig.StackNavigator
-          initialState=[|Config.Welcome|]
-          onStateChange=(
-            state =>
-              AsyncStorage.setItem(
-                "$state",
-                state
-                |> NavigationConfig.StackNavigator.Persistence.encode
-                |> Js.Json.stringify,
-                (),
-              )
-              |> ignore
-          )>
-          ...(
-               (~currentRoute, ~navigation) =>
-                 switch (currentRoute) {
-                 | Config.TabExample => <TabExample navigation />
-                 | Config.Home => <Home navigation />
-                 | Config.Admin => <Admin navigation />
-                 | Config.Welcome => <Welcome navigation />
-                 | Config.UserProfile => <UserProfile navigation />
-                 | Config.CustomTabBarExample =>
-                   <CustomTabBarExample navigation />
-                 | _ => <TabExample navigation />
-                 }
-             )
-        </NavigationConfig.StackNavigator>
-      ),
-  };
-};
+module Stack =
+  StackNavigator.Create({
+    open StackNavigator;
 
-let app = () => <Main />;
+    /**
+     * StackNavigator requires `route` type to be defined.
+     */
+    type route = Config.route;
+
+    /**
+     * Initial route to start with. Has to be one of `route` variants.
+     */
+    let initialRoute = Home;
+
+    /**
+     * Returns a screen for a given route and its options.
+     *
+     * To declare options, you call `StackNavigator.screenOptions` and provide
+     * same keys as `navigationOptions` of React Navigation.
+     *
+     * This is to allow optional fields to be provided.
+     */
+    let getScreen = (route, navigation) =>
+      switch (route) {
+      | Home => (<Screen navigation />, screenOptions(~title="Home", ()))
+      | UserDetails(userId) => (
+          <Screen navigation text={"Browsing profile of: " ++ userId} />,
+          screenOptions(~title="Hello " ++ userId, ()),
+        )
+      };
+  });
+
+/**
+ * Exporting application entry-point, see `index.js` for details
+ */
+let app = Stack.navigator;

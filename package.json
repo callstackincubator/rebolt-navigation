@@ -1,46 +1,39 @@
 {
-  "name": "rebolt-navigation",
-  "version": "0.4.0",
-  "description": "Rebolt Navigation",
-  "main": "index.js",
+  "name": "reroute",
+  "version": "2.0.0",
   "scripts": {
-    "build": "bsb -make-world",
     "start": "bsb -make-world -w",
     "clean": "bsb -clean-world",
-    "prepublish": "npm run build",
     "run-ios": "react-native run-ios --project-path \"./example/.native/ios\"",
     "run-android": "react-native run-android --root \"./example/.native\"",
     "start-example": "node ./node_modules/react-native/local-cli/cli.js start --root ./example",
     "test": "exit 0"
   },
+  "license": "MIT",
   "keywords": [
-    "router",
-    "react",
     "reason",
     "reasonml",
-    "rebolt"
+    "bucklescript",
+    "react-native",
+    "react-navigation"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/callstackincubator/rebolt-navigation.git"
+    "url": "https://github.com/callstackincubator/reroute.git"
   },
-  "author": "Mike Grabowski <grabbou@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/callstackincubator/rebolt-navigation/issues"
+  "dependencies": {
+    "react-navigation": "3.x"
   },
-  "homepage": "https://github.com/callstackincubator/rebolt-navigation#readme",
   "devDependencies": {
-    "bs-platform": "^4.0.0",
+    "bs-platform": "^4.0.7",
+    "bs-react-native": "^0.10.0",
     "react": "^16.3.0-alpha.1",
     "react-native": "^0.55.4",
-    "react-native-gesture-handler": "^1.0.0-alpha.41",
-    "reason-react": "^0.4.1",
-    "rebolt": "^0.2.0"
+    "react-native-gesture-handler": "^1.0.9",
+    "reason-react": "^0.5.3"
   },
   "peerDependencies": {
-    "react-native-gesture-handler": "*",
-    "reason-react": "*",
-    "rebolt": "^0.2.0"
+    "bs-react-native": "^0.10.0",
+    "reason-react": "^0.5.3"
   }
 }

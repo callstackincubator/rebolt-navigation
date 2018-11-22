@@ -1,4 +1,4 @@
-# Rebolt Navigation
+# Reroute
 
 [![Build Status][build-badge]][build]
 [![Version][version-badge]][package]
@@ -12,7 +12,7 @@ We're looking forward to seeing your feedback or questions on Discord
 
 ## Getting started
 
-[Rebolt Navigation website](https://rebolt-navigation.callstack.com/)
+[Reroute website](https://rebolt-navigation.callstack.com/)
 
 ### Installation
 
@@ -39,26 +39,12 @@ yarn add rebolt react-native-gesture-handler
 
 * `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
 
-As per [this issue](https://github.com/callstackincubator/rebolt-navigation/issues/103), you might need to add the following to your `bsconfig.json`:
-
-```
-
-"package-specs": {
-  "module": "commonjs",
-  "in-source": true
-}
-
-```
-This generates output alongside source files. ([documentation](https://bucklescript.github.io/docs/en/build-configuration.html#package-specs))
-
-
 ## Usage
 
 [View the docs](https://rebolt-navigation.callstack.com/docs/get-started.html#usage)
 
 ## Examples
 - example built-in library - [/example](/example)
-- standalone example - [reroute-example](https://github.com/souhe/reroute-example)
 
 ## Developing
 
