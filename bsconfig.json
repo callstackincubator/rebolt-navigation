@@ -1,26 +1,27 @@
 {
-  "name": "bs-react-navigation",
+  "name": "reroute",
   "bsc-flags": [
     "-bs-no-version-header",
     "-bs-super-errors"
   ],
   "refmt": 3,
-  "reason": {
-    "react-jsx": 2
-  },
   "bs-dependencies": [
     "bs-react-native",
     "reason-react"
   ],
+  "reason": {
+    "react-jsx": 2
+  },
+  "namespace": true,
   "package-specs": {
     "module": "commonjs",
     "in-source": true
   },
   "suffix": ".bs.js",
-  "namespace": true,
   "sources": [
     {
       "dir": "src",
+      "public": "all",
       "subdirs": true
     },
     {

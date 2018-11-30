@@ -1,16 +1,19 @@
 {
-  "name": "reroute-native",
+  "name": "reroute",
   "version": "2.0.0-alpha.0",
   "scripts": {
+    "build": "bsb -make-world",
     "start": "bsb -make-world -w",
     "clean": "bsb -clean-world",
+    "prepublish": "npm run build",
     "run-ios": "react-native run-ios --project-path \"./example/.native/ios\"",
     "run-android": "react-native run-android --root \"./example/.native\"",
     "start-example": "node ./node_modules/react-native/local-cli/cli.js start --root ./example",
     "test": "exit 0"
   },
-  "license": "MIT",
   "keywords": [
+    "router",
+    "react",
     "reason",
     "reasonml",
     "bucklescript",
@@ -19,7 +22,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/callstackincubator/reroute.git"
+    "url": "git+https://github.com/callstackincubator/reroute.git"
+  },
+  "author": "Mike Grabowski <grabbou@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/callstackincubator/rebolt-navigation/issues"
   },
   "dependencies": {
     "react-navigation": "3.x"

@@ -1,4 +1,4 @@
-# Reroute
+# ReRoute
 
 [![Build Status][build-badge]][build]
 [![Version][version-badge]][package]
@@ -10,16 +10,12 @@
 
 We're looking forward to seeing your feedback or questions on Discord
 
-## Getting started
-
-[Reroute website](https://rebolt-navigation.callstack.com/)
-
 ### Installation
 
 Open a Terminal in your project's folder and run,
 
 ```she
-yarn add rebolt-navigation
+yarn add reroute-native
 ```
 
 After installation, you will need to add this library to your `bsconfig.json` dependencies
@@ -27,21 +23,18 @@ After installation, you will need to add this library to your `bsconfig.json` de
 ```json
 "bs-dependencies": [
   "reason-react",
-  "rebolt-navigation"
+  "reroute"
 ],
 ```
 
-In addition you will need to install a few peer dependencies:
+In addition you will need to install a peer dependencies:
 
 ```sh
-yarn add rebolt react-native-gesture-handler
+yarn add react-native-gesture-handler
+react-native link react-native-gesture-handler
 ```
 
-* `react-native-gesture-handler` - [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation)
-
-## Usage
-
-[View the docs](https://rebolt-navigation.callstack.com/docs/get-started.html#usage)
+You can find additional [installation instructions](https://github.com/kmagiera/react-native-gesture-handler#installation) here.
 
 ## Examples
 - example built-in library - [/example](/example)
